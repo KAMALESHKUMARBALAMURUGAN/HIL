@@ -645,9 +645,9 @@ if (twai_transmit(&transmit_message_SoC, 10000) == ESP_OK)
 ESP_LOGI(EXAMPLE_TAG, "Message queued for transmission\n");
 vTaskDelay(pdMS_TO_TICKS(250));
 }
+
 else
 {
- 
 ESP_LOGE(EXAMPLE_TAG, "Failed to queue message for transmission\n");
 }
 vTaskDelay(pdMS_TO_TICKS(250));
