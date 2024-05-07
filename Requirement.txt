@@ -1,3 +1,0 @@
-1. Instead of Using Potentiometer and buttons to act as throttle and ignition, UI has to have "Drag bar" and "Buttons" to replace those hardwares
-
-how?
