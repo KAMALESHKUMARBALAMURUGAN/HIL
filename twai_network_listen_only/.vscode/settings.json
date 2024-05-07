@@ -2,5 +2,8 @@
   "C_Cpp.intelliSenseEngine": "default",
   "idf.adapterTargetName": "esp32",
   "idf.portWin": "COM4",
-  "idf.flashType": "UART"
+  "idf.flashType": "UART",
+  "files.associations": {
+    "esp_timer.h": "c"
+  }
 }
