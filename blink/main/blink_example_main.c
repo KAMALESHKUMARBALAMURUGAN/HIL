@@ -5,14 +5,16 @@
 #include "esp_log.h"
 #include "driver/uart.h"
  
-#define BLINK_GPIO 5
+#define LED1_GPIO 5
+#define LED2_GPIO 18
+#define LED3_GPIO 19
 #define ECHO_TEST_TXD  1
 #define ECHO_TEST_RXD  3
 #define ECHO_UART_PORT_NUM      UART_NUM_1
 #define ECHO_UART_BAUD_RATE     115200
 #define ECHO_TASK_STACK_SIZE    2048
  
-static const char *TAG = "example";
+static const char *TAG = "LED_Control";
  
 void configure_uart(void) {
     const uart_config_t uart_config = {
@@ -28,26 +30,33 @@ void configure_uart(void) {
     uart_driver_install(ECHO_UART_PORT_NUM, 256 * 2, 0, 0, NULL, 0);
 }
  
-static void blink_led(int state) {
-    gpio_set_level(BLINK_GPIO, state);
+void blink_led(int gpio_pin, int state) {
+    gpio_reset_pin(gpio_pin);
+    gpio_set_direction(gpio_pin, GPIO_MODE_OUTPUT);
+    gpio_set_level(gpio_pin, state);
+    ESP_LOGI(TAG, "LED on GPIO %d set to %d", gpio_pin, state);
 }
  
 void app_main(void) {
     configure_uart();
-    gpio_reset_pin(BLINK_GPIO);
-    gpio_set_direction(BLINK_GPIO, GPIO_MODE_OUTPUT);
- 
-    uint8_t data[1];
+    uint8_t data[2];  // Assuming two byte commands
     while (1) {
         int len = uart_read_bytes(ECHO_UART_PORT_NUM, data, sizeof(data), 20 / portTICK_PERIOD_MS);
-        if (len > 0) {
-            ESP_LOGI(TAG, "Received: %d", data[0]);
-            if (data[0] == '1') {
-                blink_led(1); // Turn ON the LED
-            } else if (data[0] == '0') {
-                blink_led(0); // Turn OFF the LED
+        if (len == 2) {
+            ESP_LOGI(TAG, "Received Command: %d%d", data[0] - '0', data[1] - '0');
+            int led_num = data[0] - '0';
+            int led_state = data[1] - '0';
+            switch(led_num) {
+                case 1:
+                    blink_led(LED1_GPIO, led_state);
+                    break;
+                case 2:
+                    blink_led(LED2_GPIO, led_state);
+                    break;
+                case 3:
+                    blink_led(LED3_GPIO, led_state);
+                    break;
             }
         }
     }
 }
- 
