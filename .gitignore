@@ -5,7 +5,6 @@
 !.gitignore
 
 # And not the directories leading to blink_example_main.c
-!HIL/
-!HIL/blink/
-!HIL/blink/main/
-!HIL/blink/main/blink_example_main.c
+!blink/
+!blink/main/
+!blink/main/blink_example_main.c
