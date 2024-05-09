@@ -1,0 +1,13 @@
+# Ignore everything
+*
+ 
+# But not the .gitignore file
+!.gitignore
+ 
+# And not the directories leading to blink_example_main.c
+!blink/
+!blink/main/
+!blink/main/blink_example_main.c
+ 
+# And not the directories leading to blink_example_main.c
+!blink/serialcom.py
