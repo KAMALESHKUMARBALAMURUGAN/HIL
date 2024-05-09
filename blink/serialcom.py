@@ -1,36 +1,27 @@
 import tkinter as tk
-from tkinter import messagebox
+from tkinter import messagebox, Scale
 import serial
 import time
- 
+
 # Configure the serial connection
 ser = serial.Serial(
-    port='COM5',  # Replace 'COM3' with your ESP32 COM port
+    port='COM5',  # Replace 'COM5' with your ESP32 COM port
     baudrate=115200,
     timeout=1
 )
- 
-def send_command(cmd):
+
+def send_value(value):
     try:
-        ser.write(cmd.encode())  # Send the command to the ESP32
-        time.sleep(1)
+        ser.write(str(value).encode())  # Send the value to the ESP32
+        time.sleep(0.1)
     except serial.SerialException as e:
         messagebox.showerror("Serial Error", str(e))
- 
-def on_button():
-    send_command('1')
- 
-def off_button():
-    send_command('0')
- 
+
 # Set up the GUI
 root = tk.Tk()
 root.title("LED Controller")
- 
-on_button = tk.Button(root, text="Turn ON LED", command=on_button)
-on_button.pack(pady=20)
- 
-off_button = tk.Button(root, text="Turn OFF LED", command=off_button)
-off_button.pack(pady=20)
- 
+
+scale = Scale(root, from_=0, to=100, orient='horizontal', label='Set Value', command=send_value)
+scale.pack(pady=20)
+
 root.mainloop()
