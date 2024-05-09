@@ -4,5 +4,8 @@
 # But not the .gitignore file
 !.gitignore
 
-# And not the blink_example_main.c in its specific directory
+# And not the directories leading to blink_example_main.c
+!HIL/
+!HIL/blink/
+!HIL/blink/main/
 !HIL/blink/main/blink_example_main.c
