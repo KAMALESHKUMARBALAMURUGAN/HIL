@@ -13,13 +13,29 @@ left_frame.pack(side=tk.LEFT, padx=20, pady=20)
 right_frame = ttk.Frame(root)
 right_frame.pack(side=tk.RIGHT, padx=20, pady=20)
 
-# Function to update the scale label
-def update_label(name, var, label):
+# Function to update the scale and entry from each other
+def update_scale_from_entry(entry, scale):
+    value = entry.get()
+    if value.isdigit():
+        value = int(value)
+        min_val = scale.cget('from')  # Correct method to get the minimum value
+        max_val = scale.cget('to')    # Correct method to get the maximum value
+        if min_val <= value <= max_val:
+            scale.set(value)
+            entry.delete(0, tk.END)
+            entry.insert(0, str(value))
+        else:
+            entry.delete(0, tk.END)
+            entry.insert(0, str(scale.get()))
+
+
+def update_entry_from_scale(name, var, entry):
     value = int(var.get())  # Cast float value to int
-    label.config(text=f"{name}: {value}")
+    entry.delete(0, tk.END)
+    entry.insert(0, str(value))
     var.set(value)  # Update the variable to hold an integer value
 
-# Define scales and labels for real-time value display
+# Define scales, entries, and labels for real-time value display
 scales_info = [
     ("Throttle", 0, 100),
     ("SOC", 0, 100),
@@ -32,11 +48,13 @@ scales_info = [
 scales = {}
 for name, min_val, max_val in scales_info:
     scale_var = tk.IntVar()  # Use IntVar instead of DoubleVar
-    label = ttk.Label(left_frame, text=f"{name}: {min_val}")
-    label.pack()
-    scale = ttk.Scale(left_frame, from_=min_val, to=max_val, orient=tk.HORIZONTAL, variable=scale_var, command=lambda event, name=name, var=scale_var, label=label: update_label(name, var, label))
+    entry = ttk.Entry(left_frame, width=10)
+    entry.insert(0, str(min_val))
+    entry.pack()
+    scale = ttk.Scale(left_frame, from_=min_val, to=max_val, orient=tk.HORIZONTAL, variable=scale_var, command=lambda event, name=name, var=scale_var, entry=entry: update_entry_from_scale(name, var, entry))
     scale.pack(fill=tk.X)
-    scales[name] = (scale, scale_var)
+    entry.bind('<Return>', lambda event, entry=entry, scale=scale: update_scale_from_entry(entry, scale))
+    scales[name] = (scale, scale_var, entry)
 
 # Define radio buttons for each mode with options 0 and 1
 modes_info = [
