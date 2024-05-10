@@ -13,6 +13,19 @@ left_frame.pack(side=tk.LEFT, padx=20, pady=20)
 right_frame = ttk.Frame(root)
 right_frame.pack(side=tk.RIGHT, padx=20, pady=20)
 
+# Function to toggle the switch
+def toggle_switch(canvas, label, var):
+    if var.get() == 0:
+        var.set(1)
+        canvas.itemconfig("toggle", fill="green")
+        canvas.coords("toggle", 30, 2, 48, 18)  # Move toggle to the right
+        label.config(text="On")
+    else:
+        var.set(0)
+        canvas.itemconfig("toggle", fill="grey")
+        canvas.coords("toggle", 2, 2, 20, 18)  # Move toggle to the left
+        label.config(text="Off")
+
 # Function to update the scale and entry from each other
 def update_scale_from_entry(entry, scale):
     value = entry.get()
@@ -68,7 +81,7 @@ for i, (name, min_val, max_val) in enumerate(scales_info):
     
     scales[name] = (scale, scale_var, entry)
 
-# Define radio buttons for each mode with options 0 and 1
+# Define toggle switches for each mode
 modes_info = [
     "Mode L",
     "Mode R",
@@ -81,10 +94,24 @@ modes_vars = {}
 for mode in modes_info:
     frame = ttk.LabelFrame(right_frame, text=mode)
     frame.pack(padx=10, pady=10, fill=tk.X)
-    var = tk.IntVar(value=0)  # default to 0
+
+    var = tk.IntVar(value=0)  # Default to 0 (Off)
     modes_vars[mode] = var
-    ttk.Radiobutton(frame, text="0", variable=var, value=0).pack(side=tk.LEFT)
-    ttk.Radiobutton(frame, text="1", variable=var, value=1).pack(side=tk.LEFT)
+
+    # Canvas for toggle
+    canvas = tk.Canvas(frame, width=50, height=20, bg="white", bd=0, highlightthickness=0)
+    canvas.pack(side=tk.LEFT)
+
+    # Drawing the toggle
+    canvas.create_rectangle(2, 2, 48, 18, outline="black", fill="grey")
+    toggle = canvas.create_oval(2, 2, 20, 18, tags="toggle", fill="grey")  # Initial position
+
+    # Label for toggle state
+    label = ttk.Label(frame, text="Off")
+    label.pack(side=tk.LEFT, padx=(5, 0))
+
+    # Binding mouse click to toggle function
+    canvas.tag_bind("toggle", "<Button-1>", lambda event, canvas=canvas, label=label, var=var: toggle_switch(canvas, label, var))
 
 # Start the event loop
 root.mainloop()
