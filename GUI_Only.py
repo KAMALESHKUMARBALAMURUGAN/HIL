@@ -34,7 +34,7 @@ def update_entry_from_scale(name, var, entry):
     entry.insert(0, str(value))
     var.set(value)  # Update the variable to hold an integer value
 
-# Define scales, entries, and labels for real-time value display
+# Find the maximum label width needed
 scales_info = [
     ("Throttle", 0, 100),
     ("SOC", 0, 100),
@@ -44,21 +44,25 @@ scales_info = [
     ("PCB temp", 0, 200)
 ]
 
+label_width = max(len(info[0]) for info in scales_info)  # Find the max length of label text
+
 scales = {}
-for name, min_val, max_val in scales_info:
+for i, (name, min_val, max_val) in enumerate(scales_info):
     control_frame = ttk.Frame(left_frame)  # Frame to hold both scale and entry
-    control_frame.pack(fill=tk.X, pady=5)
+    control_frame.grid(row=i, column=0, sticky='ew', padx=5, pady=5)
+    left_frame.grid_columnconfigure(0, weight=1)  # Ensure the frame uses all available horizontal space
     
-    label = ttk.Label(control_frame, text=name)  # Label for the name
-    label.pack(side=tk.LEFT)
+    label = ttk.Label(control_frame, text=name, width=label_width, anchor='w')  # Uniform width based on longest label
+    label.grid(row=0, column=0)
     
     scale_var = tk.IntVar()
     scale = ttk.Scale(control_frame, from_=min_val, to=max_val, orient=tk.HORIZONTAL, variable=scale_var)
-    scale.pack(side=tk.LEFT, fill=tk.X, expand=True)
+    scale.grid(row=0, column=1, sticky='ew')
+    control_frame.grid_columnconfigure(1, weight=1)  # Make scale expand
     
     entry = ttk.Entry(control_frame, width=4)  # Adjusted width to fit three digits
     entry.insert(0, str(min_val))
-    entry.pack(side=tk.LEFT, padx=(5, 0))
+    entry.grid(row=0, column=2, padx=(5, 0))
     entry.bind('<Return>', lambda event, entry=entry, scale=scale: update_scale_from_entry(entry, scale))
     scale.config(command=lambda event, name=name, var=scale_var, entry=entry: update_entry_from_scale(name, var, entry))
     
