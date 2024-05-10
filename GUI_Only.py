@@ -46,15 +46,22 @@ scales_info = [
 
 scales = {}
 for name, min_val, max_val in scales_info:
-    label = ttk.Label(left_frame, text=name)  # Label for the name
-    label.pack()
+    control_frame = ttk.Frame(left_frame)  # Frame to hold both scale and entry
+    control_frame.pack(fill=tk.X, pady=5)
+    
+    label = ttk.Label(control_frame, text=name)  # Label for the name
+    label.pack(side=tk.LEFT)
+    
     scale_var = tk.IntVar()
-    entry = ttk.Entry(left_frame, width=10)
+    scale = ttk.Scale(control_frame, from_=min_val, to=max_val, orient=tk.HORIZONTAL, variable=scale_var)
+    scale.pack(side=tk.LEFT, fill=tk.X, expand=True)
+    
+    entry = ttk.Entry(control_frame, width=4)  # Adjusted width to fit three digits
     entry.insert(0, str(min_val))
-    entry.pack()
-    scale = ttk.Scale(left_frame, from_=min_val, to=max_val, orient=tk.HORIZONTAL, variable=scale_var, command=lambda event, name=name, var=scale_var, entry=entry: update_entry_from_scale(name, var, entry))
-    scale.pack(fill=tk.X)
+    entry.pack(side=tk.LEFT, padx=(5, 0))
     entry.bind('<Return>', lambda event, entry=entry, scale=scale: update_scale_from_entry(entry, scale))
+    scale.config(command=lambda event, name=name, var=scale_var, entry=entry: update_entry_from_scale(name, var, entry))
+    
     scales[name] = (scale, scale_var, entry)
 
 # Define radio buttons for each mode with options 0 and 1
