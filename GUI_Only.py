@@ -28,7 +28,6 @@ def update_scale_from_entry(entry, scale):
             entry.delete(0, tk.END)
             entry.insert(0, str(scale.get()))
 
-
 def update_entry_from_scale(name, var, entry):
     value = int(var.get())  # Cast float value to int
     entry.delete(0, tk.END)
@@ -47,7 +46,9 @@ scales_info = [
 
 scales = {}
 for name, min_val, max_val in scales_info:
-    scale_var = tk.IntVar()  # Use IntVar instead of DoubleVar
+    label = ttk.Label(left_frame, text=name)  # Label for the name
+    label.pack()
+    scale_var = tk.IntVar()
     entry = ttk.Entry(left_frame, width=10)
     entry.insert(0, str(min_val))
     entry.pack()
