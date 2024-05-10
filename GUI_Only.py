@@ -17,13 +17,13 @@ right_frame.pack(side=tk.RIGHT, padx=20, pady=20)
 def toggle_switch(canvas, label, var):
     if var.get() == 0:
         var.set(1)
-        canvas.itemconfig("toggle", fill="green")
-        canvas.coords("toggle", 30, 2, 48, 18)  # Move toggle to the right
+        canvas.itemconfig("toggle", fill="green")  # Toggle on
+        canvas.coords("toggle", 30, 2, 46, 18)  # Move square to the right
         label.config(text="On")
     else:
         var.set(0)
-        canvas.itemconfig("toggle", fill="grey")
-        canvas.coords("toggle", 2, 2, 20, 18)  # Move toggle to the left
+        canvas.itemconfig("toggle", fill="grey")  # Toggle off
+        canvas.coords("toggle", 2, 2, 18, 18)  # Move square to the left
         label.config(text="Off")
 
 # Function to update the scale and entry from each other
@@ -102,16 +102,16 @@ for mode in modes_info:
     canvas = tk.Canvas(frame, width=50, height=20, bg="white", bd=0, highlightthickness=0)
     canvas.pack(side=tk.LEFT)
 
-    # Drawing the toggle
-    canvas.create_rectangle(2, 2, 48, 18, outline="black", fill="grey")
-    toggle = canvas.create_oval(2, 2, 20, 18, tags="toggle", fill="grey")  # Initial position
+    # Drawing the toggle and container
+    canvas.create_rectangle(2, 2, 48, 18, outline="black", fill="white")  # Container for the toggle
+    toggle = canvas.create_rectangle(2, 2, 18, 18, outline="black", fill="grey", tags="toggle")  # Initial toggle position
 
     # Label for toggle state
     label = ttk.Label(frame, text="Off")
     label.pack(side=tk.LEFT, padx=(5, 0))
 
-    # Binding mouse click to toggle function
-    canvas.tag_bind("toggle", "<Button-1>", lambda event, canvas=canvas, label=label, var=var: toggle_switch(canvas, label, var))
+    # Binding mouse click to toggle function over the canvas area
+    canvas.bind("<Button-1>", lambda event, canvas=canvas, label=label, var=var: toggle_switch(canvas, label, var))
 
 # Start the event loop
 root.mainloop()
