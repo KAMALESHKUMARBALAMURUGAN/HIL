@@ -329,6 +329,10 @@ sidestand= received_value_sidestand;
 // arr[2] = modeL ;
 // arr[3] = brake ;
 // arr[4] = ingi ;
+
+
+
+
 // arr[5] = reve ;
 // arr[6] = 0;
 // arr[7] = 0 ;
@@ -745,38 +749,43 @@ xTaskCreate(twai_transmit_task, "Transmit_Tsk", 4096, NULL, 8, NULL);
  
     configure_uart();
     
-    while (1) {
-    uint8_t data[2]; // Assuming each command consists of 2 characters
-    int len = uart_read_bytes(ECHO_UART_PORT_NUM, data, sizeof(data), 20 / portTICK_PERIOD_MS);
-    if (len == 2) {
-        // Process received command
-        int switch_number = data[0] - '0'; // Convert ASCII to integer
-        int switch_state = data[1] - '0'; // Convert ASCII to integer
-        switch (switch_number) {
-            case 1:
-                received_value_brake = switch_state; // Assuming 1 represents ON and 0 represents OFF
-                break;
-            case 2:
-                received_value_reverse = switch_state;
-                break;
-            case 3:
-                received_value_modeR = switch_state;
-                break;
-            case 4:
-                received_value_modeL = switch_state;
-                break;
-            case 5:
-                received_value_sidestand = switch_state;
-                break;
-            case 6:
-                received_value_ignition = switch_state;
-                break;
-            default:
-                // Handle invalid switch number
-                break;
-        }
+    while (1) 
+{
+  uint8_t data[2]; // Assuming each command consists of 2 characters
+int len = uart_read_bytes(ECHO_UART_PORT_NUM, data, sizeof(data), 20 / portTICK_PERIOD_MS);
+if (len == 2) 
+{
+    // Process received command
+    int switch_number = data[0] - '0'; // Convert ASCII to integer
+    int switch_state = data[1] - '0'; // Convert ASCII to integer
+
+    switch (switch_number) 
+    {
+        case 1:
+            received_value_brake = switch_state;
+            break;
+        case 2:
+            received_value_reverse = switch_state;
+            break;
+        case 3:
+            received_value_modeR = switch_state;
+            break;
+        case 4:
+            received_value_modeL = switch_state;
+            break;
+        case 5:
+            received_value_sidestand = switch_state;
+            break;
+        case 6:
+            received_value_ignition = switch_state;
+            break;
+        default:
+            // Handle invalid switch number
+            break;
     }
 }
 
-   
 }
+}
+
+   
