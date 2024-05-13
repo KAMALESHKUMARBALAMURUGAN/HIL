@@ -1,6 +1,4 @@
-/* GPIO Example
- 
-   This example code is in the Public Domain (or CC0 licensed, at your option.)
+ /*This example code is in the Public Domain (or CC0 licensed, at your option.)
  
    Unless required by applicable law or agreed to in writing, this
    software is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
@@ -28,8 +26,17 @@
  
 #include "esp_timer.h"
  
+#define BLINK_GPIO 5
+#define ECHO_TEST_TXD  1
+#define ECHO_TEST_RXD  3
+#define ECHO_UART_PORT_NUM      UART_NUM_1
+#define ECHO_UART_BAUD_RATE     115200
+#define ECHO_TASK_STACK_SIZE    2048
  
-#define Ignition 14
+static const char *TAG = "example";
+ 
+ 
+// #define Ignition 14
 #define Reverse 12
 #define Break 15
 #define ModeL 18
@@ -48,6 +55,7 @@ int modeR = 0;
 int brake = 0;
 int reve = 0;
 int sidestand = 0 ;
+static int received_value;
  
 // int temp1 = 0;
 // int temp2 =0;
@@ -291,7 +299,10 @@ while(1)
 vTaskDelay(pdMS_TO_TICKS(50));
  
  
-ingi = !gpio_get_level(Ignition);
+ingi = received_value;
+//int ingi= !gpio_get_level(Ignition);
+
+printf("ingi----------->%d\n",ingi);
 brake = !gpio_get_level(Break);
 modeL = !gpio_get_level(ModeL);
 modeR = !gpio_get_level(ModeR);
@@ -332,7 +343,7 @@ sidestand = !gpio_get_level(SideStand);
 // printf("%u\n", combinedValue);
 //decToBinary(combinedValue);
 struct ControlBits {
-    unsigned int b0 : 1;
+    unsigned int b0 : 1;                //single bit is allocated for each ('1' represents that bit)- this is to pack several boolean flags inside a single byte(for space efficiency)
     unsigned int modeR : 1;
     unsigned int modeL : 1;
     unsigned int brake : 1;
@@ -348,8 +359,8 @@ union ControlUnion {
     uint8_t combinedValue;
 };
  
-
-// not needed 
+ 
+// not needed
 union ControlUnion control;
     // Assign values to the bit field members
     control.bits.b0 = 0;
@@ -642,13 +653,33 @@ vTaskDelay(pdMS_TO_TICKS(100));
 vTaskDelete(NULL);
 }
  
+void configure_uart(void)
+{
+    const uart_config_t uart_config = {
+        .baud_rate = ECHO_UART_BAUD_RATE,
+        .data_bits = UART_DATA_8_BITS,
+        .parity = UART_PARITY_DISABLE,
+        .stop_bits = UART_STOP_BITS_1,
+        .flow_ctrl = UART_HW_FLOWCTRL_DISABLE,
+        .source_clk = UART_SCLK_APB,
+    };
+    uart_param_config(ECHO_UART_PORT_NUM, &uart_config);
+    uart_set_pin(ECHO_UART_PORT_NUM, ECHO_TEST_TXD, ECHO_TEST_RXD, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
+    uart_driver_install(ECHO_UART_PORT_NUM, 256 * 2, 0, 0, NULL, 0);
+}
  
+ 
+static void blink_led(int state)
+{
+    gpio_set_level(BLINK_GPIO, state);
+}
  
  
 void app_main(void)
 {
-gpio_set_direction(Ignition,GPIO_MODE_INPUT);
-gpio_set_pull_mode(Ignition,GPIO_PULLUP_ONLY);
+   
+// gpio_set_direction(Ignition,GPIO_MODE_INPUT);
+// gpio_set_pull_mode(Ignition,GPIO_PULLUP_ONLY);
  
 gpio_set_direction(Reverse,GPIO_MODE_INPUT);
 gpio_set_pull_mode(Reverse,GPIO_PULLUP_ONLY);
@@ -699,5 +730,35 @@ xTaskCreate(twai_transmit_task, "Transmit_Tsk", 4096, NULL, 8, NULL);
 //vSemaphoreDelete(cnt_Switch_start);
 //vSemaphoreDelete(done_sem);
  
+  // static int received_value;
+    configure_uart();
+    gpio_reset_pin(BLINK_GPIO);
+    gpio_set_direction(BLINK_GPIO, GPIO_MODE_OUTPUT);
+ 
+    uint8_t data[1];
+    while (1)
+    {
+        int len = uart_read_bytes(ECHO_UART_PORT_NUM, data, sizeof(data), 20 / portTICK_PERIOD_MS);
+        if (len > 0) 
+        {
+            // ESP_LOGI(TAG, "Received: %d", data[0]);
+            // if (data[0] == '1') 
+            // {
+            //     blink_led(1); // Turn ON the LED
+            // } else if (data[0] == '0') 
+            // {
+            //     blink_led(0); // Turn OFF the LED
+            // }
+             ESP_LOGI(TAG, "Received: %d", data[0]);
+            if (data[0] == '1')
+            {
+                received_value=0; // Turn ON the LED
+            }
+            else if (data[0] == '0')
+            {
+                received_value=1; // Turn OFF the LED
+            }
+        }
+    }
  
 }
