@@ -55,8 +55,14 @@ int modeR = 0;
 int brake = 0;
 int reve = 0;
 int sidestand = 0 ;
-static int received_value;
- 
+static int received_value_ignition;
+static int received_value_brake;
+static int received_value_reverse;
+static int received_value_modeR;
+static int received_value_modeL;
+static int received_value_sidestand;
+
+
 // int temp1 = 0;
 // int temp2 =0;
 // int temp3 = 0;
@@ -299,15 +305,22 @@ while(1)
 vTaskDelay(pdMS_TO_TICKS(50));
  
  
-ingi = received_value;
+ingi = received_value_ignition;
 //int ingi= !gpio_get_level(Ignition);
 
 printf("ingi----------->%d\n",ingi);
-brake = !gpio_get_level(Break);
-modeL = !gpio_get_level(ModeL);
-modeR = !gpio_get_level(ModeR);
-reve = !gpio_get_level(Reverse);
-sidestand = !gpio_get_level(SideStand);
+// brake = !gpio_get_level(Break);
+// modeL = !gpio_get_level(ModeL);
+// modeR = !gpio_get_level(ModeR);
+// reve = !gpio_get_level(Reverse);
+// sidestand = !gpio_get_level(SideStand);
+brake=received_value_brake;
+modeL=received_value_modeL;
+modeR=received_value_modeR;
+reve=received_value_reverse;
+sidestand= received_value_sidestand;
+
+
  
 //printf("Iginiton = %d, Break = %d, Mode+ = %d, Moe- = %d, Reverse =%d \n",ingi,brake,modeR,modeL,reve);
  
@@ -730,35 +743,40 @@ xTaskCreate(twai_transmit_task, "Transmit_Tsk", 4096, NULL, 8, NULL);
 //vSemaphoreDelete(cnt_Switch_start);
 //vSemaphoreDelete(done_sem);
  
-  // static int received_value;
     configure_uart();
-    gpio_reset_pin(BLINK_GPIO);
-    gpio_set_direction(BLINK_GPIO, GPIO_MODE_OUTPUT);
- 
-    uint8_t data[1];
-    while (1)
-    {
-        int len = uart_read_bytes(ECHO_UART_PORT_NUM, data, sizeof(data), 20 / portTICK_PERIOD_MS);
-        if (len > 0) 
-        {
-            // ESP_LOGI(TAG, "Received: %d", data[0]);
-            // if (data[0] == '1') 
-            // {
-            //     blink_led(1); // Turn ON the LED
-            // } else if (data[0] == '0') 
-            // {
-            //     blink_led(0); // Turn OFF the LED
-            // }
-             ESP_LOGI(TAG, "Received: %d", data[0]);
-            if (data[0] == '1')
-            {
-                received_value=0; // Turn ON the LED
-            }
-            else if (data[0] == '0')
-            {
-                received_value=1; // Turn OFF the LED
-            }
+    
+    while (1) {
+    uint8_t data[2]; // Assuming each command consists of 2 characters
+    int len = uart_read_bytes(ECHO_UART_PORT_NUM, data, sizeof(data), 20 / portTICK_PERIOD_MS);
+    if (len == 2) {
+        // Process received command
+        int switch_number = data[0] - '0'; // Convert ASCII to integer
+        int switch_state = data[1] - '0'; // Convert ASCII to integer
+        switch (switch_number) {
+            case 1:
+                received_value_brake = switch_state; // Assuming 1 represents ON and 0 represents OFF
+                break;
+            case 2:
+                received_value_reverse = switch_state;
+                break;
+            case 3:
+                received_value_modeR = switch_state;
+                break;
+            case 4:
+                received_value_modeL = switch_state;
+                break;
+            case 5:
+                received_value_sidestand = switch_state;
+                break;
+            case 6:
+                received_value_ignition = switch_state;
+                break;
+            default:
+                // Handle invalid switch number
+                break;
         }
     }
- 
+}
+
+   
 }
