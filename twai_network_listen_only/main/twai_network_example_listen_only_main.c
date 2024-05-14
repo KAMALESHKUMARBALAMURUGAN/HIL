@@ -64,23 +64,14 @@ static int received_value_modeR;
 static int received_value_modeL;
 static int received_value_sidestand;
 static int received_value_soc;
+static int received_value_batt_tmp;
+static int received_value_throttle;
+static int thr_per;
+static int batt_tmp;
+
 static int soc;
 
 
-// int temp1 = 0;
-// int temp2 =0;
-// int temp3 = 0;
-// int temp4 = 0;
-// int temp5 = 0;
-// int temp6 = 0;
-// int temp7 = 0;
-// int temp8 = 0;
-//char mode[] = "";
-//char arr[3][10] = {"ingi","modeL","modeR", "brake", "reve"};
- 
- 
-//#include <ds18b20.h> // temperature sensor
- 
 /* --------------------- Definitions and static variables ------------------ */
 // Example Configuration
 #define PING_PERIOD_MS 250
@@ -324,43 +315,11 @@ modeR=received_value_modeR;
 reve=received_value_reverse;
 sidestand= received_value_sidestand;
 soc= received_value_soc;
+batt_tmp= received_value_batt_tmp;
+thr_per= received_value_throttle;
 
 
 
- 
-//printf("Iginiton = %d, Break = %d, Mode+ = %d, Moe- = %d, Reverse =%d \n",ingi,brake,modeR,modeL,reve);
- 
-// arr[0]= 0;
-// arr[1]= modeR ;
-// arr[2] = modeL ;
-// arr[3] = brake ;
-// arr[4] = ingi ;
-// arr[5] = reve ;
-// arr[6] = 0;
-// arr[7] = 0 ;
-// //printf(arr);
-// int byte3 = 0;
- 
-// for (int i = 0; i < 7; i++) {
-//    byte3 = byte3 * 10 + arr[i];
-//     }
- 
- 
-//     arr[0] = 0;
-//     arr[1] = modeR;  // Replace with your actual modeR value
-//     arr[2] = modeL;  // Replace with your actual modeL value
-//     arr[3] = brake;  // Replace with your actual brake value
-//     arr[4] = ingi;  // Replace with your actual ingi value
-//     arr[5] = reve;  // Replace with your actual reve value
-//     arr[6] = 0;
-//     arr[7] = 0;
- 
-//     // Combining values into a single 8-bit variable
-//     for (int i = 0; i < 8; i++) {
-//         combinedValue |= arr[i] << i;
-//     }
-// printf("%u\n", combinedValue);
-//decToBinary(combinedValue);
 struct ControlBits {
     unsigned int b0 : 1;                //single bit is allocated for each ('1' represents that bit)- this is to pack several boolean flags inside a single byte(for space efficiency)
     unsigned int modeR : 1;
@@ -421,26 +380,8 @@ vTaskDelete(NULL);
 int Dout ;
 int Vmax = 100 ;
 int Dmax = 4095 ;
-static float batt_tmp = 0 ;
-static void battery_temp(void *arg)     //Conversion of analog to digital signal
-{
-    adc1_config_width(ADC_WIDTH_BIT_12);
-    adc1_config_channel_atten(ADC1_CHANNEL_4, ADC_ATTEN_DB_0); //gpio 32
-    while(1)
-    {
-        int val_of_temp = adc1_get_raw(ADC1_CHANNEL_4);
-        //uint32_t voltage = esp_adc_cal_raw_to_voltage(val_of_temp, adc_chars);
-        //'float Vout = (float)3000 * (float)(Vmax / Dmax);
-        //Vout = (float)((int)(Vout * 100.0)) / 100.0;
-        batt_tmp = (float)val_of_temp * ((float)Vmax / (float)Dmax);
-        //printf("the value shown %d \n", val_of_temp);//val_of_temp);
-        printf("Battery Temperature : %.4f \n", batt_tmp);
-        //ESP_LOGD(EXAMPLE_TAG, "Failed to queue message for transmission\n");
-        vTaskDelay(250/portTICK_PERIOD_MS);
-            //new_val = val_of_temp ;
-    }
-    vTaskDelay(NULL);
-}
+
+
  
  
 // int Dout ;
@@ -489,27 +430,7 @@ static void pcb_temp(void *arg)     //Conversion of analog to digital signal
     }
     vTaskDelay(NULL);
 }
- 
-// static float soc = 0 ;
-// static void soc_battery(void *arg)     //Conversion of analog to digital signal
-// {
-//     adc1_config_width(ADC_WIDTH_BIT_12);
-//     adc1_config_channel_atten(ADC1_CHANNEL_3, ADC_ATTEN_DB_0);
-//     while(1)
-//     {
-//         int soc_of_batt = adc1_get_raw(ADC1_CHANNEL_3); // GPIO - 39
-//         //uint32_t voltage = esp_adc_cal_raw_to_voltage(val_of_temp, adc_chars);
-//         //'float Vout = (float)3000 * (float)(Vmax / Dmax);
-//         //Vout = (float)((int)(Vout * 100.0)) / 100.0;
-//         soc = (float)soc_of_batt * ((float)Vmax / (float)Dmax);
-//         //printf("the value shown %d \n", soc_of_batt);//val_of_temp);
-//         printf("SoC of the battery is : %.4f  \n", soc);
-//         //ESP_LOGD(EXAMPLE_TAG, "Failed to queue message for transmission\n");
-//         vTaskDelay(100/portTICK_PERIOD_MS);
-//             //new_val = val_of_temp ;
-//     }
-//     vTaskDelay(NULL);
-// }
+
  
 int Dout ;
 int V_motor_max = 150 ;
@@ -534,30 +455,7 @@ static void motor_temp(void *arg)     //Conversion of analog to digital signal
     }
     vTaskDelay(NULL);
 }
- 
-// int Dout ;
-// int Vmax = 80 ;
-// int Dmax = 4095 ;
-static float thr_per = 0 ;
-static void throttle_percentage(void *arg)     //Conversion of analog to digital signal
-{
-    adc1_config_width(ADC_WIDTH_BIT_12);
-    adc1_config_channel_atten(ADC1_CHANNEL_0, ADC_ATTEN_DB_0);// gpio 36
-    while(1)
-    {
-        int throttle_per = adc1_get_raw(ADC1_CHANNEL_0);//,ADC_WIDTH_BIT_12, NULL);
-        //uint32_t voltage = esp_adc_cal_raw_to_voltage(val_of_temp, adc_chars);
-        //'float Vout = (float)3000 * (float)(Vmax / Dmax);
-        //Vout = (float)((int)(Vout * 100.0)) / 100.0;
-        thr_per = (float)throttle_per * ((float)Vmax / (float)Dmax);
-        //printf("the value shown %d \n", throttle_per);//val_of_temp);
-        printf("Throttle percentage : %.4f \n", thr_per);
-        //ESP_LOGD(EXAMPLE_TAG, "Failed to queue message for transmission\n");
-        vTaskDelay(100/portTICK_PERIOD_MS);
-            //new_val = val_of_temp ;
-    }
-    vTaskDelay(NULL);
-}
+
  
 static void twai_transmit_task(void *arg)
 {
@@ -688,12 +586,6 @@ void configure_uart(void)
 }
  
  
-static void blink_led(int state)
-{
-    gpio_set_level(BLINK_GPIO, state);
-}
- 
- 
 void app_main(void)
 {
    
@@ -727,10 +619,10 @@ ESP_LOGI(EXAMPLE_TAG, "Driver started");
  
 vTaskDelay(pdMS_TO_TICKS(500)) ;
  
-xTaskCreate(throttle_percentage , "throttle", 4096, NULL, 8, NULL);
+// xTaskCreate(throttle_percentage , "throttle", 4096, NULL, 8, NULL);
 xTaskCreate(pcb_temp , "pcb temp", 4096, NULL, 8, NULL);
 xTaskCreate(motor_temp , "motor temp", 4096, NULL, 8, NULL);
-xTaskCreate(battery_temp , "battery temperature", 4096, NULL, 8, NULL);
+// xTaskCreate(battery_temp , "battery temperature", 4096, NULL, 8, NULL);
 xTaskCreate(controller_temp , "motor controller temperature", 4096, NULL, 8, NULL);
 // xTaskCreate(soc_battery, "battery SoC", 4096, NULL, 8, NULL);
 xTaskCreate(switch_ip, "Swicth_Tsk", 4096, NULL, 8, NULL);
@@ -752,7 +644,7 @@ xTaskCreate(twai_transmit_task, "Transmit_Tsk", 4096, NULL, 8, NULL);
     configure_uart();
     while (1) 
     {
-    uint8_t data[4]; // Assuming each command consists of 2 characters
+    uint8_t data[4]; 
     int len = uart_read_bytes(ECHO_UART_PORT_NUM, data, sizeof(data), 20 / portTICK_PERIOD_MS);
     if (len ==3)
     {
@@ -764,6 +656,14 @@ xTaskCreate(twai_transmit_task, "Transmit_Tsk", 4096, NULL, 8, NULL);
         switch (switch_number)
         {
             case 7: // Handle slider value (received_value_slider)
+                received_value_soc = switch_state;
+            break;
+
+            case 8: // Handle slider value (received_value_slider)
+                received_value_batt_tmp = switch_state;
+            break;
+
+            case 9: // Handle slider value (received_value_slider)
                 received_value_soc = switch_state;
             break;
         }
@@ -795,29 +695,24 @@ xTaskCreate(twai_transmit_task, "Transmit_Tsk", 4096, NULL, 8, NULL);
             case 6: //for Motor ON ,Press Brake then press Ignition- ON and then OFF
                 received_value_ignition = switch_state;
                 break;
+            
             case 7: // Handle slider value (received_value_slider)
                 received_value_soc = switch_state;
+            break;
+
+            case 8: // Handle slider value (received_value_slider)
+                received_value_throttle = switch_state;
                 break;
+            case 9: // Handle slider value (received_value_slider)
+                received_value_batt_tmp = switch_state;
+            break; 
+
             default:    
                 // Handle invalid switch number
                 break;
         }
     }
-    // else if (len == 4) 
-    // {
-    //     int switch_number = data[0] - '0'; // Convert ASCII to integer
-
-    //     // Concatenate the characters and convert to integer
-    //     int switch_state = (data[1] - '0') * 100 + (data[2] - '0') * 10 + (data[3] - '0');
-
-    //     switch (switch_number)
-    //     {
-    //         case 7: // Handle slider value (received_value_slider)
-    //             received_value_soc = switch_state;
-    //         break;
-    //     }
-
-    // }
+   
 
 }
 
