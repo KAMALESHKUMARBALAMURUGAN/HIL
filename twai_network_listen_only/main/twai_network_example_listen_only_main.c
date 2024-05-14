@@ -11,6 +11,8 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "freertos/queue.h"
+
+
 #include "driver/gpio.h"
 #include "driver/adc.h"
  
@@ -748,15 +750,32 @@ xTaskCreate(twai_transmit_task, "Transmit_Tsk", 4096, NULL, 8, NULL);
 //vSemaphoreDelete(done_sem);
  
     configure_uart();
-    
-    while (1) {
-    uint8_t data[2]; // Assuming each command consists of 2 characters
+    while (1) 
+    {
+    uint8_t data[4]; // Assuming each command consists of 2 characters
     int len = uart_read_bytes(ECHO_UART_PORT_NUM, data, sizeof(data), 20 / portTICK_PERIOD_MS);
-    if (len == 2) {
+    if (len ==3)
+    {
+        int switch_number = data[0] - '0'; // Convert ASCII to integer
+
+        // Concatenate the characters and convert to integer
+        int switch_state = (data[1] - '0') * 10 + (data[2] - '0');
+
+        switch (switch_number)
+        {
+            case 7: // Handle slider value (received_value_slider)
+                received_value_soc = switch_state;
+            break;
+        }
+    }
+
+    if (len == 2) 
+    {
         // Process received command
         int switch_number = data[0] - '0'; // Convert ASCII to integer
         int switch_state = data[1] - '0'; // Convert ASCII to integer
-        switch (switch_number) {
+        switch (switch_number) 
+        {
             case 1:
                 received_value_brake = switch_state; // Assuming 1 represents ON and 0 represents OFF
                 break;
@@ -778,12 +797,28 @@ xTaskCreate(twai_transmit_task, "Transmit_Tsk", 4096, NULL, 8, NULL);
                 break;
             case 7: // Handle slider value (received_value_slider)
                 received_value_soc = switch_state;
-            break;
+                break;
             default:    
                 // Handle invalid switch number
                 break;
         }
     }
+    // else if (len == 4) 
+    // {
+    //     int switch_number = data[0] - '0'; // Convert ASCII to integer
+
+    //     // Concatenate the characters and convert to integer
+    //     int switch_state = (data[1] - '0') * 100 + (data[2] - '0') * 10 + (data[3] - '0');
+
+    //     switch (switch_number)
+    //     {
+    //         case 7: // Handle slider value (received_value_slider)
+    //             received_value_soc = switch_state;
+    //         break;
+    //     }
+
+    // }
+
 }
 
    

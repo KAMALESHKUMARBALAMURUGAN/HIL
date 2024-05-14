@@ -17,7 +17,7 @@ def send_command(switch_number, state):
         bytes_written = ser.write(cmd.encode())
         print("cmd.encode()------------->",cmd.encode())
         # print(f"Bytes written: {bytes_written}")
-        time.sleep(1)
+        # time.sleep(1)
     except serial.SerialException as e:
         messagebox.showerror("Serial Error", str(e))
 
@@ -54,7 +54,7 @@ slider_frame = tk.Frame(root)
 slider_frame.pack(pady=10)
 slider_label = tk.Label(slider_frame, text="Slider")
 slider_label.pack(side=tk.LEFT, padx=5)
-slider = tk.Scale(slider_frame, from_=0, to=255, orient=tk.HORIZONTAL, command=slider_moved)
+slider = tk.Scale(slider_frame, from_=0, to=100, orient=tk.HORIZONTAL, command=slider_moved)
 slider.pack(side=tk.LEFT)
 
 root.mainloop()
