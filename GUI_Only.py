@@ -88,6 +88,16 @@ for i, (name, min_val, max_val) in enumerate(scales_info):
     
     scales[name] = (scale, scale_var, entry)
 
+# Function to simulate pressing both Reverse and Break
+def press_reverse_break(reverse_button, break_button, reverse_var, break_var):
+    press_button(reverse_button, reverse_var)
+    press_button(break_button, break_var)
+
+# Function to simulate releasing both Reverse and Break
+def release_reverse_break(reverse_button, break_button, reverse_var, break_var):
+    release_button(reverse_button, reverse_var)
+    release_button(break_button, break_var)
+
 # Define push buttons for each mode
 modes_info = [
     "Mode L",
@@ -118,9 +128,20 @@ ign_break_frame.pack(padx=10, pady=10)
 ign_break_button = tk.Button(ign_break_frame, text="Ignition & Break")
 ign_break_button.pack(side=tk.LEFT, padx=10)
 
+# Additional button for Reverse & Break
+reverse_break_frame = ttk.Frame(right_frame)
+reverse_break_frame.pack(padx=10, pady=10)
+
+reverse_break_button = tk.Button(reverse_break_frame, text="Reverse & Break")
+reverse_break_button.pack(side=tk.LEFT, padx=10)
+
 # Bind mouse press and release to both buttons
 ign_break_button.bind("<ButtonPress-1>", lambda event: press_both(mode_buttons["Ignition"], mode_buttons["Break"], mode_vars["Ignition"], mode_vars["Break"]))
 ign_break_button.bind("<ButtonRelease-1>", lambda event: release_both(mode_buttons["Ignition"], mode_buttons["Break"], mode_vars["Ignition"], mode_vars["Break"]))
+
+# Bind mouse press and release to both buttons
+reverse_break_button.bind("<ButtonPress-1>", lambda event: press_reverse_break(mode_buttons["Reverse"], mode_buttons["Break"], mode_vars["Reverse"], mode_vars["Break"]))
+reverse_break_button.bind("<ButtonRelease-1>", lambda event: release_reverse_break(mode_buttons["Reverse"], mode_buttons["Break"], mode_vars["Reverse"], mode_vars["Break"]))
 
 # Start the event loop
 root.mainloop()
