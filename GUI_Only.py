@@ -4,7 +4,7 @@ from tkinter import ttk
 # Create the main window
 root = tk.Tk()
 root.title("HIL- Hardware In Loop")
-root.geometry("800x400")
+root.geometry("1000x500")
 
 # Create frames
 left_frame = ttk.Frame(root)
@@ -12,15 +12,6 @@ left_frame.pack(side=tk.LEFT, padx=20, pady=20)
 
 right_frame = ttk.Frame(root)
 right_frame.pack(side=tk.RIGHT, padx=20, pady=20)
-
-# Function to toggle the button state
-def toggle_button(button, var):
-    if var.get() == 0:
-        var.set(1)
-        button.config(text="On", relief=tk.SUNKEN)  # Change text to "On"
-    else:
-        var.set(0)
-        button.config(text="Off", relief=tk.RAISED)  # Change text to "Off"
 
 # Function to update the scale and entry from each other
 def update_scale_from_entry(entry, scale):
