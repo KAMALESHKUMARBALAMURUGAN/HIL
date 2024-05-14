@@ -53,6 +53,16 @@ def release_button(button, var):
     var.set(0)
     button.config(text="Off")
 
+# Function to simulate pressing both Ignition and Break
+def press_both(ignition_button, break_button, ignition_var, break_var):
+    press_button(ignition_button, ignition_var)
+    press_button(break_button, break_var)
+
+# Function to simulate releasing both Ignition and Break
+def release_both(ignition_button, break_button, ignition_var, break_var):
+    release_button(ignition_button, ignition_var)
+    release_button(break_button, break_var)
+
 # Find the maximum label width needed
 scales_info = [
     ("Throttle", 0, 100),
@@ -92,25 +102,34 @@ modes_info = [
     "Mode L",
     "Mode R",
     "Reverse",
-    "Break",
-    "Ignition"
+    "Ignition",
+    "Break"
 ]
 
-modes_vars = {}
+mode_buttons = {}
+mode_vars = {}
 for mode in modes_info:
     frame = ttk.LabelFrame(right_frame, text=mode)
     frame.pack(padx=10, pady=10, fill=tk.X)
 
     var = tk.IntVar(value=0)  # Default to 0 (Off)
-    modes_vars[mode] = var
-
-    # Button for toggle state
+    mode_vars[mode] = var
     button = tk.Button(frame, text="Off")
     button.pack(side=tk.LEFT, padx=10)
-
-    # Bind mouse press and release to functions
     button.bind("<ButtonPress-1>", lambda event, b=button, v=var: press_button(b, v))
     button.bind("<ButtonRelease-1>", lambda event, b=button, v=var: release_button(b, v))
+    mode_buttons[mode] = button
+
+# Additional button for Ignition & Break
+ign_break_frame = ttk.LabelFrame(right_frame, text="Ignition & Break")
+ign_break_frame.pack(padx=10, pady=10, fill=tk.X)
+
+ign_break_button = tk.Button(ign_break_frame, text="Press Both")
+ign_break_button.pack(side=tk.LEFT, padx=10)
+
+# Bind mouse press and release to both buttons
+ign_break_button.bind("<ButtonPress-1>", lambda event: press_both(mode_buttons["Ignition"], mode_buttons["Break"], mode_vars["Ignition"], mode_vars["Break"]))
+ign_break_button.bind("<ButtonRelease-1>", lambda event: release_both(mode_buttons["Ignition"], mode_buttons["Break"], mode_vars["Ignition"], mode_vars["Break"]))
 
 # Start the event loop
 root.mainloop()
