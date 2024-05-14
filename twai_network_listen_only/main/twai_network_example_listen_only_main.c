@@ -61,6 +61,8 @@ static int received_value_reverse;
 static int received_value_modeR;
 static int received_value_modeL;
 static int received_value_sidestand;
+static int received_value_soc;
+static int soc;
 
 
 // int temp1 = 0;
@@ -319,6 +321,8 @@ modeL=received_value_modeL;
 modeR=received_value_modeR;
 reve=received_value_reverse;
 sidestand= received_value_sidestand;
+soc= received_value_soc;
+
 
 
  
@@ -484,26 +488,26 @@ static void pcb_temp(void *arg)     //Conversion of analog to digital signal
     vTaskDelay(NULL);
 }
  
-static float soc = 0 ;
-static void soc_battery(void *arg)     //Conversion of analog to digital signal
-{
-    adc1_config_width(ADC_WIDTH_BIT_12);
-    adc1_config_channel_atten(ADC1_CHANNEL_3, ADC_ATTEN_DB_0);
-    while(1)
-    {
-        int soc_of_batt = adc1_get_raw(ADC1_CHANNEL_3); // GPIO - 39
-        //uint32_t voltage = esp_adc_cal_raw_to_voltage(val_of_temp, adc_chars);
-        //'float Vout = (float)3000 * (float)(Vmax / Dmax);
-        //Vout = (float)((int)(Vout * 100.0)) / 100.0;
-        soc = (float)soc_of_batt * ((float)Vmax / (float)Dmax);
-        //printf("the value shown %d \n", soc_of_batt);//val_of_temp);
-        printf("SoC of the battery is : %.4f  \n", soc);
-        //ESP_LOGD(EXAMPLE_TAG, "Failed to queue message for transmission\n");
-        vTaskDelay(100/portTICK_PERIOD_MS);
-            //new_val = val_of_temp ;
-    }
-    vTaskDelay(NULL);
-}
+// static float soc = 0 ;
+// static void soc_battery(void *arg)     //Conversion of analog to digital signal
+// {
+//     adc1_config_width(ADC_WIDTH_BIT_12);
+//     adc1_config_channel_atten(ADC1_CHANNEL_3, ADC_ATTEN_DB_0);
+//     while(1)
+//     {
+//         int soc_of_batt = adc1_get_raw(ADC1_CHANNEL_3); // GPIO - 39
+//         //uint32_t voltage = esp_adc_cal_raw_to_voltage(val_of_temp, adc_chars);
+//         //'float Vout = (float)3000 * (float)(Vmax / Dmax);
+//         //Vout = (float)((int)(Vout * 100.0)) / 100.0;
+//         soc = (float)soc_of_batt * ((float)Vmax / (float)Dmax);
+//         //printf("the value shown %d \n", soc_of_batt);//val_of_temp);
+//         printf("SoC of the battery is : %.4f  \n", soc);
+//         //ESP_LOGD(EXAMPLE_TAG, "Failed to queue message for transmission\n");
+//         vTaskDelay(100/portTICK_PERIOD_MS);
+//             //new_val = val_of_temp ;
+//     }
+//     vTaskDelay(NULL);
+// }
  
 int Dout ;
 int V_motor_max = 150 ;
@@ -726,7 +730,7 @@ xTaskCreate(pcb_temp , "pcb temp", 4096, NULL, 8, NULL);
 xTaskCreate(motor_temp , "motor temp", 4096, NULL, 8, NULL);
 xTaskCreate(battery_temp , "battery temperature", 4096, NULL, 8, NULL);
 xTaskCreate(controller_temp , "motor controller temperature", 4096, NULL, 8, NULL);
-xTaskCreate(soc_battery, "battery SoC", 4096, NULL, 8, NULL);
+// xTaskCreate(soc_battery, "battery SoC", 4096, NULL, 8, NULL);
 xTaskCreate(switch_ip, "Swicth_Tsk", 4096, NULL, 8, NULL);
 //xTaskCreate(twai_transmit_task, "transmit_Tsk", 4096, NULL, 8, NULL);
 xTaskCreate(twai_transmit_task, "Transmit_Tsk", 4096, NULL, 8, NULL);
@@ -757,7 +761,6 @@ xTaskCreate(twai_transmit_task, "Transmit_Tsk", 4096, NULL, 8, NULL);
                 received_value_brake = switch_state; // Assuming 1 represents ON and 0 represents OFF
                 break;
             
-            
             case 2: //for reverse ,Press Brake then press Reverse- ON and then OFF
                 received_value_reverse = switch_state;
                 break;
@@ -773,6 +776,9 @@ xTaskCreate(twai_transmit_task, "Transmit_Tsk", 4096, NULL, 8, NULL);
             case 6: //for Motor ON ,Press Brake then press Ignition- ON and then OFF
                 received_value_ignition = switch_state;
                 break;
+            case 7: // Handle slider value (received_value_slider)
+                received_value_soc = switch_state;
+            break;
             default:    
                 // Handle invalid switch number
                 break;

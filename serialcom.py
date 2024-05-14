@@ -24,6 +24,9 @@ def send_command(switch_number, state):
 def button_pressed(switch_number, state):
     send_command(switch_number, state)
 
+def slider_moved(value):
+    send_command(7, str(value))
+
 # Set up the GUI
 root = tk.Tk()
 root.title("Switch Control Panel")
@@ -45,5 +48,13 @@ for switch_name, switch_number in switches.items():
     on_button.pack(side=tk.LEFT, padx=5)
     off_button = tk.Button(switch_frame, text="OFF", command=lambda num=switch_number: button_pressed(num, '0'))
     off_button.pack(side=tk.LEFT, padx=5)
+
+# Add a slider
+slider_frame = tk.Frame(root)
+slider_frame.pack(pady=10)
+slider_label = tk.Label(slider_frame, text="Slider")
+slider_label.pack(side=tk.LEFT, padx=5)
+slider = tk.Scale(slider_frame, from_=0, to=255, orient=tk.HORIZONTAL, command=slider_moved)
+slider.pack(side=tk.LEFT)
 
 root.mainloop()
