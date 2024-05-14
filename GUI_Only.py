@@ -110,7 +110,7 @@ mode_buttons = {}
 mode_vars = {}
 for mode in modes_info:
     frame = ttk.LabelFrame(right_frame, text=mode)
-    frame.pack(padx=10, pady=10, fill=tk.X)
+    frame.pack(padx=10, pady=10)
 
     var = tk.IntVar(value=0)  # Default to 0 (Off)
     mode_vars[mode] = var
@@ -120,11 +120,11 @@ for mode in modes_info:
     button.bind("<ButtonRelease-1>", lambda event, b=button, v=var: release_button(b, v))
     mode_buttons[mode] = button
 
-# Additional button for Ignition & Break
-ign_break_frame = ttk.LabelFrame(right_frame, text="Ignition & Break")
-ign_break_frame.pack(padx=10, pady=10, fill=tk.X)
+# Additional button for Ignition & Break, now with updated label directly on the button and no frame label
+ign_break_frame = ttk.Frame(right_frame)
+ign_break_frame.pack(padx=10, pady=10)
 
-ign_break_button = tk.Button(ign_break_frame, text="Press Both")
+ign_break_button = tk.Button(ign_break_frame, text="Ignition & Break")
 ign_break_button.pack(side=tk.LEFT, padx=10)
 
 # Bind mouse press and release to both buttons
