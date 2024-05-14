@@ -1,10 +1,9 @@
-# Import Tkinter with alias
 import tkinter as tk
 from tkinter import ttk
 
 # Create the main window
 root = tk.Tk()
-root.title("Control Panel")
+root.title("HIL- Hardware In Loop")
 root.geometry("800x400")
 
 # Create frames
@@ -44,6 +43,16 @@ def update_entry_from_scale(name, var, entry):
     entry.insert(0, str(value))
     var.set(value)  # Update the variable to hold an integer value
 
+# Function to activate the button
+def press_button(button, var):
+    var.set(1)
+    button.config(text="On")
+
+# Function to deactivate the button
+def release_button(button, var):
+    var.set(0)
+    button.config(text="Off")
+
 # Find the maximum label width needed
 scales_info = [
     ("Throttle", 0, 100),
@@ -78,7 +87,7 @@ for i, (name, min_val, max_val) in enumerate(scales_info):
     
     scales[name] = (scale, scale_var, entry)
 
-# Define push buttons for each mode using tk.Button instead of ttk.Button
+# Define push buttons for each mode
 modes_info = [
     "Mode L",
     "Mode R",
@@ -95,11 +104,13 @@ for mode in modes_info:
     var = tk.IntVar(value=0)  # Default to 0 (Off)
     modes_vars[mode] = var
 
-    # Use tk.Button to utilize 'relief' property
+    # Button for toggle state
     button = tk.Button(frame, text="Off")
     button.pack(side=tk.LEFT, padx=10)
-    button.config(command=lambda b=button, v=var: toggle_button(b, v))
 
+    # Bind mouse press and release to functions
+    button.bind("<ButtonPress-1>", lambda event, b=button, v=var: press_button(b, v))
+    button.bind("<ButtonRelease-1>", lambda event, b=button, v=var: release_button(b, v))
 
 # Start the event loop
 root.mainloop()
