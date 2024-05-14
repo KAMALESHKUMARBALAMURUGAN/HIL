@@ -4,7 +4,7 @@ import serial
 
 # Configure the serial connection
 ser = serial.Serial(
-    port='COM4',  # Replace 'COM3' with your ESP32 COM port
+    port='COM4',  # Replace 'COM' with your ESP32 COM port
     baudrate=115200,
     timeout=1
 )
@@ -14,8 +14,6 @@ def send_command(switch_number, state):
     try:
         bytes_written = ser.write(cmd.encode())
         print("data_written------------->",cmd.encode())
-        # print(f"Bytes written: {bytes_written}")
-        # time.sleep(1)
     except serial.SerialException as e:
         messagebox.showerror("Serial Error", str(e))
 

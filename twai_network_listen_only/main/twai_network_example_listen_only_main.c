@@ -11,21 +11,14 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "freertos/queue.h"
-
-
 #include "driver/gpio.h"
 #include "driver/adc.h"
- 
- 
-#include "driver/uart.h"
- 
+#include "driver/uart.h" 
 #include "sdkconfig.h"
 #include "esp_log.h"
 #include "cJSON.h"
 #include "esp_adc_cal.h"
- 
 #include "driver/twai.h"
- 
 #include "esp_timer.h"
  
 #define BLINK_GPIO 5
@@ -250,65 +243,22 @@ static SemaphoreHandle_t ctrl_task_Transmit;
 static SemaphoreHandle_t ctrl_task_receive;
 static SemaphoreHandle_t ctrl_task_send;
  
-/* --------------------------- Tasks and Functions -------------------------- */
-// void decToBinary(int n)
-// {
-//    int binaryNum[32];
-//    int i =0 ;
-//    while(n>0){
-//       binaryNum[i] = n % 2 ;
-//       n = n/2 ;
-//       i++ ;
- 
-//    }
- 
-//    for(int j= i -1 ; j>=0 ; j--)
-//    {
-//       printf("%d\n", binaryNum[j]);
-//    }
-// }
+
 uint8_t arr[8];
 uint8_t combinedValue = 0;
-//int val_of_temp = 0;
 int new_val ;
  
-// esp_adc_cal_characteristics_t *adc_chars = calloc(1, sizeof(esp_adc_cal_characteristics_t));
-// esp_adc_cal_value_t val_type = esp_adc_cal_characterize(unit, atten, ADC_WIDTH_BIT_12, DEFAULT_VREF, adc_chars);
-//     //Check type of calibration value used to characterize ADC
-// if (val_type == ESP_ADC_CAL_VAL_EFUSE_VREF) {
-//     printf("eFuse Vref");
-// } else if (val_type == ESP_ADC_CAL_VAL_EFUSE_TP) {
-//     printf("Two Point");
-// } else {
-//     printf("Default");
-// }
+
 static void switch_ip(void *arg)
 {
- 
-//xSemaphoreTake(cnt_Switch_start, portMAX_DELAY);
-// Wait for completion
 vTaskDelay(pdMS_TO_TICKS(50));
-// int arr[8];
-// int i,x,pos,n=8 ;
-// uint8_t arr[8];
-// uint8_t combinedValue = 0;
- 
 while(1)
 {
- 
  
 vTaskDelay(pdMS_TO_TICKS(50));
  
  
 ingi = received_value_ignition;
-//int ingi= !gpio_get_level(Ignition);
-
-printf("ingi----------->%d\n",ingi);
-// brake = !gpio_get_level(Break);
-// modeL = !gpio_get_level(ModeL);
-// modeR = !gpio_get_level(ModeR);
-// reve = !gpio_get_level(Reverse);
-// sidestand = !gpio_get_level(SideStand);
 brake=received_value_brake;
 modeL=received_value_modeL;
 modeR=received_value_modeR;
@@ -361,15 +311,6 @@ uint32_t f;
 u.b = control.combinedValue;
  
 state = u.f;  // converted to hexa
- 
- 
- 
-    // Print the binary representation
-   //  printf("Binary representation: ");
-   //  for (int i = 7; i >= 0; i--) {
-   //    int myVal = (control.combinedValue >> i) & 1 ;
-   //      printf("%d", myVal);
-   //  }
     printf("\n");
 }
 vTaskDelete(NULL);
@@ -384,9 +325,7 @@ int Dmax = 4095 ;
 
  
  
-// int Dout ;
-// int Vmax = 80 ;
-// int Dmax = 4095 ;
+
 static float cnt_tmp = 0;
 static void controller_temp(void *arg)     //Conversion of analog to digital signal
 {
@@ -396,9 +335,6 @@ static void controller_temp(void *arg)     //Conversion of analog to digital sig
     {
         int val_temp_controller = adc1_get_raw(ADC1_CHANNEL_6);//gpio34
         printf("cnt_tmp_analog---------> %d \n",val_temp_controller);
-        //uint32_t voltage = esp_adc_cal_raw_to_voltage(val_of_temp, adc_chars);
-        //'float Vout = (float)3000 * (float)(Vmax / Dmax);
-        //Vout = (float)((int)(Vout * 100.0)) / 100.0;
         cnt_tmp = (float)val_temp_controller * ((float)Vmax / (float)Dmax);
         //printf("the value shown %d \n", val_temp_controller);//val_of_temp);
         printf("Controller(MCU) temperature : %.4f \n", cnt_tmp);
@@ -409,9 +345,6 @@ static void controller_temp(void *arg)     //Conversion of analog to digital sig
     vTaskDelay(NULL);
 }
  
-// int Dout ;
-// int Vmax = 80 ;
-// int Dmax = 4095 ;
 static float pcb = 0 ;
 static void pcb_temp(void *arg)     //Conversion of analog to digital signal
 {
@@ -420,9 +353,7 @@ static void pcb_temp(void *arg)     //Conversion of analog to digital signal
     while(1)
     {
         int val_temp_pcb = adc1_get_raw(ADC1_CHANNEL_7); //GPIO -35
-       
         pcb = (float)val_temp_pcb * ((float)Vmax / (float)Dmax);
-        //printf("the value shown %d \n", val_temp_pcb);//val_of_temp);
         printf("PCB temperature : %.4f \n", pcb);
         //ESP_LOGD(EXAMPLE_TAG, "Failed to queue message for transmission\n");
         vTaskDelay(100/portTICK_PERIOD_MS);
@@ -443,11 +374,7 @@ static void motor_temp(void *arg)     //Conversion of analog to digital signal
     while(1)
     {
         int val_temp_motor = adc1_get_raw(ADC1_CHANNEL_5); // gpio33
-        //uint32_t voltage = esp_adc_cal_raw_to_voltage(val_of_temp, adc_chars);
-        //'float Vout = (float)3000 * (float)(Vmax / Dmax);
-        //Vout = (float)((int)(Vout * 100.0)) / 100.0;
         V_motor_out = (float)val_temp_motor * ((float)V_motor_max / (float)D_motor_max);
-        //printf("the value shown %d \n", val_temp_motor);//val_of_temp);
         printf("Motor Temperature : %.4f \n", V_motor_out);
         //ESP_LOGD(EXAMPLE_TAG, "Failed to queue message for transmission\n");
         vTaskDelay(100/portTICK_PERIOD_MS);
@@ -459,26 +386,12 @@ static void motor_temp(void *arg)     //Conversion of analog to digital signal
  
 static void twai_transmit_task(void *arg)
 {
-//tx_task_action_t action;
-//xQueueReceive(tx_task_queue, &action, portMAX_DELAY);
- 
-//xSemaphoreTake(ctrl_task_Transmit, portMAX_DELAY); // Wait for completion
- 
-// xSemaphoreGive(ctrl_task_receive); // Start control task
-int aa = 0;
- 
 ESP_LOGI(EXAMPLE_TAG, "Transmitting to battery");
- 
 vTaskDelay(pdMS_TO_TICKS(100));
-int arr[8];
 int i,x,pos,n=8 ;
  
 while (1)
 {
- 
- 
- 
-//printf("this is my %d", new_val);
 twai_message_t transmit_message_switch = {.identifier = (0x18530902), .data_length_code = 8, .extd = 1, .data = {thr_per, 0x03, 0x00, state, 0x00, 0x00, 0x00, 0x00}};
 if (twai_transmit(&transmit_message_switch, 1000) == ESP_OK)
 {
@@ -491,33 +404,6 @@ else
 ESP_LOGE(EXAMPLE_TAG, "Failed to queue message for transmission\n");
 }
 vTaskDelay(pdMS_TO_TICKS(100));
- 
-// twai_message_t transmit_message_switch1 = {.identifier = (0x18530902), .data_length_code = 8, .extd = 1, .data = {0x00, 0x03, 0x00, 0x18, 0x00, 0x00, 0x00, 0x00}};
-// if (twai_transmit(&transmit_message_switch1, 1000) == ESP_OK)
-// {
-// ESP_LOGI(EXAMPLE_TAG, "Message queued for transmission\n");
-// vTaskDelay(pdMS_TO_TICKS(250));
-// }
-// else
-// {
- 
-// ESP_LOGE(EXAMPLE_TAG, "Failed to queue message for transmission\n");
-// }
-// vTaskDelay(pdMS_TO_TICKS(250));
- 
-// twai_message_t transmit_message_switch2 = {.identifier = (0x18530902), .data_length_code = 8, .extd = 1, .data = {0x00, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}};
-// if (twai_transmit(&transmit_message_switch2, 1000) == ESP_OK)
-// {
-// ESP_LOGI(EXAMPLE_TAG, "Message queued for transmission\n");
-// vTaskDelay(pdMS_TO_TICKS(250));
-// }
-// else
-// {
- 
-// ESP_LOGE(EXAMPLE_TAG, "Failed to queue message for transmission\n");
-// }
-// vTaskDelay(pdMS_TO_TICKS(250));
- 
  
 twai_message_t transmit_message_batteryTemp = {.identifier = (0x000000A), .data_length_code = 8, .extd = 1, .data = {batt_tmp, batt_tmp, batt_tmp, batt_tmp, batt_tmp, batt_tmp, batt_tmp, batt_tmp}};
 if (twai_transmit(&transmit_message_batteryTemp, 10000) == ESP_OK)
@@ -587,29 +473,7 @@ void configure_uart(void)
  
  
 void app_main(void)
-{
-   
-// gpio_set_direction(Ignition,GPIO_MODE_INPUT);
-// gpio_set_pull_mode(Ignition,GPIO_PULLUP_ONLY);
- 
-gpio_set_direction(Reverse,GPIO_MODE_INPUT);
-gpio_set_pull_mode(Reverse,GPIO_PULLUP_ONLY);
- 
-gpio_set_direction(ModeL,GPIO_MODE_INPUT);
-gpio_set_pull_mode(ModeL,GPIO_PULLUP_ONLY);
- 
-gpio_set_direction(ModeR,GPIO_MODE_INPUT);
-gpio_set_pull_mode(ModeR,GPIO_PULLUP_ONLY);
- 
-gpio_set_direction(Break,GPIO_MODE_INPUT);
-gpio_set_pull_mode(Break,GPIO_PULLUP_ONLY);
- 
-gpio_set_direction(SideStand,GPIO_MODE_INPUT);
-gpio_set_pull_mode(SideStand,GPIO_PULLUP_ONLY);
- 
-//xTaskCreatePinnedToCore(switch_ip, "TWAI_tx", 4096, NULL, TX_TASK_PRIO, NULL, tskNO_AFFINITY);
- 
- 
+{ 
 ESP_ERROR_CHECK(twai_driver_install(&g_config, &t_config, &f_config)); /// driver install
 ESP_LOGI(EXAMPLE_TAG, "Driver installed");
  
@@ -628,93 +492,77 @@ xTaskCreate(controller_temp , "motor controller temperature", 4096, NULL, 8, NUL
 xTaskCreate(switch_ip, "Swicth_Tsk", 4096, NULL, 8, NULL);
 //xTaskCreate(twai_transmit_task, "transmit_Tsk", 4096, NULL, 8, NULL);
 xTaskCreate(twai_transmit_task, "Transmit_Tsk", 4096, NULL, 8, NULL);
-//xSemaphoreGive(cnt_Switch_start); // Start control task
- 
-//gpio_set_intr_type(Ignition,GPIO_INTR_LOW_LEVEL);
-//gpio_intr_enable(Ignition);
- 
-//xSemaphoreTake(done_sem, portMAX_DELAY); // Wait for completion
- 
-//ESP_ERROR_CHECK(twai_driver_uninstall());
-//ESP_LOGI(EXAMPLE_TAG, "Driver uninstalled");
- 
-//vSemaphoreDelete(cnt_Switch_start);
-//vSemaphoreDelete(done_sem);
- 
+
     configure_uart();
     while (1) 
     {
-    uint8_t data[4]; 
-    int len = uart_read_bytes(ECHO_UART_PORT_NUM, data, sizeof(data), 20 / portTICK_PERIOD_MS);
-    if (len ==3)
-    {
-        int switch_number = data[0] - '0'; // Convert ASCII to integer
-
-        // Concatenate the characters and convert to integer
-        int switch_state = (data[1] - '0') * 10 + (data[2] - '0');
-
-        switch (switch_number)
+        uint8_t data[4]; 
+        int len = uart_read_bytes(ECHO_UART_PORT_NUM, data, sizeof(data), 20 / portTICK_PERIOD_MS);
+        if (len ==3)
         {
-            case 7: // Handle slider value (received_value_slider)
-                received_value_soc = switch_state;
-            break;
+            int switch_number = data[0] - '0'; // Convert ASCII to integer
 
-            case 8: // Handle slider value (received_value_slider)
-                received_value_batt_tmp = switch_state;
-            break;
+            // Concatenate the characters and convert to integer
+            int switch_state = (data[1] - '0') * 10 + (data[2] - '0');
 
-            case 9: // Handle slider value (received_value_slider)
-                received_value_soc = switch_state;
-            break;
+            switch (switch_number)
+            {
+                case 7: // Handle slider value (received_value_slider)
+                    received_value_soc = switch_state;
+                break;
+
+                case 8: // Handle slider value (received_value_slider)
+                    received_value_batt_tmp = switch_state;
+                break;
+
+                case 9: // Handle slider value (received_value_slider)
+                    received_value_soc = switch_state;
+                break;
+            }
+        }
+
+        if (len == 2) 
+        {
+            // Process received command
+            int switch_number = data[0] - '0'; // Convert ASCII to integer
+            int switch_state = data[1] - '0'; // Convert ASCII to integer
+            switch (switch_number) 
+            {
+                case 1:
+                    received_value_brake = switch_state; // Assuming 1 represents ON and 0 represents OFF
+                    break;
+                
+                case 2: //for reverse ,Press Brake then press Reverse- ON and then OFF
+                    received_value_reverse = switch_state;
+                    break;
+                case 3: //for modeR, press modeR- ON and then OFF
+                    received_value_modeR = switch_state;
+                    break;
+                case 4: //for modeL, press modeL- ON and then OFF
+                    received_value_modeL = switch_state;
+                    break;
+                case 5: //for sidestand,press sidestand- ON and then OFF                //for now, sidestand is not integrated with the TWAI code
+                    received_value_sidestand = switch_state;
+                    break;
+                case 6: //for Motor ON ,Press Brake then press Ignition- ON and then OFF
+                    received_value_ignition = switch_state;
+                    break;
+                
+                case 7: // Handle slider value (received_value_slider)
+                    received_value_soc = switch_state;
+                break;
+
+                case 8: // Handle slider value (received_value_slider)
+                    received_value_throttle = switch_state;
+                    break;
+                case 9: // Handle slider value (received_value_slider)
+                    received_value_batt_tmp = switch_state;
+                break; 
+
+                default:    
+                    // Handle invalid switch number
+                    break;
+            }
         }
     }
-
-    if (len == 2) 
-    {
-        // Process received command
-        int switch_number = data[0] - '0'; // Convert ASCII to integer
-        int switch_state = data[1] - '0'; // Convert ASCII to integer
-        switch (switch_number) 
-        {
-            case 1:
-                received_value_brake = switch_state; // Assuming 1 represents ON and 0 represents OFF
-                break;
-            
-            case 2: //for reverse ,Press Brake then press Reverse- ON and then OFF
-                received_value_reverse = switch_state;
-                break;
-            case 3: //for modeR, press modeR- ON and then OFF
-                received_value_modeR = switch_state;
-                break;
-            case 4: //for modeL, press modeL- ON and then OFF
-                received_value_modeL = switch_state;
-                break;
-            case 5: //for sidestand,press sidestand- ON and then OFF                //for now, sidestand is not integrated with the TWAI code
-                received_value_sidestand = switch_state;
-                break;
-            case 6: //for Motor ON ,Press Brake then press Ignition- ON and then OFF
-                received_value_ignition = switch_state;
-                break;
-            
-            case 7: // Handle slider value (received_value_slider)
-                received_value_soc = switch_state;
-            break;
-
-            case 8: // Handle slider value (received_value_slider)
-                received_value_throttle = switch_state;
-                break;
-            case 9: // Handle slider value (received_value_slider)
-                received_value_batt_tmp = switch_state;
-            break; 
-
-            default:    
-                // Handle invalid switch number
-                break;
-        }
-    }
-   
-
-}
-
-   
 }
