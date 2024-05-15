@@ -58,14 +58,14 @@ def release_button(button, var, id):
     send_uart(id, 0)  # Send update through UART
 
 # Function to simulate pressing both Ignition and Brake
-def press_both(ignition_button, Brake_button, ignition_var, Brake_var):
-    press_button(ignition_button, ignition_var)
-    press_button(Brake_button, Brake_var)
+def press_both(ignition_button, Brake_button, ignition_var, Brake_var, ignition_id, Brake_id):
+    press_button(ignition_button, ignition_var, ignition_id)
+    press_button(Brake_button, Brake_var, Brake_id)
 
 # Function to simulate releasing both Ignition and Brake
-def release_both(ignition_button, Brake_button, ignition_var, Brake_var):
-    release_button(ignition_button, ignition_var)
-    release_button(Brake_button, Brake_var)
+def release_both(ignition_button, Brake_button, ignition_var, Brake_var, ignition_id, Brake_id):
+    release_button(ignition_button, ignition_var, ignition_id)
+    release_button(Brake_button, Brake_var, Brake_id)
 
 # Define ids for each mode and sensor
 ids = {
@@ -116,14 +116,14 @@ for i, (name, min_val, max_val) in enumerate(scales_info):
     scales[name] = (scale, scale_var, entry)
 
 # Function to simulate pressing both Reverse and Brake
-def press_reverse_Brake(reverse_button, Brake_button, reverse_var, Brake_var):
-    press_button(reverse_button, reverse_var)
-    press_button(Brake_button, Brake_var)
+def press_reverse_Brake(reverse_button, Brake_button, reverse_var, Brake_var, reverse_id, Brake_id):
+    press_button(reverse_button, reverse_var, reverse_id)
+    press_button(Brake_button, Brake_var, Brake_id)
 
 # Function to simulate releasing both Reverse and Brake
-def release_reverse_Brake(reverse_button, Brake_button, reverse_var, Brake_var):
-    release_button(reverse_button, reverse_var)
-    release_button(Brake_button, Brake_var)
+def release_reverse_Brake(reverse_button, Brake_button, reverse_var, Brake_var, reverse_id, Brake_id):
+    release_button(reverse_button, reverse_var, reverse_id)
+    release_button(Brake_button, Brake_var, Brake_id)
 
 # Define push buttons for each mode
 modes_info = [
@@ -163,12 +163,12 @@ reverse_Brake_button = tk.Button(reverse_Brake_frame, text="Reverse & Brake")
 reverse_Brake_button.pack(side=tk.LEFT, padx=10)
 
 # Bind mouse press and release to both buttons
-ign_Brake_button.bind("<ButtonPress-1>", lambda event: press_both(mode_buttons["Ignition"], mode_buttons["Brake"], mode_vars["Ignition"], mode_vars["Brake"]))
-ign_Brake_button.bind("<ButtonRelease-1>", lambda event: release_both(mode_buttons["Ignition"], mode_buttons["Brake"], mode_vars["Ignition"], mode_vars["Brake"]))
+ign_Brake_button.bind("<ButtonPress-1>", lambda event: press_both(mode_buttons["Ignition"], mode_buttons["Brake"], mode_vars["Ignition"], mode_vars["Brake"], ids["Ignition"], ids["Brake"]))
+ign_Brake_button.bind("<ButtonRelease-1>", lambda event: release_both(mode_buttons["Ignition"], mode_buttons["Brake"], mode_vars["Ignition"], mode_vars["Brake"], ids["Ignition"], ids["Brake"]))
 
 # Bind mouse press and release to both buttons
-reverse_Brake_button.bind("<ButtonPress-1>", lambda event: press_reverse_Brake(mode_buttons["Reverse"], mode_buttons["Brake"], mode_vars["Reverse"], mode_vars["Brake"]))
-reverse_Brake_button.bind("<ButtonRelease-1>", lambda event: release_reverse_Brake(mode_buttons["Reverse"], mode_buttons["Brake"], mode_vars["Reverse"], mode_vars["Brake"]))
+reverse_Brake_button.bind("<ButtonPress-1>", lambda event: press_reverse_Brake(mode_buttons["Reverse"], mode_buttons["Brake"], mode_vars["Reverse"], mode_vars["Brake"], ids["Reverse"], ids["Brake"]))
+reverse_Brake_button.bind("<ButtonRelease-1>", lambda event: release_reverse_Brake(mode_buttons["Reverse"], mode_buttons["Brake"], mode_vars["Reverse"], mode_vars["Brake"], ids["Reverse"], ids["Brake"]))
 
 # Start the event loop
 root.mainloop()
