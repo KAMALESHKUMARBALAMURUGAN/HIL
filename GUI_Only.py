@@ -1,9 +1,23 @@
 import tkinter as tk
 from tkinter import ttk
 import serial
+import serial.tools.list_ports
 
-# Setup Serial Connection
-ser = serial.Serial('COM5', 115200)  # Update 'COM_PORT' to your specific port
+
+def find_esp32_port():
+    ports = serial.tools.list_ports.comports()
+    for port in ports:
+        # Adjust the keyword to match the description of the ESP32 on your system
+        if 'Silicon Labs CP210x USB to UART Bridge' in port.description:
+            return port.device
+    return None
+
+port = find_esp32_port()
+if port:
+    ser = serial.Serial(port, 115200)
+    print(f"Connected to {port}")
+else:
+    print("No ESP32 device found.")
 
 def send_uart(id, value):
     """Send parameter id and value over UART."""
