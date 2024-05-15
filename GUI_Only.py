@@ -1,10 +1,19 @@
 import tkinter as tk
 from tkinter import ttk
+import serial
+
+# Setup Serial Connection
+ser = serial.Serial('COM5', 115200)  # Update 'COM_PORT' to your specific port
+
+def send_uart(id, value):
+    """Send parameter id and value over UART."""
+    ser.write(f"{id},{value}\n".encode())
+    print(id, value)
 
 # Create the main window
 root = tk.Tk()
 root.title("HIL- Hardware In Loop")
-root.geometry("1000x500")
+root.geometry("500x500")
 
 # Create frames
 left_frame = ttk.Frame(root)
@@ -14,7 +23,7 @@ right_frame = ttk.Frame(root)
 right_frame.pack(side=tk.RIGHT, padx=20, pady=20)
 
 # Function to update the scale and entry from each other
-def update_scale_from_entry(entry, scale):
+def update_scale_from_entry(entry, scale, id):
     value = entry.get()
     if value.isdigit():
         value = int(value)
@@ -24,25 +33,29 @@ def update_scale_from_entry(entry, scale):
             scale.set(value)
             entry.delete(0, tk.END)
             entry.insert(0, str(value))
+            send_uart(id, value)  # Send update through UART
         else:
             entry.delete(0, tk.END)
             entry.insert(0, str(scale.get()))
 
-def update_entry_from_scale(name, var, entry):
+def update_entry_from_scale(name, var, entry, id):
     value = int(var.get())  # Cast float value to int
     entry.delete(0, tk.END)
     entry.insert(0, str(value))
     var.set(value)  # Update the variable to hold an integer value
+    send_uart(id, value)  # Send update through UART
 
 # Function to activate the button
-def press_button(button, var):
+def press_button(button, var, id):
     var.set(1)
     button.config(text="On")
+    send_uart(id, 1)  # Send update through UART
 
 # Function to deactivate the button
-def release_button(button, var):
+def release_button(button, var, id):
     var.set(0)
     button.config(text="Off")
+    send_uart(id, 0)  # Send update through UART
 
 # Function to simulate pressing both Ignition and Brake
 def press_both(ignition_button, Brake_button, ignition_var, Brake_var):
@@ -54,6 +67,20 @@ def release_both(ignition_button, Brake_button, ignition_var, Brake_var):
     release_button(ignition_button, ignition_var)
     release_button(Brake_button, Brake_var)
 
+# Define ids for each mode and sensor
+ids = {
+    "Mode L": 1,
+    "Mode R": 2,
+    "Reverse": 3,
+    "Ignition": 4,
+    "Brake": 5,
+    "Throttle": 6,
+    "SOC": 7,
+    "Battery temp": 8,
+    "Motor temp": 9,
+    "Controller temp": 10,
+    "PCB temp": 11
+}
 # Find the maximum label width needed
 scales_info = [
     ("Throttle", 0, 100),
@@ -83,8 +110,8 @@ for i, (name, min_val, max_val) in enumerate(scales_info):
     entry = ttk.Entry(control_frame, width=4)  # Adjusted width to fit three digits
     entry.insert(0, str(min_val))
     entry.grid(row=0, column=2, padx=(5, 0))
-    entry.bind('<Return>', lambda event, entry=entry, scale=scale: update_scale_from_entry(entry, scale))
-    scale.config(command=lambda event, name=name, var=scale_var, entry=entry: update_entry_from_scale(name, var, entry))
+    entry.bind('<Return>', lambda event, entry=entry, scale=scale, id=ids[name]: update_scale_from_entry(entry, scale, id))
+    scale.config(command=lambda event, name=name, var=scale_var, entry=entry, id=ids[name]: update_entry_from_scale(name, var, entry, id))
     
     scales[name] = (scale, scale_var, entry)
 
@@ -117,8 +144,8 @@ for mode in modes_info:
     mode_vars[mode] = var
     button = tk.Button(frame, text="Off")
     button.pack(side=tk.LEFT, padx=10)
-    button.bind("<ButtonPress-1>", lambda event, b=button, v=var: press_button(b, v))
-    button.bind("<ButtonRelease-1>", lambda event, b=button, v=var: release_button(b, v))
+    button.bind("<ButtonPress-1>", lambda event, b=button, v=var, id=ids[mode]: press_button(b, v, id))
+    button.bind("<ButtonRelease-1>", lambda event, b=button, v=var,id=ids[mode]: release_button(b, v, id))
     mode_buttons[mode] = button
 
 # Additional button for Ignition & Brake, now with updated label directly on the button and no frame label
