@@ -62,12 +62,14 @@ def update_entry_from_scale(name, var, entry, id):
 
 # Function to activate the button
 def press_button(button, var, id):
+    sleep(1)
     var.set(1)
     button.config(text="On")
     send_uart(id, 1)  # Send update through UART
 
 # Function to deactivate the button
 def release_button(button, var, id):
+    sleep(1)
     var.set(0)
     button.config(text="Off")
     send_uart(id, 0)  # Send update through UART
