@@ -21,8 +21,9 @@ else:
 
 def send_uart(id, value):
     """Send parameter id and value over UART."""
-    ser.write(f"{id},{value}\n".encode())
-    print(id, value)
+    cmd=f'{id}{value}'
+    ser.write(cmd.encode())
+    print(cmd.encode())
 
 # Create the main window
 root = tk.Tk()
@@ -83,17 +84,18 @@ def release_both(ignition_button, Brake_button, ignition_var, Brake_var, ignitio
 
 # Define ids for each mode and sensor
 ids = {
-    "Mode L": 1,
-    "Mode R": 2,
-    "Reverse": 3,
-    "Ignition": 4,
-    "Brake": 5,
-    "Throttle": 6,
+    "Brake": 1,
+    "Reverse": 2,
+    "Mode R": 3,
+    "Mode L": 4,
+    # "Sidestand": 5, (Push button not added in the GUI)
+    "Ignition": 6,
     "SOC": 7,
-    "Battery temp": 8,
-    "Motor temp": 9,
-    "Controller temp": 10,
-    "PCB temp": 11
+    "Throttle": 8,
+    "Battery temp": 9,
+    "Motor temp": 10,
+    "Controller temp": 11,
+    "PCB temp": 12
 }
 # Find the maximum label width needed
 scales_info = [
