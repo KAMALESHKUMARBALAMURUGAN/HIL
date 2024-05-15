@@ -58,7 +58,6 @@ def update_entry_from_scale(name, var, entry, id):
     entry.delete(0, tk.END)
     entry.insert(0, str(value))
     var.set(value)  # Update the variable to hold an integer value
-    send_uart(id, value)  # Send update through UART
 
 # Function to activate the button
 def press_button(button, var, id):
