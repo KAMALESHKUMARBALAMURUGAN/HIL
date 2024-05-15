@@ -37,9 +37,9 @@ switches = {
     "Mode L": 4,
     "Sidestand": 5,
     "Ignition": 6,
-    "Slider 7": 7,
-    "Slider 8": 8,
-    "Slider 9": 9
+    "Slider 7": 7,  #soc
+    "Slider 8": 8, # throttle
+    "Slider 9": 9  #batt_tmp 
 }
 
 for switch_name, switch_number in switches.items():

@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 import serial
 import serial.tools.list_ports
-
+from time import sleep
 
 def find_esp32_port():
     ports = serial.tools.list_ports.comports()
@@ -74,12 +74,16 @@ def release_button(button, var, id):
 
 # Function to simulate pressing both Ignition and Brake
 def press_both(ignition_button, Brake_button, ignition_var, Brake_var, ignition_id, Brake_id):
-    press_button(ignition_button, ignition_var, ignition_id)
     press_button(Brake_button, Brake_var, Brake_id)
+    sleep(0.1)
+    press_button(ignition_button, ignition_var, ignition_id)
+    sleep(0.2)
 
 # Function to simulate releasing both Ignition and Brake
 def release_both(ignition_button, Brake_button, ignition_var, Brake_var, ignition_id, Brake_id):
+    sleep(0.2)
     release_button(ignition_button, ignition_var, ignition_id)
+    sleep(0.1)
     release_button(Brake_button, Brake_var, Brake_id)
 
 # Define ids for each mode and sensor
@@ -133,12 +137,16 @@ for i, (name, min_val, max_val) in enumerate(scales_info):
 
 # Function to simulate pressing both Reverse and Brake
 def press_reverse_Brake(reverse_button, Brake_button, reverse_var, Brake_var, reverse_id, Brake_id):
-    press_button(reverse_button, reverse_var, reverse_id)
     press_button(Brake_button, Brake_var, Brake_id)
+    sleep(0.1)
+    press_button(reverse_button, reverse_var, reverse_id)
+    sleep(0.2)
 
 # Function to simulate releasing both Reverse and Brake
 def release_reverse_Brake(reverse_button, Brake_button, reverse_var, Brake_var, reverse_id, Brake_id):
+    sleep(0.2)
     release_button(reverse_button, reverse_var, reverse_id)
+    sleep(0.1)
     release_button(Brake_button, Brake_var, Brake_id)
 
 # Define push buttons for each mode
