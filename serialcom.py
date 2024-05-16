@@ -54,21 +54,23 @@ def update_scale_from_entry(entry, scale, id):
             entry.insert(0, str(scale.get()))
 
 def update_entry_from_scale(name, var, entry, id):
-    value = int(var.get())  # Cast float value to int
-    entry.delete(0, tk.END)
-    entry.insert(0, str(value))
-    var.set(value)  # Update the variable to hold an integer value
+    current_value = int(var.get())  # Cast float value to int
+    if current_value != int(entry.get()):  # Only send UART if value has changed
+        entry.delete(0, tk.END)
+        entry.insert(0, str(current_value))
+        var.set(current_value)  # Update the variable to hold an integer value
+        send_uart(id, current_value)  # Send update through UART
 
 # Function to activate the button
 def press_button(button, var, id):
-    sleep(0.3)
+    sleep(1)
     var.set(1)
     button.config(text="On")
     send_uart(id, 1)  # Send update through UART
 
 # Function to deactivate the button
 def release_button(button, var, id):
-    sleep(0.3)
+    sleep(1)
     var.set(0)
     button.config(text="Off")
     send_uart(id, 0)  # Send update through UART
