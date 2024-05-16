@@ -62,12 +62,15 @@ static int received_value_throttle;
 static int received_value_motorTemp;
 static int received_value_pcbTemp;
 static int received_value_controllerTemp;
+static int received_value_rpm;
+static int rpm1, rpm2;
 
 static int thr_per;
 static int batt_tmp;
 static int V_motor_out;
 static int pcb;
 static float cnt_tmp;
+static int rpm;
 // static int 
 
 
@@ -156,7 +159,6 @@ int adc_value = 0;
 int adc_value1 = 0;
 int adc_value2 = 0;
  
-uint32_t RPM;
  
 char motor_err[32];
  
@@ -213,7 +215,6 @@ char CSOH_2[32];
 char CSOH_3[32];
 char T_stamp[32];
 char sensor[32];
-char rpm[64];
 char speed[64];
 char throttle[64];
  
@@ -279,7 +280,19 @@ thr_per= received_value_throttle;
 V_motor_out= received_value_motorTemp;
 pcb= received_value_pcbTemp;
 cnt_tmp= received_value_controllerTemp;
+rpm= received_value_rpm;
 
+    
+    
+
+    // Extract the first two digits
+    rpm1 = rpm / 100;
+
+    // Extract the last two digits
+    rpm2 = rpm % 100;
+
+    printf("rpm1: %d\n", rpm1);
+    printf("rpm2: %d\n", rpm2);
 
 
 
@@ -398,6 +411,7 @@ int D_motor_max = 4095 ;
 
  
 static void twai_transmit_task(void *arg)
+
 {
 ESP_LOGI(EXAMPLE_TAG, "Transmitting to battery");
 vTaskDelay(pdMS_TO_TICKS(100));
@@ -460,7 +474,23 @@ else
 ESP_LOGE(EXAMPLE_TAG, "Failed to queue message for transmission\n");
 }
 vTaskDelay(pdMS_TO_TICKS(100));
+
+////////////////////////////
+twai_message_t transmit_message_rpm = {.identifier = (0x14520902), .data_length_code = 8, .extd = 1, .data = {rpm1, rpm2, 0x00, 0x00 , 0x00 , 0x00 , 0x00 , 0x00 }};
+if (twai_transmit(&transmit_message_rpm, 10000) == ESP_OK)
+{
+    ESP_LOGI(EXAMPLE_TAG, "Message queued for transmission\n");
+vTaskDelay(pdMS_TO_TICKS(100));
+}
+else
+{
  
+ESP_LOGE(EXAMPLE_TAG, "Failed to queue message for transmission\n");
+}
+vTaskDelay(pdMS_TO_TICKS(100));
+
+
+////////////////////////////
  
 }
  
@@ -546,6 +576,10 @@ xTaskCreate(twai_transmit_task, "Transmit_Tsk", 4096, NULL, 8, NULL);
                     received_value_pcbTemp= switch_state;
                 break;
 
+                case 13:
+                    received_value_rpm = switch_state;
+                break;
+
                 default:    
                     // Handle invalid switch number
                     break;
@@ -584,6 +618,10 @@ xTaskCreate(twai_transmit_task, "Transmit_Tsk", 4096, NULL, 8, NULL);
 
                 case 12:
                     received_value_pcbTemp= switch_state;
+                break;
+
+                case 13:
+                    received_value_rpm = switch_state;
                 break;
 
                 default:    
@@ -640,6 +678,10 @@ xTaskCreate(twai_transmit_task, "Transmit_Tsk", 4096, NULL, 8, NULL);
 
                 case 12:
                     received_value_pcbTemp= switch_state;
+                break;
+
+                case 13:
+                    received_value_rpm = switch_state;
                 break;
 
                 default:    

@@ -102,7 +102,8 @@ ids = {
     "Battery temp": 9,
     "Motor temp": 10,
     "Controller temp": 11,
-    "PCB temp": 12
+    "PCB temp": 12,
+    "rpm":13
 }
 # Find the maximum label width needed
 scales_info = [
@@ -111,7 +112,8 @@ scales_info = [
     ("Battery temp", 0, 150),
     ("Motor temp", 0, 250),
     ("Controller temp", 0, 200),
-    ("PCB temp", 0, 200)
+    ("PCB temp", 0, 200),
+    ("rpm",0,4500)
 ]
 
 label_width = max(len(info[0]) for info in scales_info)  # Find the max length of label text
