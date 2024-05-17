@@ -54,7 +54,7 @@ def update_scale_from_entry(entry, scale, id):
             entry.insert(0, str(scale.get()))
 
 def update_entry_from_scale(name, var, entry, id):
-    current_value = int(var.get())  # Cast float value to int
+    current_value = int(var.get())  # Cast float value to int                           //current_value contains the value of the slider (not the slider number)
     if current_value != int(entry.get()):  # Only send UART if value has changed
         entry.delete(0, tk.END)
         entry.insert(0, str(current_value))
@@ -100,10 +100,10 @@ ids = {
     "SOC": 7,
     "Throttle": 8,
     "Battery temp": 9,
-    "Motor temp": 10,
-    "Controller temp": 11,
-    "PCB temp": 12,
-    "rpm":13
+    "Motor temp": 'a',
+    "Controller temp": 'b',
+    "PCB temp": 'c',
+    "rpm":'d'
 }
 # Find the maximum label width needed
 scales_info = [

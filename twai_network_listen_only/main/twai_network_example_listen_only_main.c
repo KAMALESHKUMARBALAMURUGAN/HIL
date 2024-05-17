@@ -64,6 +64,8 @@ static int received_value_pcbTemp;
 static int received_value_controllerTemp;
 static int received_value_rpm;
 static int rpm1, rpm2;
+static char rpm1_hex[10], rpm2_hex[10];
+static char rpm_hex[10];
 
 static int thr_per;
 static int batt_tmp;
@@ -283,16 +285,35 @@ cnt_tmp= received_value_controllerTemp;
 rpm= received_value_rpm;
 
     
-    
+    // Convert rpm to hexadecimal string
+    sprintf(rpm_hex, "%x", rpm);
 
-    // Extract the first two digits
-    rpm1 = rpm / 100;
+    // Determine the length of the hexadecimal string
+    int len = strlen(rpm_hex);
 
-    // Extract the last two digits
-    rpm2 = rpm % 100;
+    // If the hexadecimal string is less than 4 characters, pad it with zeros at the beginning
+    if (len < 4) {
+        for (int i = 3; i >= 0; i--) {
+            if (len > 0) {
+                rpm_hex[i] = rpm_hex[len - 1];
+                len--;
+            } else {
+                rpm_hex[i] = '0';
+            }
+        }
+        rpm_hex[4] = '\0';  // Null-terminate the string
+    }
 
-    printf("rpm1: %d\n", rpm1);
-    printf("rpm2: %d\n", rpm2);
+    // Split the hexadecimal string into two parts
+    strncpy(rpm1_hex, rpm_hex, 2);
+    rpm1_hex[2] = '\0'; // Null-terminate the string
+    strncpy(rpm2_hex, rpm_hex + 2, 2);
+    rpm2_hex[2] = '\0'; // Null-terminate the string
+
+    // Print the hexadecimal strings
+    printf("rpm (hexadecimal): %s\n", rpm_hex);
+    printf("rpm1 (hexadecimal): %s\n", rpm1_hex);
+    printf("rpm2 (hexadecimal): %s\n", rpm2_hex);
 
 
 
@@ -349,65 +370,10 @@ int Vmax = 100 ;
 int Dmax = 4095 ;
 
 
- 
- 
-
-// static float cnt_tmp = 0;
-// static void controller_temp(void *arg)     //Conversion of analog to digital signal
-// {
-//     adc1_config_width(ADC_WIDTH_BIT_12);
-//     adc1_config_channel_atten(ADC1_CHANNEL_6, ADC_ATTEN_DB_0);
-//     while(1)
-//     {
-//         int val_temp_controller = adc1_get_raw(ADC1_CHANNEL_6);//gpio34
-//         printf("cnt_tmp_analog---------> %d \n",val_temp_controller);
-//         cnt_tmp = (float)val_temp_controller * ((float)Vmax / (float)Dmax);
-//         //printf("the value shown %d \n", val_temp_controller);//val_of_temp);
-//         printf("Controller(MCU) temperature : %.4f \n", cnt_tmp);
-//         //ESP_LOGD(EXAMPLE_TAG, "Failed to queue message for transmission\n");
-//         vTaskDelay(100/portTICK_PERIOD_MS);
-//             //new_val = val_of_temp ;
-//     }
-//     vTaskDelay(NULL);
-// }
- 
-// static float pcb = 0 ;
-// static void pcb_temp(void *arg)     //Conversion of analog to digital signal
-// {
-//     adc1_config_width(ADC_WIDTH_BIT_12);
-//     adc1_config_channel_atten(ADC1_CHANNEL_7, ADC_ATTEN_DB_0);
-//     while(1)
-//     {
-//         int val_temp_pcb = adc1_get_raw(ADC1_CHANNEL_7); //GPIO -35
-//         pcb = (float)val_temp_pcb * ((float)Vmax / (float)Dmax);
-//         printf("PCB temperature : %.4f \n", pcb);
-//         //ESP_LOGD(EXAMPLE_TAG, "Failed to queue message for transmission\n");
-//         vTaskDelay(100/portTICK_PERIOD_MS);
-//             //new_val = val_of_temp ;
-//     }
-//     vTaskDelay(NULL);
-// }
-
- 
 int Dout ;
 int V_motor_max = 150 ;
 int D_motor_max = 4095 ;
-// static float V_motor_out = 0;
-// static void motor_temp(void *arg)     //Conversion of analog to digital signal
-// {
-//     adc1_config_width(ADC_WIDTH_BIT_12);
-//     adc1_config_channel_atten(ADC1_CHANNEL_5, ADC_ATTEN_DB_0);
-//     while(1)
-//     {
-//         int val_temp_motor = adc1_get_raw(ADC1_CHANNEL_5); // gpio33
-//         V_motor_out = (float)val_temp_motor * ((float)V_motor_max / (float)D_motor_max);
-//         printf("Motor Temperature : %.4f \n", V_motor_out);
-//         //ESP_LOGD(EXAMPLE_TAG, "Failed to queue message for transmission\n");
-//         vTaskDelay(100/portTICK_PERIOD_MS);
-//             //new_val = val_of_temp ;
-//     }
-//     vTaskDelay(NULL);
-// }
+
 
  
 static void twai_transmit_task(void *arg)
@@ -476,7 +442,7 @@ ESP_LOGE(EXAMPLE_TAG, "Failed to queue message for transmission\n");
 vTaskDelay(pdMS_TO_TICKS(100));
 
 ////////////////////////////
-twai_message_t transmit_message_rpm = {.identifier = (0x14520902), .data_length_code = 8, .extd = 1, .data = {rpm1, rpm2, 0x00, 0x00 , 0x00 , 0x00 , 0x00 , 0x00 }};
+twai_message_t transmit_message_rpm = {.identifier = (0x14520902), .data_length_code = 8, .extd = 1, .data = {rpm1_hex, rpm2_hex, 0x00, 0x00 , 0x00 , 0x00 , 0x00 , 0x00 }};
 if (twai_transmit(&transmit_message_rpm, 10000) == ESP_OK)
 {
     ESP_LOGI(EXAMPLE_TAG, "Message queued for transmission\n");
@@ -499,6 +465,7 @@ vTaskDelay(pdMS_TO_TICKS(100));
 vTaskDelete(NULL);
 }
  
+
 void configure_uart(void)
 {
     const uart_config_t uart_config = {
@@ -542,11 +509,24 @@ xTaskCreate(twai_transmit_task, "Transmit_Tsk", 4096, NULL, 8, NULL);
         uint8_t data[4]; 
         int len = uart_read_bytes(ECHO_UART_PORT_NUM, data, sizeof(data), 20 / portTICK_PERIOD_MS);
 
+        if (len==5)
+        {
+            int switch_number = data[0] - '0'; // Convert ASCII to integer
+
+            // Concatenate the characters and convert to integer
+            int switch_state = (data[1] - '0') * 1000 + (data[2] - '0')* 100 + (data[3] - '0')*10 +(data[4]);
+
+            switch (switch_number)
+            {
+                case 52:
+                    received_value_rpm = switch_state;
+            }
+        }
+
 
          if (len ==4)
         {
             int switch_number = data[0] - '0'; // Convert ASCII to integer
-
             // Concatenate the characters and convert to integer
             int switch_state = (data[1] - '0') * 100 + (data[2] - '0')* 10 + (data[3] - '0');
 
@@ -564,19 +544,19 @@ xTaskCreate(twai_transmit_task, "Transmit_Tsk", 4096, NULL, 8, NULL);
                     received_value_batt_tmp = switch_state;
                 break;
 
-                case 10:
+                case 49:
                     received_value_motorTemp= switch_state;
                 break;
 
-                case 11:
+                case 50:
                     received_value_controllerTemp= switch_state;
                 break;
 
-                case 12:
+                case 51:
                     received_value_pcbTemp= switch_state;
                 break;
 
-                case 13:
+                case 52:
                     received_value_rpm = switch_state;
                 break;
 
@@ -608,19 +588,19 @@ xTaskCreate(twai_transmit_task, "Transmit_Tsk", 4096, NULL, 8, NULL);
                     received_value_batt_tmp = switch_state;
                 break;
 
-                case 10:
+                case 49:
                     received_value_motorTemp= switch_state;
                 break;
 
-                case 11:
+                case 50:
                     received_value_controllerTemp= switch_state;
                 break;
 
-                case 12:
+                case 51:
                     received_value_pcbTemp= switch_state;
                 break;
 
-                case 13:
+                case 52:
                     received_value_rpm = switch_state;
                 break;
 
@@ -668,19 +648,19 @@ xTaskCreate(twai_transmit_task, "Transmit_Tsk", 4096, NULL, 8, NULL);
                     received_value_batt_tmp = switch_state;
                 break; 
 
-                case 10:
+                case 49:
                     received_value_motorTemp= switch_state;
                 break;
 
-                case 11:
+                case 50:
                     received_value_controllerTemp= switch_state;
                 break;
 
-                case 12:
+                case 51:
                     received_value_pcbTemp= switch_state;
                 break;
 
-                case 13:
+                case 52:
                     received_value_rpm = switch_state;
                 break;
 
