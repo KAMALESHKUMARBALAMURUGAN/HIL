@@ -64,8 +64,13 @@ static int received_value_pcbTemp;
 static int received_value_controllerTemp;
 static int received_value_rpm;
 static int rpm1, rpm2;
-static char rpm1_hex[10], rpm2_hex[10];
-static char rpm_hex[10];
+// static char rpm1_hex[5], rpm2_hex[5]= {0};
+// static char rpm_hex[5]= {0};
+// static uint8_t rpm1_byte;
+// static uint8_t rpm2_byte;
+// Define variables to hold RPM data
+static uint8_t rpm1_hex;
+static uint8_t rpm2_hex;
 
 static int thr_per;
 static int batt_tmp;
@@ -284,36 +289,9 @@ pcb= received_value_pcbTemp;
 cnt_tmp= received_value_controllerTemp;
 rpm= received_value_rpm;
 
-    
-    // Convert rpm to hexadecimal string
-    sprintf(rpm_hex, "%x", rpm);
-
-    // Determine the length of the hexadecimal string
-    int len = strlen(rpm_hex);
-
-    // If the hexadecimal string is less than 4 characters, pad it with zeros at the beginning
-    if (len < 4) {
-        for (int i = 3; i >= 0; i--) {
-            if (len > 0) {
-                rpm_hex[i] = rpm_hex[len - 1];
-                len--;
-            } else {
-                rpm_hex[i] = '0';
-            }
-        }
-        rpm_hex[4] = '\0';  // Null-terminate the string
-    }
-
-    // Split the hexadecimal string into two parts
-    strncpy(rpm1_hex, rpm_hex, 2);
-    rpm1_hex[2] = '\0'; // Null-terminate the string
-    strncpy(rpm2_hex, rpm_hex + 2, 2);
-    rpm2_hex[2] = '\0'; // Null-terminate the string
-
-    // Print the hexadecimal strings
-    printf("rpm (hexadecimal): %s\n", rpm_hex);
-    printf("rpm1 (hexadecimal): %s\n", rpm1_hex);
-    printf("rpm2 (hexadecimal): %s\n", rpm2_hex);
+     // Convert RPM to hexadecimal bytes
+    rpm1_hex = rpm >> 8; // Most significant byte
+    rpm2_hex = rpm & 0xFF; // Least significant byte
 
 
 
@@ -442,7 +420,7 @@ ESP_LOGE(EXAMPLE_TAG, "Failed to queue message for transmission\n");
 vTaskDelay(pdMS_TO_TICKS(100));
 
 ////////////////////////////
-twai_message_t transmit_message_rpm = {.identifier = (0x14520902), .data_length_code = 8, .extd = 1, .data = {rpm1_hex, rpm2_hex, 0x00, 0x00 , 0x00 , 0x00 , 0x00 , 0x00 }};
+twai_message_t transmit_message_rpm = {.identifier = (0x14520902), .data_length_code = 8, .extd = 1, .data = {rpm2_hex, rpm1_hex, 0x00, 0x00 , 0x00 , 0x00 , 0x00 , 0x00 }};
 if (twai_transmit(&transmit_message_rpm, 10000) == ESP_OK)
 {
     ESP_LOGI(EXAMPLE_TAG, "Message queued for transmission\n");
@@ -506,23 +484,27 @@ xTaskCreate(twai_transmit_task, "Transmit_Tsk", 4096, NULL, 8, NULL);
     configure_uart();
     while (1) 
     {
-        uint8_t data[4]; 
+        uint8_t data[5]; 
         int len = uart_read_bytes(ECHO_UART_PORT_NUM, data, sizeof(data), 20 / portTICK_PERIOD_MS);
 
-        if (len==5)
-        {
-            int switch_number = data[0] - '0'; // Convert ASCII to integer
-
-            // Concatenate the characters and convert to integer
-            int switch_state = (data[1] - '0') * 1000 + (data[2] - '0')* 100 + (data[3] - '0')*10 +(data[4]);
-
-            switch (switch_number)
+        if (len ==5)
             {
-                case 52:
-                    received_value_rpm = switch_state;
-            }
-        }
+                int switch_number = data[0] - '0'; // Convert ASCII to integer
 
+                // Concatenate the characters and convert to integer
+                int switch_state = (data[1] - '0') * 1000 + (data[2] - '0')* 100 + (data[3] - '0')*10 +(data[4]-'0');
+                
+
+                switch (switch_number)
+                {
+                    case 52:
+                        received_value_rpm = switch_state;
+                    break;
+                    default:    
+                        // Handle invalid switch number
+                    break;
+                }
+            }
 
          if (len ==4)
         {
@@ -601,7 +583,7 @@ xTaskCreate(twai_transmit_task, "Transmit_Tsk", 4096, NULL, 8, NULL);
                 break;
 
                 case 52:
-                    received_value_rpm = switch_state;
+                    received_value_rpm= switch_state;
                 break;
 
                 default:    

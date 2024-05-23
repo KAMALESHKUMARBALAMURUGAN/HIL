@@ -1,0 +1,5 @@
+[1/4] cmd.exe /C "cd /D C:\Users\kamalesh.kb\HIL_AUTO\HIL\twai_network_listen_only\build\esp-idf\esptool_py && C:\Users\kamalesh.kb\.espressif\python_env\idf5.2_py3.11_env\Scripts\python.exe C:/Users/kamalesh.kb/esp/v5.2/esp-idf/components/partition_table/check_sizes.py --offset 0x8000 partition --type app C:/Users/kamalesh.kb/HIL_AUTO/HIL/twai_network_listen_only/build/partition_table/partition-table.bin C:/Users/kamalesh.kb/HIL_AUTO/HIL/twai_network_listen_only/build/twai_network_listen_only.bin"
+twai_network_listen_only.bin binary size 0x33050 bytes. Smallest app partition is 0x100000 bytes. 0xccfb0 bytes (80%) free.
+[2/4] Performing build step for 'bootloader'
+[1/1] cmd.exe /C "cd /D C:\Users\kamalesh.kb\HIL_AUTO\HIL\twai_network_listen_only\build\bootloader\esp-idf\esptool_py && C:\Users\kamalesh.kb\.espressif\python_env\idf5.2_py3.11_env\Scripts\python.exe C:/Users/kamalesh.kb/esp/v5.2/esp-idf/components/partition_table/check_sizes.py --offset 0x8000 bootloader 0x1000 C:/Users/kamalesh.kb/HIL_AUTO/HIL/twai_network_listen_only/build/bootloader/bootloader.bin"
+Bootloader binary size 0x6850 bytes. 0x7b0 bytes (7%) free.
