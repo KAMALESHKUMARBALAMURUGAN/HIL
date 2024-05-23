@@ -28,7 +28,7 @@ def send_uart(id, value):
 # Create the main window
 root = tk.Tk()
 root.title("HIL- Hardware In Loop")
-root.geometry("500x700")
+root.geometry("500x900")
 
 # Create frames
 left_frame = ttk.Frame(root)
@@ -103,8 +103,15 @@ ids = {
     "Motor temp": 'a',
     "Controller temp": 'b',
     "PCB temp": 'c',
-    "rpm":'d',
-    "Motor Over Temperature":'e'
+    "rpm": 'd',
+    "Motor Over Temperature": 'e',
+    "Controller Over Temperature": 'f',
+    "Controller Over Voltage": 'g',
+    "Controller Under Voltage": 'h',
+    "Overcurrent Fault": 'i',
+    "Motor Hall Input Abnormal": 'j',
+    "Motor Stalling": 'k',
+    "Motor Phase Loss": 'l'
 }
 
 # Find the maximum label width needed
@@ -115,7 +122,7 @@ scales_info = [
     ("Motor temp", 0, 250),
     ("Controller temp", 0, 200),
     ("PCB temp", 0, 200),
-    ("rpm",0,4500)
+    ("rpm", 0, 4500)
 ]
 
 label_width = max(len(info[0]) for info in scales_info)  # Find the max length of label text
@@ -193,13 +200,27 @@ reverse_Brake_frame.grid(row=len(modes_info) + 1, column=0, padx=10, pady=10, st
 reverse_Brake_button = tk.Button(reverse_Brake_frame, text="Reverse & Brake")
 reverse_Brake_button.pack(side=tk.LEFT, padx=10)
 
-# Radio buttons for Motor Over Temperature
-motor_temp_frame = ttk.LabelFrame(right_frame, text="Motor Over Temperature")
-motor_temp_frame.grid(row=len(modes_info) + 2, column=0, padx=10, pady=10, sticky='ew')
+# Radio buttons for different faults
+faults_info = [
+    ("Motor Over Temperature", "e"),
+    ("Controller Over Temperature", "f"),
+    ("Controller Over Voltage", "g"),
+    ("Controller Under Voltage", "h"),
+    ("Overcurrent Fault", "i"),
+    ("Motor Hall Input Abnormal", "j"),
+    ("Motor Stalling", "k"),
+    ("Motor Phase Loss", "l"),
+]
 
-motor_temp_var = tk.StringVar(value="OFF")
-ttk.Radiobutton(motor_temp_frame, text="OFF", variable=motor_temp_var, value="OFF", command=lambda: send_uart(ids["Motor Over Temperature"], 0)).pack(side=tk.LEFT, padx=10)
-ttk.Radiobutton(motor_temp_frame, text="ON", variable=motor_temp_var, value="ON", command=lambda: send_uart(ids["Motor Over Temperature"], 1)).pack(side=tk.LEFT, padx=10)
+fault_vars = {}
+for i, (fault, fault_id) in enumerate(faults_info):
+    fault_frame = ttk.LabelFrame(right_frame, text=fault)
+    fault_frame.grid(row=len(modes_info) + 2 + i, column=0, padx=10, pady=10, sticky='ew')
+
+    fault_var = tk.StringVar(value="OFF")
+    fault_vars[fault] = fault_var
+    ttk.Radiobutton(fault_frame, text="OFF", variable=fault_var, value="OFF", command=lambda id=fault_id: send_uart(id, 0)).pack(side=tk.LEFT, padx=10)
+    ttk.Radiobutton(fault_frame, text="ON", variable=fault_var, value="ON", command=lambda id=fault_id: send_uart(id, 1)).pack(side=tk.LEFT, padx=10)
 
 # Bind mouse press and release to both buttons
 ign_Brake_button.bind("<ButtonPress-1>", lambda event: press_both(mode_buttons["Ignition"], mode_buttons["Brake"], mode_vars["Ignition"], mode_vars["Brake"], ids["Ignition"], ids["Brake"]))
