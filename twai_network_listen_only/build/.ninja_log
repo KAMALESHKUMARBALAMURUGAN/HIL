@@ -952,3 +952,13 @@
 186	902	7379009079858863	C:/Users/kamalesh.kb/HIL_AUTO/HIL/twai_network_listen_only/build/bootloader/bootloader.elf	53135f0772f74b70
 186	902	7379009079858863	C:/Users/kamalesh.kb/HIL_AUTO/HIL/twai_network_listen_only/build/bootloader/bootloader.bin	53135f0772f74b70
 186	902	7379009079858863	C:/Users/kamalesh.kb/HIL_AUTO/HIL/twai_network_listen_only/build/bootloader/bootloader.map	53135f0772f74b70
+140	1058	0	esp-idf/esptool_py/CMakeFiles/app_check_size	ed2a142bbc4fd460
+140	1058	0	C:/Users/kamalesh.kb/HIL_AUTO/HIL/twai_network_listen_only/build/esp-idf/esptool_py/CMakeFiles/app_check_size	ed2a142bbc4fd460
+125	1080	7379009079858863	bootloader-prefix/src/bootloader-stamp/bootloader-build	53135f0772f74b70
+125	1080	7379009079858863	bootloader/bootloader.elf	53135f0772f74b70
+125	1080	7379009079858863	bootloader/bootloader.bin	53135f0772f74b70
+125	1080	7379009079858863	bootloader/bootloader.map	53135f0772f74b70
+125	1080	7379009079858863	C:/Users/kamalesh.kb/HIL_AUTO/HIL/twai_network_listen_only/build/bootloader-prefix/src/bootloader-stamp/bootloader-build	53135f0772f74b70
+125	1080	7379009079858863	C:/Users/kamalesh.kb/HIL_AUTO/HIL/twai_network_listen_only/build/bootloader/bootloader.elf	53135f0772f74b70
+125	1080	7379009079858863	C:/Users/kamalesh.kb/HIL_AUTO/HIL/twai_network_listen_only/build/bootloader/bootloader.bin	53135f0772f74b70
+125	1080	7379009079858863	C:/Users/kamalesh.kb/HIL_AUTO/HIL/twai_network_listen_only/build/bootloader/bootloader.map	53135f0772f74b70
