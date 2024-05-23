@@ -64,6 +64,7 @@ static int received_value_pcbTemp;
 static int received_value_controllerTemp;
 static int received_value_rpm;
 static int rpm1, rpm2;
+static int MotorTempWarning;
 // static char rpm1_hex[5], rpm2_hex[5]= {0};
 // static char rpm_hex[5]= {0};
 // static uint8_t rpm1_byte;
@@ -315,6 +316,7 @@ union ControlUnion {
  
 // not needed
 union ControlUnion control;
+//these following is the code snippet for controlling the Controls like brake,modeR,modeL etc 
     // Assign values to the bit field members
     control.bits.b0 = 0;
     control.bits.modeR = modeR;  // Replace with your actual modeR value
@@ -419,7 +421,7 @@ ESP_LOGE(EXAMPLE_TAG, "Failed to queue message for transmission\n");
 }
 vTaskDelay(pdMS_TO_TICKS(100));
 
-////////////////////////////
+
 twai_message_t transmit_message_rpm = {.identifier = (0x14520902), .data_length_code = 8, .extd = 1, .data = {rpm2_hex, rpm1_hex, 0x00, 0x00 , 0x00 , 0x00 , 0x00 , 0x00 }};
 if (twai_transmit(&transmit_message_rpm, 10000) == ESP_OK)
 {
@@ -434,7 +436,20 @@ ESP_LOGE(EXAMPLE_TAG, "Failed to queue message for transmission\n");
 vTaskDelay(pdMS_TO_TICKS(100));
 
 
-////////////////////////////
+/////////////////////////
+twai_message_t transmit_message_MotorTempWarning = {.identifier = (0X18530902), .data_length_code = 8, .extd = 1, .data = {0X00, 0X00, MotorTempWarning, 0x00 , 0x00 , 0x00 , 0x00 , 0x00 }};
+if (twai_transmit(&transmit_message_rpm, 10000) == ESP_OK)
+{
+    ESP_LOGI(EXAMPLE_TAG, "Message queued for transmission\n");
+vTaskDelay(pdMS_TO_TICKS(100));
+}
+else
+{
+ 
+ESP_LOGE(EXAMPLE_TAG, "Failed to queue message for transmission\n");
+}
+vTaskDelay(pdMS_TO_TICKS(100));
+////////////////////////
  
 }
  
@@ -644,6 +659,17 @@ xTaskCreate(twai_transmit_task, "Transmit_Tsk", 4096, NULL, 8, NULL);
 
                 case 52:
                     received_value_rpm = switch_state;
+                break;
+
+                case 53:
+                    if (switch_state==1)
+                    {
+                        MotorTempWarning =16;
+                    }
+                    else
+                    {
+                        MotorTempWarning = 0;
+                    }
                 break;
 
                 default:    

@@ -163,7 +163,6 @@ modes_info = [
     "Reverse",
     "Ignition",
     "Brake",
-    "Motor Over Temperature"
 ]
 
 mode_buttons = {}
@@ -193,6 +192,14 @@ reverse_Brake_frame.grid(row=len(modes_info) + 1, column=0, padx=10, pady=10, st
 
 reverse_Brake_button = tk.Button(reverse_Brake_frame, text="Reverse & Brake")
 reverse_Brake_button.pack(side=tk.LEFT, padx=10)
+
+# Radio buttons for Motor Over Temperature
+motor_temp_frame = ttk.LabelFrame(right_frame, text="Motor Over Temperature")
+motor_temp_frame.grid(row=len(modes_info) + 2, column=0, padx=10, pady=10, sticky='ew')
+
+motor_temp_var = tk.StringVar(value="OFF")
+ttk.Radiobutton(motor_temp_frame, text="OFF", variable=motor_temp_var, value="OFF", command=lambda: send_uart(ids["Motor Over Temperature"], 0)).pack(side=tk.LEFT, padx=10)
+ttk.Radiobutton(motor_temp_frame, text="ON", variable=motor_temp_var, value="ON", command=lambda: send_uart(ids["Motor Over Temperature"], 1)).pack(side=tk.LEFT, padx=10)
 
 # Bind mouse press and release to both buttons
 ign_Brake_button.bind("<ButtonPress-1>", lambda event: press_both(mode_buttons["Ignition"], mode_buttons["Brake"], mode_vars["Ignition"], mode_vars["Brake"], ids["Ignition"], ids["Brake"]))
