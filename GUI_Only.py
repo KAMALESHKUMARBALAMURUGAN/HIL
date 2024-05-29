@@ -100,9 +100,6 @@ root.geometry("1200x600")
 left_frame = ttk.Frame(root)
 left_frame.pack(side=tk.LEFT, padx=20, pady=20, fill=tk.BOTH, expand=True)
 
-right_frame = ttk.Frame(root)
-right_frame.pack(side=tk.RIGHT, padx=20, pady=20, fill=tk.BOTH, expand=True)
-
 # Define ids for each mode and sensor
 ids = {
     "Brake": 1,
@@ -161,9 +158,9 @@ for i, (name, min_val, max_val) in enumerate(scales_info):
     
     scales[name] = (scale, scale_var, entry)
 
-# Grid configuration for right_frame to handle two columns
-right_frame.grid_columnconfigure(0, weight=1)
-right_frame.grid_columnconfigure(1, weight=1)  # Add this line to manage the second column for faults
+# Grid configuration for left_frame to handle two columns
+left_frame.grid_columnconfigure(0, weight=1)
+left_frame.grid_columnconfigure(1, weight=1)  # Add this line to manage the second column for faults
 
 # Define push buttons for each mode
 modes_info = [
@@ -177,8 +174,8 @@ modes_info = [
 mode_buttons = {}
 mode_vars = {}
 for i, mode in enumerate(modes_info):
-    frame = ttk.LabelFrame(right_frame, text=mode)
-    frame.grid(row=i, column=0, padx=10, pady=10, sticky='ew')  # Position mode controls in the first column
+    frame = ttk.LabelFrame(left_frame, text=mode)
+    frame.grid(row=i, column=1, padx=10, pady=10, sticky='ew')  # Position mode controls in the first column
 
     var = tk.IntVar(value=0)  # Default to 0 (Off)
     mode_vars[mode] = var
@@ -189,15 +186,15 @@ for i, mode in enumerate(modes_info):
     mode_buttons[mode] = button
 
 # Additional button for Ignition & Brake, now with updated label directly on the button and no frame label
-ign_Brake_frame = ttk.Frame(right_frame)
-ign_Brake_frame.grid(row=len(modes_info), column=0, padx=10, pady=10, sticky='ew')
+ign_Brake_frame = ttk.Frame(left_frame)
+ign_Brake_frame.grid(row=len(modes_info), column=3, padx=10, pady=10, sticky='ew')
 
 ign_Brake_button = tk.Button(ign_Brake_frame, text="Ignition & Brake")
 ign_Brake_button.pack(side=tk.LEFT, padx=10)
 
 # Additional button for Reverse & Brake
-reverse_Brake_frame = ttk.Frame(right_frame)
-reverse_Brake_frame.grid(row=len(modes_info) + 1, column=0, padx=10, pady=10, sticky='ew')
+reverse_Brake_frame = ttk.Frame(left_frame)
+reverse_Brake_frame.grid(row=len(modes_info) + 1, column=3, padx=10, pady=10, sticky='ew')
 
 reverse_Brake_button = tk.Button(reverse_Brake_frame, text="Reverse & Brake")
 reverse_Brake_button.pack(side=tk.LEFT, padx=10)
@@ -216,8 +213,8 @@ faults_info = [
 
 fault_vars = {}
 for i, (fault, fault_id) in enumerate(faults_info):
-    fault_frame = ttk.LabelFrame(right_frame, text=fault)
-    fault_frame.grid(row=i, column=1, padx=10, pady=10, sticky='ew')  # Position fault controls in the second column
+    fault_frame = ttk.LabelFrame(left_frame, text=fault)
+    fault_frame.grid(row=i, column=2, padx=10, pady=10, sticky='ew')  # Position fault controls in the second column
 
     fault_var = tk.StringVar(value="OFF")
     fault_vars[fault] = fault_var
