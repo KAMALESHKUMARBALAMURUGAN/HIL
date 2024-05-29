@@ -162,6 +162,9 @@ for i, (name, min_val, max_val) in enumerate(scales_info):
     
     scales[name] = (scale, scale_var, entry)
 
+# Grid configuration for right_frame to handle two columns
+right_frame.grid_columnconfigure(0, weight=1)
+right_frame.grid_columnconfigure(1, weight=1)  # Add this line to manage the second column for faults
 
 # Define push buttons for each mode
 modes_info = [
@@ -176,7 +179,7 @@ mode_buttons = {}
 mode_vars = {}
 for i, mode in enumerate(modes_info):
     frame = ttk.LabelFrame(right_frame, text=mode)
-    frame.grid(row=i, column=0, padx=10, pady=10, sticky='ew')
+    frame.grid(row=i, column=0, padx=10, pady=10, sticky='ew')  # Position mode controls in the first column
 
     var = tk.IntVar(value=0)  # Default to 0 (Off)
     mode_vars[mode] = var
@@ -215,7 +218,7 @@ faults_info = [
 fault_vars = {}
 for i, (fault, fault_id) in enumerate(faults_info):
     fault_frame = ttk.LabelFrame(right_frame, text=fault)
-    fault_frame.grid(row=len(modes_info) + 2 + i, column=0, padx=10, pady=10, sticky='ew')
+    fault_frame.grid(row=i, column=1, padx=10, pady=10, sticky='ew')  # Position fault controls in the second column
 
     fault_var = tk.StringVar(value="OFF")
     fault_vars[fault] = fault_var
