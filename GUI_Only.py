@@ -91,6 +91,18 @@ def release_reverse_Brake(reverse_button, Brake_button, reverse_var, Brake_var, 
     sleep(0.1)
     release_button(Brake_button, Brake_var, Brake_id)
 
+# Create the main window
+root = tk.Tk()
+root.title("HIL- Hardware In Loop")
+root.geometry("1200x600")
+
+# Create frames
+left_frame = ttk.Frame(root)
+left_frame.pack(side=tk.LEFT, padx=20, pady=20, fill=tk.BOTH, expand=True)
+
+right_frame = ttk.Frame(root)
+right_frame.pack(side=tk.RIGHT, padx=20, pady=20, fill=tk.BOTH, expand=True)
+
 # Define ids for each mode and sensor
 ids = {
     "Brake": 1,
@@ -116,7 +128,6 @@ ids = {
     "Motor Phase Loss": 'l'
 }
 
-# Find the maximum label width needed
 scales_info = [
     ("Throttle", 0, 100),
     ("SOC", 0, 100),
@@ -127,21 +138,9 @@ scales_info = [
     ("rpm", 0, 4500)
 ]
 
-# Create the main window
-root = tk.Tk()
-root.title("HIL- Hardware In Loop")
-root.geometry("500x900")
-
-# Create frames
-left_frame = ttk.Frame(root)
-left_frame.pack(side=tk.LEFT, padx=20, pady=20, fill=tk.BOTH, expand=True)
-
-right_frame = ttk.Frame(root)
-right_frame.pack(side=tk.RIGHT, padx=20, pady=20, fill=tk.BOTH, expand=True)
-label_width = max(len(info[0]) for info in scales_info)  # Find the max length of label text
-
 scales = {}
-scale_length = 200  # Define a fixed length for all scales
+scale_length = 100  # Define a fixed length for all scales
+label_width = max(len(info[0]) for info in scales_info)  # Find the max length of label text
 for i, (name, min_val, max_val) in enumerate(scales_info):
     control_frame = ttk.Frame(left_frame)  # Frame to hold both scale and entry
     control_frame.grid(row=i, column=0, sticky='ew', padx=5, pady=5)
