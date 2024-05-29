@@ -94,7 +94,7 @@ def release_reverse_Brake(reverse_button, Brake_button, reverse_var, Brake_var, 
 # Create the main window
 root = tk.Tk()
 root.title("HIL- Hardware In Loop")
-root.geometry("1200x600")
+root.geometry("700x600")
 
 # Create frames
 left_frame = ttk.Frame(root)
@@ -159,8 +159,8 @@ for i, (name, min_val, max_val) in enumerate(scales_info):
     scales[name] = (scale, scale_var, entry)
 
 # Grid configuration for left_frame to handle two columns
-left_frame.grid_columnconfigure(0, weight=1)
-left_frame.grid_columnconfigure(1, weight=1)  # Add this line to manage the second column for faults
+left_frame.grid_columnconfigure(0, weight=0)
+left_frame.grid_columnconfigure(1, weight=0)  # Add this line to manage the second column for faults
 
 # Define push buttons for each mode
 modes_info = [
@@ -178,7 +178,6 @@ for i, mode in enumerate(modes_info):
     frame.grid(row=i, column=1, padx=10, pady=10, sticky='ew')  # Position mode controls in the first column
 
     var = tk.IntVar(value=0)  # Default to 0 (Off)
-    mode_vars[mode] = var
     button = tk.Button(frame, text="Off")
     button.pack(side=tk.LEFT, padx=10)
     button.bind("<ButtonPress-1>", lambda event, b=button, v=var, id=ids[mode]: press_button(b, v, id))
