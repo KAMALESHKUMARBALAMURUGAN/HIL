@@ -25,18 +25,6 @@ def send_uart(id, value):
     ser.write(cmd.encode())
     print(cmd.encode())
 
-# Create the main window
-root = tk.Tk()
-root.title("HIL- Hardware In Loop")
-root.geometry("500x900")
-
-# Create frames
-left_frame = ttk.Frame(root)
-left_frame.pack(side=tk.LEFT, padx=20, pady=20, fill=tk.BOTH, expand=True)
-
-right_frame = ttk.Frame(root)
-right_frame.pack(side=tk.RIGHT, padx=20, pady=20, fill=tk.BOTH, expand=True)
-
 # Function to update the scale and entry from each other
 def update_scale_from_entry(entry, scale, id):
     value = entry.get()
@@ -89,6 +77,20 @@ def release_both(ignition_button, Brake_button, ignition_var, Brake_var, ignitio
     sleep(0.1)
     release_button(Brake_button, Brake_var, Brake_id)
 
+# Function to simulate pressing both Reverse and Brake
+def press_reverse_Brake(reverse_button, Brake_button, reverse_var, Brake_var, reverse_id, Brake_id):
+    press_button(Brake_button, Brake_var, Brake_id)
+    sleep(0.1)
+    press_button(reverse_button, reverse_var, reverse_id)
+    sleep(0.2)
+
+# Function to simulate releasing both Reverse and Brake
+def release_reverse_Brake(reverse_button, Brake_button, reverse_var, Brake_var, reverse_id, Brake_id):
+    sleep(0.2)
+    release_button(reverse_button, reverse_var, reverse_id)
+    sleep(0.1)
+    release_button(Brake_button, Brake_var, Brake_id)
+    
 # Define ids for each mode and sensor
 ids = {
     "Brake": 1,
@@ -125,6 +127,17 @@ scales_info = [
     ("rpm", 0, 4500)
 ]
 
+# Create the main window
+root = tk.Tk()
+root.title("HIL- Hardware In Loop")
+root.geometry("500x900")
+
+# Create frames
+left_frame = ttk.Frame(root)
+left_frame.pack(side=tk.LEFT, padx=20, pady=20, fill=tk.BOTH, expand=True)
+
+right_frame = ttk.Frame(root)
+right_frame.pack(side=tk.RIGHT, padx=20, pady=20, fill=tk.BOTH, expand=True)
 label_width = max(len(info[0]) for info in scales_info)  # Find the max length of label text
 
 scales = {}
@@ -148,20 +161,6 @@ for i, (name, min_val, max_val) in enumerate(scales_info):
     scale.config(command=lambda event, name=name, var=scale_var, entry=entry, id=ids[name]: update_entry_from_scale(name, var, entry, id))
     
     scales[name] = (scale, scale_var, entry)
-
-# Function to simulate pressing both Reverse and Brake
-def press_reverse_Brake(reverse_button, Brake_button, reverse_var, Brake_var, reverse_id, Brake_id):
-    press_button(Brake_button, Brake_var, Brake_id)
-    sleep(0.1)
-    press_button(reverse_button, reverse_var, reverse_id)
-    sleep(0.2)
-
-# Function to simulate releasing both Reverse and Brake
-def release_reverse_Brake(reverse_button, Brake_button, reverse_var, Brake_var, reverse_id, Brake_id):
-    sleep(0.2)
-    release_button(reverse_button, reverse_var, reverse_id)
-    sleep(0.1)
-    release_button(Brake_button, Brake_var, Brake_id)
 
 # Define push buttons for each mode
 modes_info = [
