@@ -90,7 +90,7 @@ def release_reverse_Brake(reverse_button, Brake_button, reverse_var, Brake_var, 
     release_button(reverse_button, reverse_var, reverse_id)
     sleep(0.1)
     release_button(Brake_button, Brake_var, Brake_id)
-    
+
 # Define ids for each mode and sensor
 ids = {
     "Brake": 1,
@@ -141,18 +141,18 @@ right_frame.pack(side=tk.RIGHT, padx=20, pady=20, fill=tk.BOTH, expand=True)
 label_width = max(len(info[0]) for info in scales_info)  # Find the max length of label text
 
 scales = {}
+scale_length = 200  # Define a fixed length for all scales
 for i, (name, min_val, max_val) in enumerate(scales_info):
     control_frame = ttk.Frame(left_frame)  # Frame to hold both scale and entry
     control_frame.grid(row=i, column=0, sticky='ew', padx=5, pady=5)
-    left_frame.grid_columnconfigure(0, weight=1)  # Ensure the frame uses all available horizontal space
+    left_frame.grid_columnconfigure(0, weight=0)  # Set weight to 0 to prevent expansion
     
     label = ttk.Label(control_frame, text=name, width=label_width, anchor='w')  # Uniform width based on longest label
-    label.grid(row=0, column=0)
+    label.grid(row=0, column=0, sticky='w')  # Stick to the left (west)
     
     scale_var = tk.IntVar()
-    scale = ttk.Scale(control_frame, from_=min_val, to=max_val, orient=tk.HORIZONTAL, variable=scale_var)
-    scale.grid(row=0, column=1, sticky='ew')
-    control_frame.grid_columnconfigure(1, weight=1)  # Make scale expand
+    scale = ttk.Scale(control_frame, from_=min_val, to=max_val, orient=tk.HORIZONTAL, variable=scale_var, length=scale_length)
+    scale.grid(row=0, column=1)
     
     entry = ttk.Entry(control_frame, width=4)  # Adjusted width to fit three digits
     entry.insert(0, str(min_val))
@@ -161,6 +161,7 @@ for i, (name, min_val, max_val) in enumerate(scales_info):
     scale.config(command=lambda event, name=name, var=scale_var, entry=entry, id=ids[name]: update_entry_from_scale(name, var, entry, id))
     
     scales[name] = (scale, scale_var, entry)
+
 
 # Define push buttons for each mode
 modes_info = [
