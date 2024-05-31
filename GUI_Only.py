@@ -94,7 +94,7 @@ def release_reverse_Brake(reverse_button, Brake_button, reverse_var, Brake_var, 
 # Create the main window
 root = tk.Tk()
 root.title("HIL- Hardware In Loop")
-root.geometry("700x600")
+root.geometry("700x650")
 
 # Create frames
 left_frame = ttk.Frame(root)
@@ -122,7 +122,8 @@ ids = {
     "Overcurrent Fault": 'i',
     "Motor Hall Input Abnormal": 'j',
     "Motor Stalling": 'k',
-    "Motor Phase Loss": 'l'
+    "Motor Phase Loss": 'l',
+    "Brake forever": 1
 }
 
 scales_info = [
@@ -210,6 +211,7 @@ faults_info = [
     ("Motor Hall Input Abnormal", "j"),
     ("Motor Stalling", "k"),
     ("Motor Phase Loss", "l"),
+    ("Brake forever", "1") 
 ]
 
 fault_vars = {}
