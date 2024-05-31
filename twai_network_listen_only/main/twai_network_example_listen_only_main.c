@@ -664,7 +664,7 @@ xTaskCreate(twai_transmit_task, "Transmit_Tsk", 4096, NULL, 8, NULL);
                 case 53:
                     if (switch_state==1)
                     {
-                        MotorTempWarning =16;
+                        MotorTempWarning =8;
                     }
                     else
                     {
