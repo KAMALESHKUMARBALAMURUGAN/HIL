@@ -178,11 +178,13 @@ for i, mode in enumerate(modes_info):
     frame.grid(row=i, column=1, padx=10, pady=10, sticky='ew')  # Position mode controls in the first column
 
     var = tk.IntVar(value=0)  # Default to 0 (Off)
+    mode_vars[mode] = var  # Add this line to store the variable in mode_vars
     button = tk.Button(frame, text="Off")
     button.pack(side=tk.LEFT, padx=10)
     button.bind("<ButtonPress-1>", lambda event, b=button, v=var, id=ids[mode]: press_button(b, v, id))
-    button.bind("<ButtonRelease-1>", lambda event, b=button, v=var,id=ids[mode]: release_button(b, v, id))
+    button.bind("<ButtonRelease-1>", lambda event, b=button, v=var, id=ids[mode]: release_button(b, v, id))
     mode_buttons[mode] = button
+
 
 # Additional button for Ignition & Brake, now with updated label directly on the button and no frame label
 ign_Brake_frame = ttk.Frame(left_frame)
