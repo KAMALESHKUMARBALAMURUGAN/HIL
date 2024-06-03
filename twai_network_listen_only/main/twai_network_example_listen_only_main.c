@@ -116,8 +116,8 @@ static int soc;
 #define ID_LX_BATTERY_VI 0x6
 #define ID_LX_BATTERY_T 0xa
 #define ID_LX_BATTERY_SOC 0x8
-#define ID_LX_BATTERY_PROT 0x9
- 
+// #define ID_LX_BATTERY_PROT 0x9
+#define ID_Battery_ProtectionsAndWarnings 0x9
  
  
 #define ID_MOTOR_RPM 0x230
@@ -438,7 +438,7 @@ vTaskDelay(pdMS_TO_TICKS(100));
 
 /////////////////////////
 twai_message_t transmit_message_MotorTempWarning = {.identifier = (0X18530902), .data_length_code = 8, .extd = 1, .data = {0X00, 0X00, MotorTempWarning, 0x00 , 0x00 , 0x00 , 0x00 , 0x00 }};
-if (twai_transmit(&transmit_message_rpm, 10000) == ESP_OK)
+if (twai_transmit(&transmit_message_MotorTempWarning, 10000) == ESP_OK)
 {
     ESP_LOGI(EXAMPLE_TAG, "Message queued for transmission\n");
 vTaskDelay(pdMS_TO_TICKS(100));
@@ -450,8 +450,21 @@ ESP_LOGE(EXAMPLE_TAG, "Failed to queue message for transmission\n");
 }
 vTaskDelay(pdMS_TO_TICKS(100));
 ////////////////////////
- 
 }
+
+
+twai_message_t transmit_message_warning = {.identifier = ID_Battery_ProtectionsAndWarnings , .data_length_code = 8, .extd = 1, .data = {0x01, 0x00, 0x08, 0x00 , 0x00 , 0x00 , 0x00 , 0x00 }};
+if (twai_transmit(&transmit_message_warning, 10000) == ESP_OK)
+{
+ESP_LOGI(EXAMPLE_TAG, "Message queued for transmission\n");
+vTaskDelay(pdMS_TO_TICKS(100));
+}
+else
+{
+ 
+ESP_LOGE(EXAMPLE_TAG, "Failed to queue message for transmission\n");
+}
+vTaskDelay(pdMS_TO_TICKS(100));
  
  
  
@@ -486,12 +499,7 @@ ESP_LOGI(EXAMPLE_TAG, "Driver started");
  
 vTaskDelay(pdMS_TO_TICKS(500)) ;
  
-// xTaskCreate(throttle_percentage , "throttle", 4096, NULL, 8, NULL);
-// xTaskCreate(pcb_temp , "pcb temp", 4096, NULL, 8, NULL);
-// xTaskCreate(motor_temp , "motor temp", 4096, NULL, 8, NULL);
-// // xTaskCreate(battery_temp , "battery temperature", 4096, NULL, 8, NULL);
-// xTaskCreate(controller_temp , "motor controller temperature", 4096, NULL, 8, NULL);
-// xTaskCreate(soc_battery, "battery SoC", 4096, NULL, 8, NULL);
+
 xTaskCreate(switch_ip, "Swicth_Tsk", 4096, NULL, 8, NULL);
 //xTaskCreate(twai_transmit_task, "transmit_Tsk", 4096, NULL, 8, NULL);
 xTaskCreate(twai_transmit_task, "Transmit_Tsk", 4096, NULL, 8, NULL);
