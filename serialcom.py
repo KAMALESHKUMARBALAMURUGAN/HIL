@@ -116,7 +116,6 @@ ids = {
     "PCB temp": 'c',
     "RPM(SPEED)": 'd',
     "Motor Over Temperature Warning": 'e',
-    "Motor Over Temperature Warning": 'f',
     "Controller Over Voltage Warning": 'g',
     "Controller Under Voltage Warning": 'h',
     "Overcurrent Fault": 'i',
@@ -213,7 +212,6 @@ reverse_Brake_button.pack(side=tk.LEFT, padx=10)
 # Radio buttons for different faults
 faults_info = [
     ("Motor Over Temperature Warning", "e"),
-    ("Motor Over Temperature Warning", "f"),
     ("Controller Over Voltage Warning", "g"),
     ("Controller Under Voltage Warning", "h"),
     ("Overcurrent Fault", "i"),

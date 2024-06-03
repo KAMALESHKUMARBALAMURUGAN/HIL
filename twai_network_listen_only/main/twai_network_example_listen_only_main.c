@@ -35,7 +35,7 @@
 #define Reverse 12
 #define Break 15
 #define ModeL 18
-// #define ModeR 13
+#define ModeR 13
 #define SideStand 16
  
 #define temp5 23 // adc
@@ -43,13 +43,13 @@
 #define temp7 26 // adc
 #define temp8 27 // adc
  
-int ingi;
-int modeL;
-int modeR;
+int ingi =0;
+int modeL = 0;
+int modeR = 0;
  
-int brake;
-int reve;
-int sidestand;
+int brake = 0;
+int reve = 0;
+int sidestand = 0 ;
 static int received_value_ignition;
 static int received_value_brake;
 static int received_value_reverse;
