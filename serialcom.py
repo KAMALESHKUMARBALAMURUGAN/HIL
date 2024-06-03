@@ -25,18 +25,6 @@ def send_uart(id, value):
     ser.write(cmd.encode())
     print(cmd.encode())
 
-# Create the main window
-root = tk.Tk()
-root.title("HIL- Hardware In Loop")
-root.geometry("500x900")
-
-# Create frames
-left_frame = ttk.Frame(root)
-left_frame.pack(side=tk.LEFT, padx=20, pady=20, fill=tk.BOTH, expand=True)
-
-right_frame = ttk.Frame(root)
-right_frame.pack(side=tk.RIGHT, padx=20, pady=20, fill=tk.BOTH, expand=True)
-
 # Function to update the scale and entry from each other
 def update_scale_from_entry(entry, scale, id):
     value = entry.get()
@@ -89,6 +77,29 @@ def release_both(ignition_button, Brake_button, ignition_var, Brake_var, ignitio
     sleep(0.1)
     release_button(Brake_button, Brake_var, Brake_id)
 
+# Function to simulate pressing both Reverse and Brake
+def press_reverse_Brake(reverse_button, Brake_button, reverse_var, Brake_var, reverse_id, Brake_id):
+    press_button(Brake_button, Brake_var, Brake_id)
+    sleep(0.1)
+    press_button(reverse_button, reverse_var, reverse_id)
+    sleep(0.2)
+
+# Function to simulate releasing both Reverse and Brake
+def release_reverse_Brake(reverse_button, Brake_button, reverse_var, Brake_var, reverse_id, Brake_id):
+    sleep(0.2)
+    release_button(reverse_button, reverse_var, reverse_id)
+    sleep(0.1)
+    release_button(Brake_button, Brake_var, Brake_id)
+
+# Create the main window
+root = tk.Tk()
+root.title("HIL- Hardware In Loop")
+root.geometry("850x600")
+
+# Create frames
+left_frame = ttk.Frame(root)
+left_frame.pack(side=tk.LEFT, padx=20, pady=20, fill=tk.BOTH, expand=True)
+
 # Define ids for each mode and sensor
 ids = {
     "Brake": 1,
@@ -111,10 +122,19 @@ ids = {
     "Overcurrent Fault": 'i',
     "Motor Hall Input Abnormal": 'j',
     "Motor Stalling": 'k',
-    "Motor Phase Loss": 'l'
+    "Motor Phase Loss": 'l',
+    "Brake forever": 1,
+    "BattLowSocWarn": 'm',
+    "CellUnderVolWarn": 'n',
+    "CellOverVolWarn": 'o',
+    "PackUnderVolWarn": 'p',
+    "PackOverVolWarn": 'q',
+    "ChgUnderTempWarn": 'r',
+    "ChgOverTempWarn": 's',
+    "DchgUnderTempWarn": 't',
+    "DchgOverTempWarn": 'u'
 }
 
-# Find the maximum label width needed
 scales_info = [
     ("Throttle", 0, 100),
     ("SOC", 0, 100),
@@ -125,21 +145,20 @@ scales_info = [
     ("rpm", 0, 4500)
 ]
 
-label_width = max(len(info[0]) for info in scales_info)  # Find the max length of label text
-
 scales = {}
+scale_length = 100  # Define a fixed length for all scales
+label_width = max(len(info[0]) for info in scales_info)  # Find the max length of label text
 for i, (name, min_val, max_val) in enumerate(scales_info):
     control_frame = ttk.Frame(left_frame)  # Frame to hold both scale and entry
     control_frame.grid(row=i, column=0, sticky='ew', padx=5, pady=5)
-    left_frame.grid_columnconfigure(0, weight=1)  # Ensure the frame uses all available horizontal space
+    left_frame.grid_columnconfigure(0, weight=0)  # Set weight to 0 to prevent expansion
     
     label = ttk.Label(control_frame, text=name, width=label_width, anchor='w')  # Uniform width based on longest label
-    label.grid(row=0, column=0)
+    label.grid(row=0, column=0, sticky='w')  # Stick to the left (west)
     
     scale_var = tk.IntVar()
-    scale = ttk.Scale(control_frame, from_=min_val, to=max_val, orient=tk.HORIZONTAL, variable=scale_var)
-    scale.grid(row=0, column=1, sticky='ew')
-    control_frame.grid_columnconfigure(1, weight=1)  # Make scale expand
+    scale = ttk.Scale(control_frame, from_=min_val, to=max_val, orient=tk.HORIZONTAL, variable=scale_var, length=scale_length)
+    scale.grid(row=0, column=1)
     
     entry = ttk.Entry(control_frame, width=4)  # Adjusted width to fit three digits
     entry.insert(0, str(min_val))
@@ -149,19 +168,9 @@ for i, (name, min_val, max_val) in enumerate(scales_info):
     
     scales[name] = (scale, scale_var, entry)
 
-# Function to simulate pressing both Reverse and Brake
-def press_reverse_Brake(reverse_button, Brake_button, reverse_var, Brake_var, reverse_id, Brake_id):
-    press_button(Brake_button, Brake_var, Brake_id)
-    sleep(0.1)
-    press_button(reverse_button, reverse_var, reverse_id)
-    sleep(0.2)
-
-# Function to simulate releasing both Reverse and Brake
-def release_reverse_Brake(reverse_button, Brake_button, reverse_var, Brake_var, reverse_id, Brake_id):
-    sleep(0.2)
-    release_button(reverse_button, reverse_var, reverse_id)
-    sleep(0.1)
-    release_button(Brake_button, Brake_var, Brake_id)
+# Grid configuration for left_frame to handle two columns
+left_frame.grid_columnconfigure(0, weight=0)
+left_frame.grid_columnconfigure(1, weight=0)  # Add this line to manage the second column for faults
 
 # Define push buttons for each mode
 modes_info = [
@@ -175,27 +184,28 @@ modes_info = [
 mode_buttons = {}
 mode_vars = {}
 for i, mode in enumerate(modes_info):
-    frame = ttk.LabelFrame(right_frame, text=mode)
-    frame.grid(row=i, column=0, padx=10, pady=10, sticky='ew')
+    frame = ttk.LabelFrame(left_frame, text=mode)
+    frame.grid(row=i, column=1, padx=10, pady=10, sticky='ew')  # Position mode controls in the first column
 
     var = tk.IntVar(value=0)  # Default to 0 (Off)
-    mode_vars[mode] = var
+    mode_vars[mode] = var  # Add this line to store the variable in mode_vars
     button = tk.Button(frame, text="Off")
     button.pack(side=tk.LEFT, padx=10)
     button.bind("<ButtonPress-1>", lambda event, b=button, v=var, id=ids[mode]: press_button(b, v, id))
-    button.bind("<ButtonRelease-1>", lambda event, b=button, v=var,id=ids[mode]: release_button(b, v, id))
+    button.bind("<ButtonRelease-1>", lambda event, b=button, v=var, id=ids[mode]: release_button(b, v, id))
     mode_buttons[mode] = button
 
-# Additional button for Ignition & Brake, now with updated label directly on the button and no frame label
-ign_Brake_frame = ttk.Frame(right_frame)
-ign_Brake_frame.grid(row=len(modes_info), column=0, padx=10, pady=10, sticky='ew')
+
+# Additional button for Ignition & Brake, moved to column 4
+ign_Brake_frame = ttk.Frame(left_frame)
+ign_Brake_frame.grid(row=len(modes_info), column=4, padx=10, pady=10, sticky='ew')
 
 ign_Brake_button = tk.Button(ign_Brake_frame, text="Ignition & Brake")
 ign_Brake_button.pack(side=tk.LEFT, padx=10)
 
-# Additional button for Reverse & Brake
-reverse_Brake_frame = ttk.Frame(right_frame)
-reverse_Brake_frame.grid(row=len(modes_info) + 1, column=0, padx=10, pady=10, sticky='ew')
+# Additional button for Reverse & Brake, moved to column 4
+reverse_Brake_frame = ttk.Frame(left_frame)
+reverse_Brake_frame.grid(row=len(modes_info) + 1, column=4, padx=10, pady=10, sticky='ew')
 
 reverse_Brake_button = tk.Button(reverse_Brake_frame, text="Reverse & Brake")
 reverse_Brake_button.pack(side=tk.LEFT, padx=10)
@@ -210,17 +220,39 @@ faults_info = [
     ("Motor Hall Input Abnormal", "j"),
     ("Motor Stalling", "k"),
     ("Motor Phase Loss", "l"),
+    ("Brake forever", "1") 
 ]
 
 fault_vars = {}
 for i, (fault, fault_id) in enumerate(faults_info):
-    fault_frame = ttk.LabelFrame(right_frame, text=fault)
-    fault_frame.grid(row=len(modes_info) + 2 + i, column=0, padx=10, pady=10, sticky='ew')
+    fault_frame = ttk.LabelFrame(left_frame, text=fault)
+    fault_frame.grid(row=i, column=2, padx=10, pady=10, sticky='ew')  # Position fault controls in the second column
 
     fault_var = tk.StringVar(value="OFF")
     fault_vars[fault] = fault_var
     ttk.Radiobutton(fault_frame, text="OFF", variable=fault_var, value="OFF", command=lambda id=fault_id: send_uart(id, 0)).pack(side=tk.LEFT, padx=10)
     ttk.Radiobutton(fault_frame, text="ON", variable=fault_var, value="ON", command=lambda id=fault_id: send_uart(id, 1)).pack(side=tk.LEFT, padx=10)
+
+warnings_info = [
+    ("BattLowSocWarn", "m"),
+    ("CellUnderVolWarn", "n"),
+    ("CellOverVolWarn", "o"),
+    ("PackUnderVolWarn", "p"),
+    ("PackOverVolWarn", "q"),
+    ("ChgUnderTempWarn", "r"),
+    ("ChgOverTempWarn", "s"),
+    ("DchgUnderTempWarn", "t"),
+    ("DchgOverTempWarn", "u")
+]
+warning_vars = {}
+for i, (warning, warning_id) in enumerate(warnings_info):
+    warning_frame = ttk.LabelFrame(left_frame, text=warning)
+    warning_frame.grid(row=i, column=3, padx=10, pady=10, sticky='ew')  # Position warnings in the third column
+
+    warning_var = tk.StringVar(value="OFF")
+    warning_vars[warning] = warning_var
+    ttk.Radiobutton(warning_frame, text="OFF", variable=warning_var, value="OFF", command=lambda id=warning_id: send_uart(id, 0)).pack(side=tk.LEFT, padx=10)
+    ttk.Radiobutton(warning_frame, text="ON", variable=warning_var, value="ON", command=lambda id=warning_id: send_uart(id, 1)).pack(side=tk.LEFT, padx=10)
 
 # Bind mouse press and release to both buttons
 ign_Brake_button.bind("<ButtonPress-1>", lambda event: press_both(mode_buttons["Ignition"], mode_buttons["Brake"], mode_vars["Ignition"], mode_vars["Brake"], ids["Ignition"], ids["Brake"]))
