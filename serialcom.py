@@ -94,7 +94,7 @@ def release_reverse_Brake(reverse_button, Brake_button, reverse_var, Brake_var, 
 # Create the main window
 root = tk.Tk()
 root.title("HIL- Hardware In Loop")
-root.geometry("850x600")
+root.geometry("900x700")
 
 # Create frames
 left_frame = ttk.Frame(root)
@@ -114,11 +114,11 @@ ids = {
     "Motor temp": 'a',
     "Controller temp": 'b',
     "PCB temp": 'c',
-    "rpm": 'd',
-    "Motor Over Temperature": 'e',
-    "Controller Over Temperature": 'f',
-    "Controller Over Voltage": 'g',
-    "Controller Under Voltage": 'h',
+    "RPM": 'd',
+    "Motor Over Temperature Warning": 'e',
+    "Motor Over Temperature Warning": 'f',
+    "Controller Over Voltage Warning": 'g',
+    "Controller Under Voltage Warning": 'h',
     "Overcurrent Fault": 'i',
     "Motor Hall Input Abnormal": 'j',
     "Motor Stalling": 'k',
@@ -142,7 +142,7 @@ scales_info = [
     ("Motor temp", 0, 250),
     ("Controller temp", 0, 200),
     ("PCB temp", 0, 200),
-    ("rpm", 0, 4500)
+    ("RPM", 0, 4500)
 ]
 
 scales = {}
@@ -212,10 +212,10 @@ reverse_Brake_button.pack(side=tk.LEFT, padx=10)
 
 # Radio buttons for different faults
 faults_info = [
-    ("Motor Over Temperature", "e"),
-    ("Controller Over Temperature", "f"),
-    ("Controller Over Voltage", "g"),
-    ("Controller Under Voltage", "h"),
+    ("Motor Over Temperature Warning", "e"),
+    ("Motor Over Temperature Warning", "f"),
+    ("Controller Over Voltage Warning", "g"),
+    ("Controller Under Voltage Warning", "h"),
     ("Overcurrent Fault", "i"),
     ("Motor Hall Input Abnormal", "j"),
     ("Motor Stalling", "k"),

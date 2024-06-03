@@ -365,107 +365,96 @@ int i,x,pos,n=8 ;
  
 while (1)
 {
-twai_message_t transmit_message_switch = {.identifier = (0x18530902), .data_length_code = 8, .extd = 1, .data = {thr_per, 0x03, 0x00, state, 0x00, 0x00, 0x00, 0x00}};
-if (twai_transmit(&transmit_message_switch, 1000) == ESP_OK)
-{
-ESP_LOGI(EXAMPLE_TAG, "Message queued for transmission\n");
-vTaskDelay(pdMS_TO_TICKS(100));
-}
-else
-{
- 
-ESP_LOGE(EXAMPLE_TAG, "Failed to queue message for transmission\n");
-}
-vTaskDelay(pdMS_TO_TICKS(100));
- 
-twai_message_t transmit_message_batteryTemp = {.identifier = (0x000000A), .data_length_code = 8, .extd = 1, .data = {batt_tmp, batt_tmp, batt_tmp, batt_tmp, batt_tmp, batt_tmp, batt_tmp, batt_tmp}};
-if (twai_transmit(&transmit_message_batteryTemp, 10000) == ESP_OK)
-{
-ESP_LOGI(EXAMPLE_TAG, "Message queued for transmission\n");
-vTaskDelay(pdMS_TO_TICKS(100));
-}
-else
-{
- 
-ESP_LOGE(EXAMPLE_TAG, "Failed to queue message for transmission\n");
-}
-vTaskDelay(pdMS_TO_TICKS(100));
- 
- 
-twai_message_t transmit_message_otherTemp = {.identifier = (0x18530903), .data_length_code = 8, .extd = 1, .data = {cnt_tmp, V_motor_out, V_motor_out, 0x00 , 0x00 , 0x00 , 0x00 , 0x00 }};
-if (twai_transmit(&transmit_message_otherTemp, 10000) == ESP_OK)
-{
+    twai_message_t transmit_message_switch = {.identifier = (0x18530902), .data_length_code = 8, .extd = 1, .data = {thr_per, 0x03, MotorTempWarning, state, 0x00, 0x00, 0x00, 0x00}};
+    if (twai_transmit(&transmit_message_switch, 1000) == ESP_OK)
+    {
     ESP_LOGI(EXAMPLE_TAG, "Message queued for transmission\n");
-vTaskDelay(pdMS_TO_TICKS(100));
-}
-else
-{
- 
-ESP_LOGE(EXAMPLE_TAG, "Failed to queue message for transmission\n");
-}
-vTaskDelay(pdMS_TO_TICKS(100));
- 
- 
- 
- 
-twai_message_t transmit_message_SoC= {.identifier = ID_LX_BATTERY_SOC , .data_length_code = 8, .extd = 1, .data = {soc, 0x00, 0x00, 0x9A , 0xB0 , 0x63 , 0x1D , 0x01 }};
-if (twai_transmit(&transmit_message_SoC, 10000) == ESP_OK)
-{
-ESP_LOGI(EXAMPLE_TAG, "Message queued for transmission\n");
-vTaskDelay(pdMS_TO_TICKS(100));
-}
-else
-{
- 
-ESP_LOGE(EXAMPLE_TAG, "Failed to queue message for transmission\n");
-}
-vTaskDelay(pdMS_TO_TICKS(100));
+    vTaskDelay(pdMS_TO_TICKS(100));
+    }
+    else
+    {
+    
+    ESP_LOGE(EXAMPLE_TAG, "Failed to queue message for transmission\n");
+    }
+    vTaskDelay(pdMS_TO_TICKS(100));
 
-
-twai_message_t transmit_message_rpm = {.identifier = (0x14520902), .data_length_code = 8, .extd = 1, .data = {rpm2_hex, rpm1_hex, 0x00, 0x00 , 0x00 , 0x00 , 0x00 , 0x00 }};
-if (twai_transmit(&transmit_message_rpm, 10000) == ESP_OK)
-{
+ 
+    twai_message_t transmit_message_batteryTemp = {.identifier = (0x000000A), .data_length_code = 8, .extd = 1, .data = {batt_tmp, batt_tmp, batt_tmp, batt_tmp, batt_tmp, batt_tmp, batt_tmp, batt_tmp}};
+    if (twai_transmit(&transmit_message_batteryTemp, 10000) == ESP_OK)
+    {
     ESP_LOGI(EXAMPLE_TAG, "Message queued for transmission\n");
-vTaskDelay(pdMS_TO_TICKS(100));
-}
-else
-{
+    vTaskDelay(pdMS_TO_TICKS(100));
+    }
+    else
+    {
+    
+    ESP_LOGE(EXAMPLE_TAG, "Failed to queue message for transmission\n");
+    }
+    vTaskDelay(pdMS_TO_TICKS(100));
  
-ESP_LOGE(EXAMPLE_TAG, "Failed to queue message for transmission\n");
-}
-vTaskDelay(pdMS_TO_TICKS(100));
-
-
-/////////////////////////
-twai_message_t transmit_message_MotorTempWarning = {.identifier = (0X18530902), .data_length_code = 8, .extd = 1, .data = {0X00, 0X00, MotorTempWarning, 0x00 , 0x00 , 0x00 , 0x00 , 0x00 }};
-if (twai_transmit(&transmit_message_MotorTempWarning, 10000) == ESP_OK)
-{
+ 
+    twai_message_t transmit_message_otherTemp = {.identifier = (0x18530903), .data_length_code = 8, .extd = 1, .data = {cnt_tmp, V_motor_out, V_motor_out, 0x00 , 0x00 , 0x00 , 0x00 , 0x00 }};
+    if (twai_transmit(&transmit_message_otherTemp, 10000) == ESP_OK)
+    {
+        ESP_LOGI(EXAMPLE_TAG, "Message queued for transmission\n");
+    vTaskDelay(pdMS_TO_TICKS(100));
+    }
+    else
+    {
+    
+    ESP_LOGE(EXAMPLE_TAG, "Failed to queue message for transmission\n");
+    }
+    vTaskDelay(pdMS_TO_TICKS(100));
+ 
+ 
+ 
+ 
+    twai_message_t transmit_message_SoC= {.identifier = ID_LX_BATTERY_SOC , .data_length_code = 8, .extd = 1, .data = {soc, 0x00, 0x00, 0x9A , 0xB0 , 0x63 , 0x1D , 0x01 }};
+    if (twai_transmit(&transmit_message_SoC, 10000) == ESP_OK)
+    {
     ESP_LOGI(EXAMPLE_TAG, "Message queued for transmission\n");
-vTaskDelay(pdMS_TO_TICKS(100));
-}
-else
-{
- 
-ESP_LOGE(EXAMPLE_TAG, "Failed to queue message for transmission\n");
-}
-vTaskDelay(pdMS_TO_TICKS(100));
-////////////////////////
+    vTaskDelay(pdMS_TO_TICKS(100));
+    }
+    else
+    {
+    
+    ESP_LOGE(EXAMPLE_TAG, "Failed to queue message for transmission\n");
+    }
+    vTaskDelay(pdMS_TO_TICKS(100));
+
+
+    twai_message_t transmit_message_rpm = {.identifier = (0x14520902), .data_length_code = 8, .extd = 1, .data = {rpm2_hex, rpm1_hex, 0x00, 0x00 , 0x00 , 0x00 , 0x00 , 0x00 }};
+    if (twai_transmit(&transmit_message_rpm, 10000) == ESP_OK)
+    {
+        ESP_LOGI(EXAMPLE_TAG, "Message queued for transmission\n");
+    vTaskDelay(pdMS_TO_TICKS(100));
+    }
+    else
+    {
+    
+    ESP_LOGE(EXAMPLE_TAG, "Failed to queue message for transmission\n");
+    }
+    vTaskDelay(pdMS_TO_TICKS(100));
+
+
+    
+    twai_message_t transmit_message_warning = {.identifier = 0x9 , .data_length_code = 8, .extd = 1, .data = {1, 0x00, 8, 0x00 , 0x00 , 0x00 , 0x00 , 0x00 }};
+    if (twai_transmit(&transmit_message_warning, 10000) == ESP_OK)
+    {
+    ESP_LOGI(EXAMPLE_TAG, "Message queued for transmission\n");
+    vTaskDelay(pdMS_TO_TICKS(100));
+    }
+    else
+    {
+    
+    ESP_LOGE(EXAMPLE_TAG, "Failed to queue message for transmission\n");
+    }
+    vTaskDelay(pdMS_TO_TICKS(100));
+    
+
 }
 
 
-twai_message_t transmit_message_warning = {.identifier = ID_Battery_ProtectionsAndWarnings , .data_length_code = 8, .extd = 1, .data = {0x01, 0x00, 0x08, 0x00 , 0x00 , 0x00 , 0x00 , 0x00 }};
-if (twai_transmit(&transmit_message_warning, 10000) == ESP_OK)
-{
-ESP_LOGI(EXAMPLE_TAG, "Message queued for transmission\n");
-vTaskDelay(pdMS_TO_TICKS(100));
-}
-else
-{
- 
-ESP_LOGE(EXAMPLE_TAG, "Failed to queue message for transmission\n");
-}
-vTaskDelay(pdMS_TO_TICKS(100));
- 
  
  
 vTaskDelete(NULL);
@@ -501,7 +490,6 @@ vTaskDelay(pdMS_TO_TICKS(500)) ;
  
 
 xTaskCreate(switch_ip, "Swicth_Tsk", 4096, NULL, 8, NULL);
-//xTaskCreate(twai_transmit_task, "transmit_Tsk", 4096, NULL, 8, NULL);
 xTaskCreate(twai_transmit_task, "Transmit_Tsk", 4096, NULL, 8, NULL);
 
     configure_uart();
