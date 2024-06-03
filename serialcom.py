@@ -109,12 +109,12 @@ ids = {
     # "Sidestand": 5, (Push button not added in the GUI)
     "Ignition": 6,
     "SOC": 7,
-    "Throttle": 8,
+    "Throttle(boost)": 8,  #Throttle(boost) is added to see the boost bar on the VCU screen(not for the speed change)
     "Battery temp": 9,
     "Motor temp": 'a',
     "Controller temp": 'b',
     "PCB temp": 'c',
-    "RPM": 'd',
+    "RPM(SPEED)": 'd',
     "Motor Over Temperature Warning": 'e',
     "Motor Over Temperature Warning": 'f',
     "Controller Over Voltage Warning": 'g',
@@ -136,13 +136,13 @@ ids = {
 }
 
 scales_info = [
-    ("Throttle", 0, 100),
+    ("Throttle(boost)", 0, 100),
     ("SOC", 0, 100),
     ("Battery temp", 0, 150),
     ("Motor temp", 0, 250),
     ("Controller temp", 0, 200),
     ("PCB temp", 0, 200),
-    ("RPM", 0, 4500)
+    ("RPM(SPEED)", 0, 4500)
 ]
 
 scales = {}

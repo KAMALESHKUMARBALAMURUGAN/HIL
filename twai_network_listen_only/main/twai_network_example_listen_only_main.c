@@ -28,14 +28,14 @@
 #define ECHO_UART_BAUD_RATE     115200
 #define ECHO_TASK_STACK_SIZE    2048
  
-static const char *TAG = "example";
+
  
  
 // #define Ignition 14
 #define Reverse 12
 #define Break 15
 #define ModeL 18
-#define ModeR 13
+// #define ModeR 13
 #define SideStand 16
  
 #define temp5 23 // adc
@@ -43,13 +43,13 @@ static const char *TAG = "example";
 #define temp7 26 // adc
 #define temp8 27 // adc
  
-int ingi =0;
-int modeL = 0;
-int modeR = 0;
+int ingi;
+int modeL;
+int modeR;
  
-int brake = 0;
-int reve = 0;
-int sidestand = 0 ;
+int brake;
+int reve;
+int sidestand;
 static int received_value_ignition;
 static int received_value_brake;
 static int received_value_reverse;
@@ -63,13 +63,7 @@ static int received_value_motorTemp;
 static int received_value_pcbTemp;
 static int received_value_controllerTemp;
 static int received_value_rpm;
-static int rpm1, rpm2;
 static int MotorTempWarning;
-// static char rpm1_hex[5], rpm2_hex[5]= {0};
-// static char rpm_hex[5]= {0};
-// static uint8_t rpm1_byte;
-// static uint8_t rpm2_byte;
-// Define variables to hold RPM data
 static uint8_t rpm1_hex;
 static uint8_t rpm2_hex;
 
@@ -479,18 +473,17 @@ void configure_uart(void)
  
 void app_main(void)
 { 
-ESP_ERROR_CHECK(twai_driver_install(&g_config, &t_config, &f_config)); /// driver install
-ESP_LOGI(EXAMPLE_TAG, "Driver installed");
- 
-ESP_ERROR_CHECK(twai_start()); /// driver start
- 
-ESP_LOGI(EXAMPLE_TAG, "Driver started");
- 
-vTaskDelay(pdMS_TO_TICKS(500)) ;
- 
+    ESP_ERROR_CHECK(twai_driver_install(&g_config, &t_config, &f_config)); /// driver install
+    ESP_LOGI(EXAMPLE_TAG, "Driver installed");
 
-xTaskCreate(switch_ip, "Swicth_Tsk", 4096, NULL, 8, NULL);
-xTaskCreate(twai_transmit_task, "Transmit_Tsk", 4096, NULL, 8, NULL);
+    ESP_ERROR_CHECK(twai_start()); /// driver start
+
+    ESP_LOGI(EXAMPLE_TAG, "Driver started");
+
+    vTaskDelay(pdMS_TO_TICKS(500));
+
+    xTaskCreate(switch_ip, "Swicth_Tsk", 4096, NULL, 8, NULL);
+    xTaskCreate(twai_transmit_task, "Transmit_Tsk", 4096, NULL, 8, NULL);
 
     configure_uart();
     while (1) 
@@ -498,60 +491,59 @@ xTaskCreate(twai_transmit_task, "Transmit_Tsk", 4096, NULL, 8, NULL);
         uint8_t data[5]; 
         int len = uart_read_bytes(ECHO_UART_PORT_NUM, data, sizeof(data), 20 / portTICK_PERIOD_MS);
 
-        if (len ==5)
-            {
-                int switch_number = data[0] - '0'; // Convert ASCII to integer
-
-                // Concatenate the characters and convert to integer
-                int switch_state = (data[1] - '0') * 1000 + (data[2] - '0')* 100 + (data[3] - '0')*10 +(data[4]-'0');
-                
-
-                switch (switch_number)
-                {
-                    case 52:
-                        received_value_rpm = switch_state;
-                    break;
-                    default:    
-                        // Handle invalid switch number
-                    break;
-                }
-            }
-
-         if (len ==4)
+        if (len == 5)
         {
-            int switch_number = data[0] - '0'; // Convert ASCII to integer
+            int switch_number = data[0]; // No need to convert to integer
+
             // Concatenate the characters and convert to integer
-            int switch_state = (data[1] - '0') * 100 + (data[2] - '0')* 10 + (data[3] - '0');
+            int switch_state = (data[1] - '0') * 1000 + (data[2] - '0') * 100 + (data[3] - '0') * 10 + (data[4] - '0');
 
             switch (switch_number)
             {
-                case 7: // Handle slider value (received_value_slider)
-                    received_value_soc = switch_state;
-                break;
-
-                case 8: // Handle slider value (received_value_slider)
-                    received_value_throttle = switch_state;
-                break;
-
-                case 9: // Handle slider value (received_value_slider)
-                    received_value_batt_tmp = switch_state;
-                break;
-
-                case 49:
-                    received_value_motorTemp= switch_state;
-                break;
-
-                case 50:
-                    received_value_controllerTemp= switch_state;
-                break;
-
-                case 51:
-                    received_value_pcbTemp= switch_state;
-                break;
-
-                case 52:
+                case 'd':
                     received_value_rpm = switch_state;
-                break;
+                    break;
+                default:    
+                    // Handle invalid switch number
+                    break;
+            }
+        }
+
+        if (len == 4)
+        {
+            int switch_number = data[0]; // No need to convert to integer
+            // Concatenate the characters and convert to integer
+            int switch_state = (data[1] - '0') * 100 + (data[2] - '0') * 10 + (data[3] - '0');
+
+            switch (switch_number)
+            {
+                case '7': // Handle slider value (received_value_slider)
+                    received_value_soc = switch_state;
+                    break;
+
+                case '8': // Handle slider value (received_value_slider)
+                    received_value_throttle = switch_state;
+                    break;
+
+                case '9': // Handle slider value (received_value_slider)
+                    received_value_batt_tmp = switch_state;
+                    break;
+
+                case 'a':
+                    received_value_motorTemp = switch_state;
+                    break;
+
+                case 'b':
+                    received_value_controllerTemp = switch_state;
+                    break;
+
+                case 'c':
+                    received_value_pcbTemp = switch_state;
+                    break;
+
+                case 'd':
+                    received_value_rpm = switch_state;
+                    break;
 
                 default:    
                     // Handle invalid switch number
@@ -559,43 +551,42 @@ xTaskCreate(twai_transmit_task, "Transmit_Tsk", 4096, NULL, 8, NULL);
             }
         }
 
-       
-        if (len ==3)
+        if (len == 3)
         {
-            int switch_number = data[0] - '0'; // Convert ASCII to integer
+            int switch_number = data[0]; // No need to convert to integer
 
             // Concatenate the characters and convert to integer
             int switch_state = (data[1] - '0') * 10 + (data[2] - '0');
 
             switch (switch_number)
             {
-                case 7: // Handle slider value (received_value_slider)
+                case '7': // Handle slider value (received_value_slider)
                     received_value_soc = switch_state;
-                break;
+                    break;
 
-                case 8: // Handle slider value (received_value_slider)
+                case '8': // Handle slider value (received_value_slider)
                     received_value_throttle = switch_state;
-                break;
+                    break;
 
-                case 9: // Handle slider value (received_value_slider)
+                case '9': // Handle slider value (received_value_slider)
                     received_value_batt_tmp = switch_state;
-                break;
+                    break;
 
-                case 49:
-                    received_value_motorTemp= switch_state;
-                break;
+                case 'a':
+                    received_value_motorTemp = switch_state;
+                    break;
 
-                case 50:
-                    received_value_controllerTemp= switch_state;
-                break;
+                case 'b':
+                    received_value_controllerTemp = switch_state;
+                    break;
 
-                case 51:
-                    received_value_pcbTemp= switch_state;
-                break;
+                case 'c':
+                    received_value_pcbTemp = switch_state;
+                    break;
 
-                case 52:
-                    received_value_rpm= switch_state;
-                break;
+                case 'd':
+                    received_value_rpm = switch_state;
+                    break;
 
                 default:    
                     // Handle invalid switch number
@@ -606,67 +597,67 @@ xTaskCreate(twai_transmit_task, "Transmit_Tsk", 4096, NULL, 8, NULL);
         if (len == 2) 
         {
             // Process received command
-            int switch_number = data[0] - '0'; // Convert ASCII to integer
+            int switch_number = data[0]; // No need to convert to integer
             int switch_state = data[1] - '0'; // Convert ASCII to integer
             switch (switch_number) 
             {
-                case 1:
+                case '1':
                     received_value_brake = switch_state; // Assuming 1 represents ON and 0 represents OFF
                     break;
-                
-                case 2: //for reverse ,Press Brake then press Reverse- ON and then OFF
+
+                case '2': //for reverse ,Press Brake then press Reverse- ON and then OFF
                     received_value_reverse = switch_state;
                     break;
-                case 3: //for modeR, press modeR- ON and then OFF
+                case '3': //for modeR, press modeR- ON and then OFF
                     received_value_modeR = switch_state;
                     break;
-                case 4: //for modeL, press modeL- ON and then OFF
+                case '4': //for modeL, press modeL- ON and then OFF
                     received_value_modeL = switch_state;
                     break;
-                case 5: //for sidestand,press sidestand- ON and then OFF                //for now, sidestand is not integrated with the TWAI code
+                case '5': //for sidestand,press sidestand- ON and then OFF
                     received_value_sidestand = switch_state;
                     break;
-                case 6: //for Motor ON ,Press Brake then press Ignition- ON and then OFF
+                case '6': //for Motor ON ,Press Brake then press Ignition- ON and then OFF
                     received_value_ignition = switch_state;
                     break;
-                
-                case 7: // Handle slider value (received_value_slider)
-                    received_value_soc = switch_state;
-                break;
 
-                case 8: // Handle slider value (received_value_slider)
+                case '7': // Handle slider value (received_value_slider)
+                    received_value_soc = switch_state;
+                    break;
+
+                case '8': // Handle slider value (received_value_slider)
                     received_value_throttle = switch_state;
                     break;
-                case 9: // Handle slider value (received_value_slider)
+                case '9': // Handle slider value (received_value_slider)
                     received_value_batt_tmp = switch_state;
-                break; 
+                    break; 
 
-                case 49:
-                    received_value_motorTemp= switch_state;
-                break;
+                case 'a':
+                    received_value_motorTemp = switch_state;
+                    break;
 
-                case 50:
-                    received_value_controllerTemp= switch_state;
-                break;
+                case 'b':
+                    received_value_controllerTemp = switch_state;
+                    break;
 
-                case 51:
-                    received_value_pcbTemp= switch_state;
-                break;
+                case 'c':
+                    received_value_pcbTemp = switch_state;
+                    break;
 
-                case 52:
+                case 'd':
                     received_value_rpm = switch_state;
-                break;
+                    break;
 
-                case 53:
-                    if (switch_state==1)
+                case 'e':
+                    if (switch_state == 1)
                     {
-                        MotorTempWarning =8;
+                        MotorTempWarning = 8;
                     }
                     else
                     {
                         MotorTempWarning = 0;
                     }
-                break;
+                    break;
 
                 default:    
                     // Handle invalid switch number
