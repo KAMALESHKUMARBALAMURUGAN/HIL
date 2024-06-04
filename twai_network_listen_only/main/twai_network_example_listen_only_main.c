@@ -454,11 +454,15 @@ void process_uart_data(uint8_t *data, int len) {
         case 'd':
             received_value_rpm = switch_state;
             break;
-
         case 'e':  // Motor Over Temperature warning
             MotorWarn = switch_state == 1 ? 16 : 0;
             break;
-
+        case 'f':  // Throttle error warning
+            MotorWarn = switch_state == 1 ? 32 : 0;
+            break;
+        case 'v':  // Controller Over Temperature Warning
+            MotorWarn = switch_state == 1 ? 8 : 0;
+            break;
         case 'g':  // Controller Over Voltage warning
             controllerWarn = switch_state == 1 ? 1 : 0;
             break;
@@ -468,7 +472,6 @@ void process_uart_data(uint8_t *data, int len) {
         case 'i':  // Overcurrent Fault
             controllerWarn = switch_state == 1 ? 4 : 0;
             break;
-
         case 'j':  // Motor Hall Input Abnormal
             MotorWarn = switch_state == 1 ? 1 : 0;
             break;
@@ -478,7 +481,6 @@ void process_uart_data(uint8_t *data, int len) {
         case 'l':  // Motor Phase Loss
             MotorWarn = switch_state == 1 ? 4 : 0;
             break;
-        
         case 'm':  // BattLowSocWarn
             BattWarn = switch_state == 1 ? 2 : 0;
             break;
