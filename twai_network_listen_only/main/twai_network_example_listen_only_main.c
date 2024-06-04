@@ -1,4 +1,3 @@
-
 /* GPIO Example
  
    This example code is in the Public Domain (or CC0 licensed, at your option.)
@@ -100,6 +99,7 @@ int sidestand = 0 ;
  
  
 #define ID_MOTOR_RPM 0x230
+
 #define ID_MOTOR_TEMP 0x233
 #define ID_MOTOR_CURR_VOLT 0x32
 #define ADC_WIDTH_BIT_DEFAULT (ADC_WIDTH_BIT_9 - 1)
@@ -240,49 +240,18 @@ static SemaphoreHandle_t done_sem;
 static SemaphoreHandle_t ctrl_task_Transmit;
 static SemaphoreHandle_t ctrl_task_receive;
 static SemaphoreHandle_t ctrl_task_send;
- 
-/* --------------------------- Tasks and Functions -------------------------- */
-// void decToBinary(int n)
-// {
-//    int binaryNum[32];
-//    int i =0 ;
-//    while(n>0){
-//       binaryNum[i] = n % 2 ;
-//       n = n/2 ;
-//       i++ ;
- 
-//    }
- 
-//    for(int j= i -1 ; j>=0 ; j--)
-//    {
-//       printf("%d\n", binaryNum[j]);
-//    }
-// }
+
 uint8_t arr[8];
 uint8_t combinedValue = 0;
 //int val_of_temp = 0;
 int new_val ;
  
-// esp_adc_cal_characteristics_t *adc_chars = calloc(1, sizeof(esp_adc_cal_characteristics_t));
-// esp_adc_cal_value_t val_type = esp_adc_cal_characterize(unit, atten, ADC_WIDTH_BIT_12, DEFAULT_VREF, adc_chars);
-//     //Check type of calibration value used to characterize ADC
-// if (val_type == ESP_ADC_CAL_VAL_EFUSE_VREF) {
-//     printf("eFuse Vref");
-// } else if (val_type == ESP_ADC_CAL_VAL_EFUSE_TP) {
-//     printf("Two Point");
-// } else {
-//     printf("Default");
-// }
-static void switch_ip(void *arg)
+
+static void Button_input(void *arg)
 {
- 
-//xSemaphoreTake(cnt_Switch_start, portMAX_DELAY);
-// Wait for completion
+
 vTaskDelay(pdMS_TO_TICKS(50));
-// int arr[8];
-// int i,x,pos,n=8 ;
-// uint8_t arr[8];
-// uint8_t combinedValue = 0;
+
  
 while(1)
 {
@@ -309,40 +278,6 @@ printf("reverse--------->%d\n", reve);
 int sidestand = !gpio_get_level(SideStand);
 printf("sidestand----->%d\n", sidestand);
 
- 
-//printf("Iginiton = %d, Break = %d, Mode+ = %d, Moe- = %d, Reverse =%d \n",ingi,brake,modeR,modeL,reve);
- 
-// arr[0]= 0;
-// arr[1]= modeR ;
-// arr[2] = modeL ;
-// arr[3] = brake ;
-// arr[4] = ingi ;
-// arr[5] = reve ;
-// arr[6] = 0;
-// arr[7] = 0 ;
-// //printf(arr);
-// int byte3 = 0;
- 
-// for (int i = 0; i < 7; i++) {
-//    byte3 = byte3 * 10 + arr[i];
-//     }
- 
- 
-//     arr[0] = 0;
-//     arr[1] = modeR;  // Replace with your actual modeR value
-//     arr[2] = modeL;  // Replace with your actual modeL value
-//     arr[3] = brake;  // Replace with your actual brake value
-//     arr[4] = ingi;  // Replace with your actual ingi value
-//     arr[5] = reve;  // Replace with your actual reve value
-//     arr[6] = 0;
-//     arr[7] = 0;
- 
-//     // Combining values into a single 8-bit variable
-//     for (int i = 0; i < 8; i++) {
-//         combinedValue |= arr[i] << i;
-//     }
-// printf("%u\n", combinedValue);
-//decToBinary(combinedValue);
 struct ControlBits {
     unsigned int b0 : 1;
     unsigned int modeR : 1;
@@ -372,9 +307,6 @@ union ControlUnion control;
     control.bits.reve = reve;   // Replace with your actual reve value
     control.bits.sidestand = sidestand;
     control.bits.b8 = 0;
- 
-    // Print the combined value
-    // printf("Combined value: %d\n", control.combinedValue);
    
 union
 {
@@ -384,16 +316,7 @@ uint32_t f;
 u.b = control.combinedValue;
  
 state = u.f;  // converted to hexa
- 
-    printf("Converted value: %x\n", state);
- 
- 
-    // Print the binary representation
-   //  printf("Binary representation: ");
-   //  for (int i = 7; i >= 0; i--) {
-   //    int myVal = (control.combinedValue >> i) & 1 ;
-   //      printf("%d", myVal);
-   //  }
+    // printf("Converted value: %x\n", state);
     printf("\n");
 }
 vTaskDelete(NULL);
@@ -412,9 +335,6 @@ static void battery_temp(void *arg)     //Conversion of analog to digital signal
     while(1)
     {
         int val_of_temp = adc1_get_raw(ADC1_CHANNEL_4);
-        //uint32_t voltage = esp_adc_cal_raw_to_voltage(val_of_temp, adc_chars);
-        //'float Vout = (float)3000 * (float)(Vmax / Dmax);
-        //Vout = (float)((int)(Vout * 100.0)) / 100.0;
         batt_tmp = (float)val_of_temp * ((float)Vmax / (float)Dmax);
         //printf("the value shown %d \n", val_of_temp);//val_of_temp);
         printf("The temperature of the battery is : %.4f \n", batt_tmp);
@@ -426,9 +346,7 @@ static void battery_temp(void *arg)     //Conversion of analog to digital signal
 }
  
  
-// int Dout ;
-// int Vmax = 80 ;
-// int Dmax = 4095 ;
+
 static float cnt_tmp = 0;
 static void controller_temp(void *arg)     //Conversion of analog to digital signal
 {
@@ -450,9 +368,7 @@ static void controller_temp(void *arg)     //Conversion of analog to digital sig
     vTaskDelay(NULL);
 }
  
-// int Dout ;
-// int Vmax = 80 ;
-// int Dmax = 4095 ;
+
 static float pcb = 0 ;
 static void pcb_temp(void *arg)     //Conversion of analog to digital signal
 {
@@ -517,9 +433,7 @@ static void motor_temp(void *arg)     //Conversion of analog to digital signal
     vTaskDelay(NULL);
 }
  
-// int Dout ;
-// int Vmax = 80 ;
-// int Dmax = 4095 ;
+
 static float thr_per = 0 ;
 static void throttle_percentage(void *arg)     //Conversion of analog to digital signal
 {
@@ -543,12 +457,9 @@ static void throttle_percentage(void *arg)     //Conversion of analog to digital
  
 static void twai_transmit_task(void *arg)
 {
-//tx_task_action_t action;
-//xQueueReceive(tx_task_queue, &action, portMAX_DELAY);
- 
-//xSemaphoreTake(ctrl_task_Transmit, portMAX_DELAY); // Wait for completion
- 
-// xSemaphoreGive(ctrl_task_receive); // Start control task
+
+  printf("Entered transmit function------------------->\n");
+  ESP_LOGI(EXAMPLE_TAG, "Transmit fucntion");
 int aa = 0;
  
 ESP_LOGI(EXAMPLE_TAG, "Transmitting to battery");
@@ -575,33 +486,6 @@ else
 ESP_LOGE(EXAMPLE_TAG, "Failed to queue message for transmission\n");
 }
 vTaskDelay(pdMS_TO_TICKS(50));
- 
-// twai_message_t transmit_message_switch1 = {.identifier = (0x18530902), .data_length_code = 8, .extd = 1, .data = {0x00, 0x03, 0x00, 0x18, 0x00, 0x00, 0x00, 0x00}};
-// if (twai_transmit(&transmit_message_switch1, 1000) == ESP_OK)
-// {
-// ESP_LOGI(EXAMPLE_TAG, "Message queued for transmission\n");
-// vTaskDelay(pdMS_TO_TICKS(50));
-// }
-// else
-// {
- 
-// ESP_LOGE(EXAMPLE_TAG, "Failed to queue message for transmission\n");
-// }
-// vTaskDelay(pdMS_TO_TICKS(50));
- 
-// twai_message_t transmit_message_switch2 = {.identifier = (0x18530902), .data_length_code = 8, .extd = 1, .data = {0x00, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}};
-// if (twai_transmit(&transmit_message_switch2, 1000) == ESP_OK)
-// {
-// ESP_LOGI(EXAMPLE_TAG, "Message queued for transmission\n");
-// vTaskDelay(pdMS_TO_TICKS(50));
-// }
-// else
-// {
- 
-// ESP_LOGE(EXAMPLE_TAG, "Failed to queue message for transmission\n");
-// }
-// vTaskDelay(pdMS_TO_TICKS(50));
- 
  
 twai_message_t transmit_message_batteryTemp = {.identifier = (0x000000A), .data_length_code = 8, .extd = 1, .data = {batt_tmp, batt_tmp, batt_tmp, batt_tmp, batt_tmp, batt_tmp, batt_tmp, batt_tmp}};
 if (twai_transmit(&transmit_message_batteryTemp, 10000) == ESP_OK)
@@ -645,16 +529,330 @@ else
 ESP_LOGE(EXAMPLE_TAG, "Failed to queue message for transmission\n");
 }
 vTaskDelay(pdMS_TO_TICKS(50));
- 
- 
 }
- 
- 
- 
 vTaskDelete(NULL);
 }
  
+
+static void twai_receive_task(void *arg)
+{
+  printf("Entered receive function------------------->\n");
+  ESP_LOGI(EXAMPLE_TAG, "receive fucntion");
  
+  // xSemaphoreTake(ctrl_task_receive, portMAX_DELAY); // Wait for completion
+
+  // xSemaphoreGive(ctrl_task_send);                   // Start control task
+ 
+  ESP_LOGI(EXAMPLE_TAG, "Receiving1");
+
+ 
+  uint32_t MSG = 0;
+ 
+      while (1)
+        {
+             twai_message_t message;
+              ESP_LOGI(EXAMPLE_TAG, "Before receive call");
+              if (twai_receive(&message, pdMS_TO_TICKS(250)) == ESP_OK)
+              {
+                  ESP_LOGI(EXAMPLE_TAG, "After receive call with identifier: %lx", message.identifier);
+                  ESP_LOGI(EXAMPLE_TAG, "Received message with identifier: %lx, data: %x %x %x %x %x %x %x %x",
+                          message.identifier,
+                          message.data[0], message.data[1], message.data[2], message.data[3],
+                          message.data[4], message.data[5], message.data[6], message.data[7]);
+
+                  if (MSG == message.identifier)
+                  {
+                      // twai_clear_receive_queue();  // Commented out to prevent clearing the queue
+                      MSG = 0;
+                  }
+              
+              
+                  MSG = message.identifier;
+              
+              
+                  //    ESP_LOGI(EXAMPLE_TAG, "message %lx",message.identifier);
+              
+              
+                  //    printf("mtr decode =  %x , %x , %x, %x , %x, %x, %x, %x  \n", message.data[0],message.data[1],message.data[2],message.data[3],message.data[4],message.data[5],message.data[6],message.data[7]);
+          
+          
+              if (message.identifier == ID_MOTOR_RPM)
+                  { ///////    motor RPM
+
+                    // ESP_LOGI(EXAMPLE_TAG, " Motor RPM Data ");
+
+                    if (!(message.rtr))
+
+                        {
+                  
+                          // mcu_data = message.data;
+                  
+                          RPM = (message.data[1]) | (message.data[0] << 8);
+                  
+                              Motor_err = (message.data[7]) | (message.data[6]<<8) | (message.data[5]<<16)|(message.data[4]<<24) |(message.data[3]<<32)|(message.data[2]<<40) | (message.data[1]<<48)|(message.data[0]<<56);
+                  
+                              sprintf(motor_err, "%x,%x,%x,%x,%x,%x,%x,%x", message.data[0],message.data[1],message.data[2],message.data[3],message.data[4],message.data[5],message.data[6],message.data[7]);
+                  
+                  
+                          union
+
+                          {
+
+                            uint32_t b;
+
+                            int f;
+
+                          } u; // crazy
+
+                          u.b = RPM;
+                  
+                          // M_RPM = u.f;
+                  
+                          twai_message_t transmit_message = {.identifier = (0x14520902 ), .data_length_code = 8, .extd = 1, .data = {RPM, 0, 0, DC_VOLTAGE, DC_CURRENT}};
+
+                        if (twai_transmit(&transmit_message, 1000) == ESP_OK)
+
+                        {
+                  
+                          //          ESP_LOGI(EXAMPLE_TAG, "Message queued for transmission\n");
+
+                          //          vTaskDelay(pdMS_TO_TICKS(250));
+
+                        }
+
+                        else
+
+                        {
+                  
+                          ESP_LOGE(EXAMPLE_TAG, "Failed to queue message for transmission\n");
+
+                        }
+                  
+                        vTaskDelay(pdMS_TO_TICKS(50));
+                        }
+
+                    }
+          
+              else if (message.identifier == ID_MOTOR_TEMP)
+
+                  { /////        motor temp
+
+                    // ESP_LOGI(EXAMPLE_TAG, " Motor Temp Data ");
+
+                    if (!(message.rtr))
+
+                    {
+
+                      THROTTLE = (message.data[0]);
+              
+                      CONT_TEMP = (message.data[1]);
+
+                      MOT_TEMP = (message.data[2]);
+
+                      union
+
+                      {
+
+                        uint32_t b;
+
+                        int f;
+
+                      } u; // crazy
+
+                      u.b = THROTTLE;
+
+                      M_THROTTLE = u.f;
+
+                      u.b = CONT_TEMP;
+
+                      M_CONT_TEMP = u.f - 40;
+
+                      u.b = MOT_TEMP;
+
+                      M_MOT_TEMP = u.f - 40;
+
+                      //  printf("Temp =  %d \n", M_CONT_TEMP);
+
+                    }
+
+                  }
+          
+              else if (message.identifier == ID_MOTOR_CURR_VOLT)
+
+                    {
+                
+                      DC_CURRENT = (message.data[0]) | (message.data[1] << 8);
+
+                      AC_CURRENT = (message.data[4]) | (message.data[5] << 8);
+                
+                      AC_VOLTAGE = (message.data[3]);
+                
+                      DC_VOLTAGE = (message.data[2]);
+                
+                      union
+
+                      {
+
+                        uint32_t b;
+
+                        int f;
+
+                      } u; // crazy
+
+                      u.b = DC_CURRENT;
+                
+                      M_DC_CURRENT = u.f;
+                
+                      u.b = AC_CURRENT;
+                
+                      M_AC_CURRENT = u.f;
+                
+                      u.b = AC_VOLTAGE;
+                
+                      M_AC_VOLTAGE = u.f;
+                
+                      u.b = DC_VOLTAGE;
+                
+                      M_DC_VOLATGE = u.f;
+                
+                    } /////        motor temp
+          
+          
+              else if (message.identifier == ID_LX_BATTERY_SOC)
+
+                  { ////          Battery SOC 3
+
+                    if (!(message.rtr))
+
+                    {
+
+                      SOC3_hx = (message.data[1] << 8) | message.data[0];
+
+                      SOH3_hx = message.data[5]  ;
+
+                      union
+
+                      {
+
+                        uint32_t b;
+
+                        int f;
+
+                      } u; // crazy
+
+                      u.b = SOC3_hx;
+
+                      SOC_3 = u.f;
+
+                      u.b = SOH3_hx;
+
+                      SOH_3 = u.f;
+
+                  //              printf("Battery 3 --> SOC[ %d ]   SOH[ %d ] \n", SOC_3,SOH_3);
+
+                    }
+
+                  }
+          
+              else if (message.identifier == ID_LX_BATTERY_VI)
+
+                  { ////          Battery SOC 3
+
+                    if (!(message.rtr))
+
+                    {
+
+                    current2_hx  =  (message.data[0] << 24) | (message.data[1] << 16) | (message.data[2] << 8) | message.data[3];
+
+                      voltage2_hx =  (message.data[6] << 8) | (message.data[7] ) ;
+              
+                  
+
+                    union
+
+                      {
+
+                        uint32_t b;
+
+                        int f;
+
+                      } u; // crazy
+
+                      u.b = voltage2_hx;
+
+                      Voltage_2 = u.f;
+
+                      u.b = current2_hx;
+
+                      Current_2 = u.f;
+
+                  //      printf("Battery 2 --> Volatge[%d]   current[%f]   \n", ( Voltage_2),(Current_2*0.001));
+              
+                    }
+
+                  }
+          
+          
+            else if (message.identifier == ID_LX_BATTERY_PROT)
+
+              { ///////    motor RPM
+
+                // ESP_LOGI(EXAMPLE_TAG, " Motor RPM Data ");
+
+                if (!(message.rtr))
+
+                {
+          
+                  // mcu_data = message.data;
+          
+          
+                  //   BATT_ERR = (message.data[7]) | (message.data[6]<<8) | (message.data[5]<<16)|(message.data[4]<<24) |(message.data[3]<<32)|(message.data[2]<<40) | (message.data[1]<<48)|(message.data[0]<<56);
+          
+                      sprintf(batt_err, "%x,%x,%x,%x,%x,%x,%x,%x", message.data[0],message.data[1],message.data[2],message.data[3],message.data[4],message.data[5],message.data[6],message.data[7]);
+          
+                }
+
+              }
+          
+          
+            else if (message.identifier == ID_LX_BATTERY_T)
+
+              { ///////    motor RPM
+
+                // ESP_LOGI(EXAMPLE_TAG, " Motor RPM Data ");
+
+                if (!(message.rtr))
+
+                {
+          
+                  // mcu_data = message.data;
+          
+          
+                  //   BATT_ERR = (message.data[7]) | (message.data[6]<<8) | (message.data[5]<<16)|(message.data[4]<<24) |(message.data[3]<<32)|(message.data[2]<<40) | (message.data[1]<<48)|(message.data[0]<<56);
+          
+                      sprintf(batt_temp, "%x,%x,%x,%x,%x,%x,%x,%x", message.data[0],message.data[1],message.data[2],message.data[3],message.data[4],message.data[5],message.data[6],message.data[7]);
+
+                      printf("batt temp------------>%c",batt_temp[0]);
+                      printf("batt temp------------>%c",batt_temp[1]);
+                      printf("batt temp------------>%c",batt_temp[2]);
+                      printf("batt temp------------>%c",batt_temp[3]);
+                }
+
+              }
+              else
+                  {
+
+                    //   ESP_LOGE(EXAMPLE_TAG, " ID not match - %lx ",message.identifier );
+
+                    //   vTaskDelay(pdMS_TO_TICKS(250));
+
+                  }
+        } 
+        }
+  // xSemaphoreGive(done_sem);
+  vTaskDelete(NULL);
+}
+
  
  
 void app_main(void)
@@ -677,7 +875,6 @@ gpio_set_pull_mode(Break,GPIO_PULLUP_ONLY);
 gpio_set_direction(SideStand,GPIO_MODE_INPUT);
 gpio_set_pull_mode(SideStand,GPIO_PULLUP_ONLY);
  
-//xTaskCreatePinnedToCore(switch_ip, "TWAI_tx", 4096, NULL, TX_TASK_PRIO, NULL, tskNO_AFFINITY);
  
  
 ESP_ERROR_CHECK(twai_driver_install(&g_config, &t_config, &f_config)); /// driver install
@@ -695,21 +892,8 @@ xTaskCreate(motor_temp , "motor temp", 4096, NULL, 8, NULL);
 xTaskCreate(battery_temp , "battery temperature", 4096, NULL, 8, NULL);
 xTaskCreate(controller_temp , "motor controller temperature", 4096, NULL, 8, NULL);
 xTaskCreate(soc_battery, "battery SoC", 4096, NULL, 8, NULL);
-xTaskCreate(switch_ip, "Swicth_Tsk", 4096, NULL, 8, NULL);
-//xTaskCreate(twai_transmit_task, "transmit_Tsk", 4096, NULL, 8, NULL);
+xTaskCreate(Button_input, "Button_tsk", 4096, NULL, 8, NULL);
 xTaskCreate(twai_transmit_task, "Transmit_Tsk", 4096, NULL, 8, NULL);
-//xSemaphoreGive(cnt_Switch_start); // Start control task
- 
-//gpio_set_intr_type(Ignition,GPIO_INTR_LOW_LEVEL);
-//gpio_intr_enable(Ignition);
- 
-//xSemaphoreTake(done_sem, portMAX_DELAY); // Wait for completion
- 
-//ESP_ERROR_CHECK(twai_driver_uninstall());
-//ESP_LOGI(EXAMPLE_TAG, "Driver uninstalled");
- 
-//vSemaphoreDelete(cnt_Switch_start);
-//vSemaphoreDelete(done_sem);
- 
- 
+xTaskCreate(twai_receive_task, "receive_task", 4096, NULL, 8, NULL);
+printf("Transmit done------------------>");
 }
