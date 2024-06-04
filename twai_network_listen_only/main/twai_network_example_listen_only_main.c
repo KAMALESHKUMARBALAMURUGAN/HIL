@@ -65,7 +65,7 @@ static int received_value_controllerTemp;
 static int received_value_rpm;
 static int MotorWarn;
 static int controllerWarn;
-static int warning ;
+static int BattWarn ;
 static uint8_t rpm1_hex;
 static uint8_t rpm2_hex;
 
@@ -434,7 +434,7 @@ while (1)
 
 
     
-    twai_message_t transmit_message_warning = {.identifier = ID_Battery_ProtectionsAndWarnings , .data_length_code = 8, .extd = 1, .data = {0x00, 0x00, warning , 0x00 , 0x00 , 0x00 , 0x00 , 0x00 }};
+    twai_message_t transmit_message_warning = {.identifier = ID_Battery_ProtectionsAndWarnings , .data_length_code = 8, .extd = 1, .data = {0x00, 0x00, BattWarn , 0x00 , 0x00 , 0x00 , 0x00 , 0x00 }};
     if (twai_transmit(&transmit_message_warning, 10000) == ESP_OK)
     {
     ESP_LOGI(EXAMPLE_TAG, "Message queued for transmission\n");
@@ -531,14 +531,14 @@ void process_uart_data(uint8_t *data, int len) {
             received_value_rpm = switch_state;
             break;
 
-        case 'e':  // Motor Over Temperature Warning
+        case 'e':  // Motor Over Temperature warning
             MotorWarn = switch_state == 1 ? 16 : 0;
             break;
 
-        case 'g':  // Controller Over Voltage Warning
+        case 'g':  // Controller Over Voltage warning
             controllerWarn = switch_state == 1 ? 1 : 0;
             break;
-        case 'h':  // Controller Under Voltage Warning
+        case 'h':  // Controller Under Voltage warning
             controllerWarn = switch_state == 1 ? 2 : 0;
             break;
         case 'i':  // Overcurrent Fault
@@ -558,31 +558,31 @@ void process_uart_data(uint8_t *data, int len) {
 
 
         case 'm':  // BattLowSocWarn
-            warning = switch_state == 1 ? 2 : 0;
+            BattWarn = switch_state == 1 ? 2 : 0;
             break;
         case 'n':  // CellUnderVolWarn
-            warning = switch_state == 1 ? 16 : 0;
+            BattWarn = switch_state == 1 ? 16 : 0;
             break;
         case 'o':  // CellOverVolWarn
-            warning = switch_state == 1 ? 32 : 0;
+            BattWarn = switch_state == 1 ? 32 : 0;
             break;
         case 'p':  // PackUnderVolWarn
-            warning = switch_state == 1 ? 4 : 0;
+            BattWarn = switch_state == 1 ? 4 : 0;
             break;
         case 'q':  // PackOverVolWarn
-            warning = switch_state == 1 ? 8 : 0;
+            BattWarn = switch_state == 1 ? 8 : 0;
             break;
         case 'r':  // ChgUnderTempWarn
-            warning = switch_state == 1 ? 16 : 0;
+            BattWarn = switch_state == 1 ? 16 : 0;
             break;
         case 's':  // ChgOverTempWarn
-            warning = switch_state == 1 ? 32 : 0;
+            BattWarn = switch_state == 1 ? 32 : 0;
             break;
         case 't':  // DchgUnderTempWarn
-            warning = switch_state == 1 ? 64 : 0;
+            BattWarn = switch_state == 1 ? 64 : 0;
             break;
         case 'u':  // DchgOverTempWarn
-            warning = switch_state == 1 ? 128 : 0;
+            BattWarn = switch_state == 1 ? 128 : 0;
             break;
         default:
             // Handle invalid switch number
