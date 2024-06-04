@@ -1,3 +1,4 @@
+
 /* GPIO Example
  
    This example code is in the Public Domain (or CC0 licensed, at your option.)
@@ -121,7 +122,6 @@ static int SOH_3 = 0;
  
 static uint16_t iDs[ 2 ] = {0x1f00,0x1bc0,0x1720};
  
-// static uint16_t iDs[2] = {0x1f00, 0x1bc0};
  
 static uint8_t state = 0;
 static int M_CONT_TEMP = 0;
@@ -291,18 +291,24 @@ while(1)
 vTaskDelay(pdMS_TO_TICKS(50));
  
  
-ingi = !gpio_get_level(Ignition);
-printf("ingi------->%d\n",ingi);
-brake = !gpio_get_level(Break);
-printf("brake------->%d\n",brake);
-modeL = !gpio_get_level(ModeL);
-printf("modeL------->%d\n",modeL);
-modeR = !gpio_get_level(ModeR);
-printf("modeR------->%d\n",modeR);
-reve = !gpio_get_level(Reverse);
-printf("reve------->%d\n",reve);
-sidestand = !gpio_get_level(SideStand);
-printf("sidestand------->%d\n",sidestand);
+int ingi = !gpio_get_level(Ignition);
+printf("ignition------->%d\n", ingi);
+
+int brake = !gpio_get_level(Break);
+printf("brake----------->%d\n", brake);
+
+int modeL = !gpio_get_level(ModeL);
+printf("modeL---------->%d\n", modeL);
+
+int modeR = !gpio_get_level(ModeR);
+printf("modeR---------->%d\n", modeR);
+
+int reve = !gpio_get_level(Reverse);
+printf("reverse--------->%d\n", reve);
+
+int sidestand = !gpio_get_level(SideStand);
+printf("sidestand----->%d\n", sidestand);
+
  
 //printf("Iginiton = %d, Break = %d, Mode+ = %d, Moe- = %d, Reverse =%d \n",ingi,brake,modeR,modeL,reve);
  
@@ -379,6 +385,7 @@ u.b = control.combinedValue;
  
 state = u.f;  // converted to hexa
  
+    printf("Converted value: %x\n", state);
  
  
     // Print the binary representation
@@ -410,7 +417,7 @@ static void battery_temp(void *arg)     //Conversion of analog to digital signal
         //Vout = (float)((int)(Vout * 100.0)) / 100.0;
         batt_tmp = (float)val_of_temp * ((float)Vmax / (float)Dmax);
         //printf("the value shown %d \n", val_of_temp);//val_of_temp);
-        printf("Battery Temperature : %.4f \n", batt_tmp);
+        printf("The temperature of the battery is : %.4f \n", batt_tmp);
         //ESP_LOGD(EXAMPLE_TAG, "Failed to queue message for transmission\n");
         vTaskDelay(250/portTICK_PERIOD_MS);
             //new_val = val_of_temp ;
@@ -430,15 +437,14 @@ static void controller_temp(void *arg)     //Conversion of analog to digital sig
     while(1)
     {
         int val_temp_controller = adc1_get_raw(ADC1_CHANNEL_6);//gpio34
-        printf("cnt_tmp_analog---------> %d \n",val_temp_controller);
         //uint32_t voltage = esp_adc_cal_raw_to_voltage(val_of_temp, adc_chars);
         //'float Vout = (float)3000 * (float)(Vmax / Dmax);
         //Vout = (float)((int)(Vout * 100.0)) / 100.0;
         cnt_tmp = (float)val_temp_controller * ((float)Vmax / (float)Dmax);
         //printf("the value shown %d \n", val_temp_controller);//val_of_temp);
-        printf("Controller(MCU) temperature : %.4f \n", cnt_tmp);
+        printf("MCU temperature is : %.4f \n", cnt_tmp);
         //ESP_LOGD(EXAMPLE_TAG, "Failed to queue message for transmission\n");
-        vTaskDelay(100/portTICK_PERIOD_MS);
+        vTaskDelay(250/portTICK_PERIOD_MS);
             //new_val = val_of_temp ;
     }
     vTaskDelay(NULL);
@@ -458,9 +464,9 @@ static void pcb_temp(void *arg)     //Conversion of analog to digital signal
        
         pcb = (float)val_temp_pcb * ((float)Vmax / (float)Dmax);
         //printf("the value shown %d \n", val_temp_pcb);//val_of_temp);
-        printf("PCB temperature : %.4f \n", pcb);
+        printf("PCB temperature is : %.4f \n", pcb);
         //ESP_LOGD(EXAMPLE_TAG, "Failed to queue message for transmission\n");
-        vTaskDelay(100/portTICK_PERIOD_MS);
+        vTaskDelay(250/portTICK_PERIOD_MS);
             //new_val = val_of_temp ;
     }
     vTaskDelay(NULL);
@@ -481,7 +487,7 @@ static void soc_battery(void *arg)     //Conversion of analog to digital signal
         //printf("the value shown %d \n", soc_of_batt);//val_of_temp);
         printf("SoC of the battery is : %.4f  \n", soc);
         //ESP_LOGD(EXAMPLE_TAG, "Failed to queue message for transmission\n");
-        vTaskDelay(100/portTICK_PERIOD_MS);
+        vTaskDelay(250/portTICK_PERIOD_MS);
             //new_val = val_of_temp ;
     }
     vTaskDelay(NULL);
@@ -503,9 +509,9 @@ static void motor_temp(void *arg)     //Conversion of analog to digital signal
         //Vout = (float)((int)(Vout * 100.0)) / 100.0;
         V_motor_out = (float)val_temp_motor * ((float)V_motor_max / (float)D_motor_max);
         //printf("the value shown %d \n", val_temp_motor);//val_of_temp);
-        printf("Motor Temperature : %.4f \n", V_motor_out);
+        printf("Temperature of the motor is : %.4f \n", V_motor_out);
         //ESP_LOGD(EXAMPLE_TAG, "Failed to queue message for transmission\n");
-        vTaskDelay(100/portTICK_PERIOD_MS);
+        vTaskDelay(250/portTICK_PERIOD_MS);
             //new_val = val_of_temp ;
     }
     vTaskDelay(NULL);
@@ -527,9 +533,9 @@ static void throttle_percentage(void *arg)     //Conversion of analog to digital
         //Vout = (float)((int)(Vout * 100.0)) / 100.0;
         thr_per = (float)throttle_per * ((float)Vmax / (float)Dmax);
         //printf("the value shown %d \n", throttle_per);//val_of_temp);
-        printf("Throttle percentage : %.4f \n", thr_per);
+        printf("The throttle percentage is : %.4f \n", thr_per);
         //ESP_LOGD(EXAMPLE_TAG, "Failed to queue message for transmission\n");
-        vTaskDelay(100/portTICK_PERIOD_MS);
+        vTaskDelay(250/portTICK_PERIOD_MS);
             //new_val = val_of_temp ;
     }
     vTaskDelay(NULL);
@@ -547,7 +553,7 @@ int aa = 0;
  
 ESP_LOGI(EXAMPLE_TAG, "Transmitting to battery");
  
-vTaskDelay(pdMS_TO_TICKS(100));
+vTaskDelay(pdMS_TO_TICKS(50));
 int arr[8];
 int i,x,pos,n=8 ;
  
@@ -556,73 +562,73 @@ while (1)
  
  
  
-// //printf("this is my %d", new_val);
-// twai_message_t transmit_message_switch = {.identifier = (0x18530902), .data_length_code = 8, .extd = 1, .data = {thr_per, 0x03, 0x00, state, 0x00, 0x00, 0x00, 0x00}};
-// if (twai_transmit(&transmit_message_switch, 1000) == ESP_OK)
-// {
-// ESP_LOGI(EXAMPLE_TAG, "Message queued for transmission\n");
-// vTaskDelay(pdMS_TO_TICKS(100));
-// }
-// else
-// {
+//printf("this is my %d", new_val);
+twai_message_t transmit_message_switch = {.identifier = (0x18530902), .data_length_code = 8, .extd = 1, .data = {0x00, 0x03, 0x00, state, 0x00, 0x00, 0x00, 0x00}};
+if (twai_transmit(&transmit_message_switch, 1000) == ESP_OK)
+{
+ESP_LOGI(EXAMPLE_TAG, "Message queued for transmission\n");
+vTaskDelay(pdMS_TO_TICKS(50));
+}
+else
+{
  
-// ESP_LOGE(EXAMPLE_TAG, "Failed to queue message for transmission\n");
-// }
-// vTaskDelay(pdMS_TO_TICKS(100));
+ESP_LOGE(EXAMPLE_TAG, "Failed to queue message for transmission\n");
+}
+vTaskDelay(pdMS_TO_TICKS(50));
  
 // twai_message_t transmit_message_switch1 = {.identifier = (0x18530902), .data_length_code = 8, .extd = 1, .data = {0x00, 0x03, 0x00, 0x18, 0x00, 0x00, 0x00, 0x00}};
 // if (twai_transmit(&transmit_message_switch1, 1000) == ESP_OK)
 // {
 // ESP_LOGI(EXAMPLE_TAG, "Message queued for transmission\n");
-// vTaskDelay(pdMS_TO_TICKS(250));
+// vTaskDelay(pdMS_TO_TICKS(50));
 // }
 // else
 // {
  
 // ESP_LOGE(EXAMPLE_TAG, "Failed to queue message for transmission\n");
 // }
-// vTaskDelay(pdMS_TO_TICKS(250));
+// vTaskDelay(pdMS_TO_TICKS(50));
  
 // twai_message_t transmit_message_switch2 = {.identifier = (0x18530902), .data_length_code = 8, .extd = 1, .data = {0x00, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}};
 // if (twai_transmit(&transmit_message_switch2, 1000) == ESP_OK)
 // {
 // ESP_LOGI(EXAMPLE_TAG, "Message queued for transmission\n");
-// vTaskDelay(pdMS_TO_TICKS(250));
+// vTaskDelay(pdMS_TO_TICKS(50));
 // }
 // else
 // {
  
 // ESP_LOGE(EXAMPLE_TAG, "Failed to queue message for transmission\n");
 // }
-// vTaskDelay(pdMS_TO_TICKS(250));
+// vTaskDelay(pdMS_TO_TICKS(50));
  
  
 twai_message_t transmit_message_batteryTemp = {.identifier = (0x000000A), .data_length_code = 8, .extd = 1, .data = {batt_tmp, batt_tmp, batt_tmp, batt_tmp, batt_tmp, batt_tmp, batt_tmp, batt_tmp}};
 if (twai_transmit(&transmit_message_batteryTemp, 10000) == ESP_OK)
 {
 ESP_LOGI(EXAMPLE_TAG, "Message queued for transmission\n");
-vTaskDelay(pdMS_TO_TICKS(100));
+vTaskDelay(pdMS_TO_TICKS(50));
 }
 else
 {
  
 ESP_LOGE(EXAMPLE_TAG, "Failed to queue message for transmission\n");
 }
-vTaskDelay(pdMS_TO_TICKS(100));
+vTaskDelay(pdMS_TO_TICKS(50));
  
  
 twai_message_t transmit_message_otherTemp = {.identifier = (0x18530903), .data_length_code = 8, .extd = 1, .data = {cnt_tmp, V_motor_out, V_motor_out, 0x00 , 0x00 , 0x00 , 0x00 , 0x00 }};
 if (twai_transmit(&transmit_message_otherTemp, 10000) == ESP_OK)
 {
     ESP_LOGI(EXAMPLE_TAG, "Message queued for transmission\n");
-vTaskDelay(pdMS_TO_TICKS(100));
+vTaskDelay(pdMS_TO_TICKS(50));
 }
 else
 {
  
 ESP_LOGE(EXAMPLE_TAG, "Failed to queue message for transmission\n");
 }
-vTaskDelay(pdMS_TO_TICKS(100));
+vTaskDelay(pdMS_TO_TICKS(50));
  
  
  
@@ -631,14 +637,14 @@ twai_message_t transmit_message_SoC= {.identifier = ID_LX_BATTERY_SOC , .data_le
 if (twai_transmit(&transmit_message_SoC, 10000) == ESP_OK)
 {
 ESP_LOGI(EXAMPLE_TAG, "Message queued for transmission\n");
-vTaskDelay(pdMS_TO_TICKS(100));
+vTaskDelay(pdMS_TO_TICKS(50));
 }
 else
 {
  
 ESP_LOGE(EXAMPLE_TAG, "Failed to queue message for transmission\n");
 }
-vTaskDelay(pdMS_TO_TICKS(100));
+vTaskDelay(pdMS_TO_TICKS(50));
  
  
 }
@@ -681,7 +687,7 @@ ESP_ERROR_CHECK(twai_start()); /// driver start
  
 ESP_LOGI(EXAMPLE_TAG, "Driver started");
  
-vTaskDelay(pdMS_TO_TICKS(500)) ;
+vTaskDelay(pdMS_TO_TICKS(100)) ;
  
 xTaskCreate(throttle_percentage , "throttle", 4096, NULL, 8, NULL);
 xTaskCreate(pcb_temp , "pcb temp", 4096, NULL, 8, NULL);
