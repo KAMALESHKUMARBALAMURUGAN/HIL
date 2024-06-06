@@ -461,19 +461,19 @@ static void twai_receive_task(void *arg)
   ESP_LOGI(EXAMPLE_TAG, "Receiving1");
 
  
-  uint32_t MSG = 0;
+  // uint32_t MSG = 0;
  
       while (1)
         {
              twai_message_t message;
-              ESP_LOGI(EXAMPLE_TAG, "Before receive call");
+              // ESP_LOGI(EXAMPLE_TAG, "Before receive call");
               if (twai_receive(&message, pdMS_TO_TICKS(250)) == ESP_OK)
               {
-                  ESP_LOGI(EXAMPLE_TAG, "After receive call with identifier: %lx", message.identifier);
-                  ESP_LOGI(EXAMPLE_TAG, "Received message with identifier: %lx, data: %x %x %x %x %x %x %x %x",
-                          message.identifier,
-                          message.data[0], message.data[1], message.data[2], message.data[3],
-                          message.data[4], message.data[5], message.data[6], message.data[7]);
+                  // ESP_LOGI(EXAMPLE_TAG, "After receive call with identifier: %lx", message.identifier);
+                  // ESP_LOGI(EXAMPLE_TAG, "Received message with identifier: %lx, data: %x %x %x %x %x %x %x %x",
+                  //         message.identifier,
+                  //         message.data[0], message.data[1], message.data[2], message.data[3],
+                  //         message.data[4], message.data[5], message.data[6], message.data[7]);
 
                   // if (MSG == message.identifier)
                   // {
@@ -483,8 +483,19 @@ static void twai_receive_task(void *arg)
               
               
                   // MSG = message.identifier;
-                  ESP_LOGI(EXAMPLE_TAG, "message %lx",message.identifier);
+                  ESP_LOGI(EXAMPLE_TAG, "message id------> %lx",message.identifier);
                   printf("mtr decode =  %x , %x , %x, %x , %x, %x, %x, %x  \n", message.data[0],message.data[1],message.data[2],message.data[3],message.data[4],message.data[5],message.data[6],message.data[7]);
+
+                  if(message.data[0] == 0x15)
+                  {
+                    printf("<--------------------------------------------------MOTOR ON------------------------------------------------------------------->\n");
+                  }
+
+                  else if (message.data[0]== 0x14 || message.data[0]== 0x4 )
+                  {
+                    printf("<--------------------------------------------------MOTOR OFF------------------------------------------------------------------->\n");
+                  }
+                 
 
               if (message.identifier == ID_MOTOR_RPM)
                   { 
