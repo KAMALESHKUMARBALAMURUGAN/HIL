@@ -94,7 +94,7 @@ def release_reverse_Brake(reverse_button, Brake_button, reverse_var, Brake_var, 
 # Create the main window
 root = tk.Tk()
 root.title("HIL- Hardware In Loop")
-root.geometry("850x600")
+root.geometry("1000x700")
 
 # Create frames
 left_frame = ttk.Frame(root)
@@ -109,16 +109,17 @@ ids = {
     # "Sidestand": 5, (Push button not added in the GUI)
     "Ignition": 6,
     "SOC": 7,
-    "Throttle": 8,
+    "Throttle(boost)": 8,  #Throttle(boost) is added to see the boost bar on the VCU screen(not for the speed change)
     "Battery temp": 9,
     "Motor temp": 'a',
     "Controller temp": 'b',
     "PCB temp": 'c',
-    "rpm": 'd',
-    "Motor Over Temperature": 'e',
-    "Controller Over Temperature": 'f',
-    "Controller Over Voltage": 'g',
-    "Controller Under Voltage": 'h',
+    "RPM(SPEED)": 'd',
+    "Motor Over Temperature Warning": 'e',
+    "throttle error":'f',
+    "Controller(MCU) Over Temperature Warning":'v',
+    "Controller Over Voltage Warning": 'g',
+    "Controller Under Voltage Warning": 'h',
     "Overcurrent Fault": 'i',
     "Motor Hall Input Abnormal": 'j',
     "Motor Stalling": 'k',
@@ -136,13 +137,13 @@ ids = {
 }
 
 scales_info = [
-    ("Throttle", 0, 100),
+    ("Throttle(boost)", 0, 100),
     ("SOC", 0, 100),
     ("Battery temp", 0, 150),
     ("Motor temp", 0, 250),
     ("Controller temp", 0, 200),
     ("PCB temp", 0, 200),
-    ("rpm", 0, 4500)
+    ("RPM(SPEED)", 0, 4500)
 ]
 
 scales = {}
@@ -212,10 +213,11 @@ reverse_Brake_button.pack(side=tk.LEFT, padx=10)
 
 # Radio buttons for different faults
 faults_info = [
-    ("Motor Over Temperature", "e"),
-    ("Controller Over Temperature", "f"),
-    ("Controller Over Voltage", "g"),
-    ("Controller Under Voltage", "h"),
+    ("Motor Over Temperature Warning", "e"),
+    ("throttle error","f"),
+    ("Controller(MCU) Over Temperature Warning","v"),
+    ("Controller Over Voltage Warning", "g"),
+    ("Controller Under Voltage Warning", "h"),
     ("Overcurrent Fault", "i"),
     ("Motor Hall Input Abnormal", "j"),
     ("Motor Stalling", "k"),
