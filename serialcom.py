@@ -4,6 +4,7 @@ import serial
 import serial.tools.list_ports
 from time import sleep
 
+# Function to find the ESP32 port
 def find_esp32_port():
     ports = serial.tools.list_ports.comports()
     for port in ports:
@@ -12,16 +13,10 @@ def find_esp32_port():
             return port.device
     return None
 
-port = find_esp32_port()
-if port:
-    ser = serial.Serial(port, 115200)
-    print(f"Connected to {port}")
-else:
-    print("No ESP32 device found.")
-
+# Function to send UART commands
 def send_uart(id, value):
     """Send parameter id and value over UART."""
-    cmd=f'{id}{value}'
+    cmd = f'{id}{value}'
     ser.write(cmd.encode())
     print(cmd.encode())
 
@@ -41,55 +36,79 @@ def update_scale_from_entry(entry, scale, id):
             entry.delete(0, tk.END)
             entry.insert(0, str(scale.get()))
 
+# Function to update the entry from the scale
 def update_entry_from_scale(name, var, entry, id):
-    current_value = int(var.get())  # Cast float value to int                           //current_value contains the value of the slider (not the slider number)
+    current_value = int(var.get())  # Cast float value to int
     if current_value != int(entry.get()):  # Only send UART if value has changed
         entry.delete(0, tk.END)
         entry.insert(0, str(current_value))
         var.set(current_value)  # Update the variable to hold an integer value
         send_uart(id, current_value)  # Send update through UART
 
-# Function to activate the button
+# Function to press a button
 def press_button(button, var, id):
     sleep(1)
     var.set(1)
     button.config(text="On")
     send_uart(id, 1)  # Send update through UART
 
-# Function to deactivate the button
+# Function to release a button
 def release_button(button, var, id):
     sleep(1)
     var.set(0)
     button.config(text="Off")
     send_uart(id, 0)  # Send update through UART
 
-# Function to simulate pressing both Ignition and Brake
+# Function to press both Ignition and Brake buttons
 def press_both(ignition_button, Brake_button, ignition_var, Brake_var, ignition_id, Brake_id):
     press_button(Brake_button, Brake_var, Brake_id)
     sleep(0.1)
     press_button(ignition_button, ignition_var, ignition_id)
     sleep(0.2)
 
-# Function to simulate releasing both Ignition and Brake
+# Function to release both Ignition and Brake buttons
 def release_both(ignition_button, Brake_button, ignition_var, Brake_var, ignition_id, Brake_id):
     sleep(0.2)
     release_button(ignition_button, ignition_var, ignition_id)
     sleep(0.1)
     release_button(Brake_button, Brake_var, Brake_id)
 
-# Function to simulate pressing both Reverse and Brake
+# Function to press both Reverse and Brake buttons
 def press_reverse_Brake(reverse_button, Brake_button, reverse_var, Brake_var, reverse_id, Brake_id):
     press_button(Brake_button, Brake_var, Brake_id)
     sleep(0.1)
     press_button(reverse_button, reverse_var, reverse_id)
     sleep(0.2)
 
-# Function to simulate releasing both Reverse and Brake
+# Function to release both Reverse and Brake buttons
 def release_reverse_Brake(reverse_button, Brake_button, reverse_var, Brake_var, reverse_id, Brake_id):
     sleep(0.2)
     release_button(reverse_button, reverse_var, reverse_id)
     sleep(0.1)
     release_button(Brake_button, Brake_var, Brake_id)
+
+# Function to read data from the serial port
+def read_serial():
+    try:
+        line = ser.readline().decode('utf-8').strip()
+        if line.startswith("Motor_status:"):
+            Motor_status = line.split(":")[1]
+            if Motor_status == '1':
+                Motor_label.config(text="Motor: ON")
+            else:
+                Motor_label.config(text="Motor: OFF")
+    except Exception as e:
+        print(f"Error reading serial: {e}")
+    root.after(500, read_serial)  # Schedule the function to be called again after 100 ms
+
+# Find the ESP32 port and initialize the serial connection
+port = find_esp32_port()
+if port:
+    ser = serial.Serial(port, 115200)
+    print(f"Connected to {port}")
+else:
+    print("No ESP32 device found.")
+    ser = None
 
 # Create the main window
 root = tk.Tk()
@@ -106,18 +125,17 @@ ids = {
     "Reverse": 2,
     "Mode R": 3,
     "Mode L": 4,
-    # "Sidestand": 5, (Push button not added in the GUI)
     "Ignition": 6,
     "SOC": 7,
-    "Throttle(boost)": 8,  #Throttle(boost) is added to see the boost bar on the VCU screen(not for the speed change)
+    "Throttle(boost)": 8,
     "Battery temp": 9,
     "Motor temp": 'a',
     "Controller temp": 'b',
     "PCB temp": 'c',
     "RPM(SPEED)": 'd',
     "Motor Over Temperature Warning": 'e',
-    "throttle error":'f',
-    "Controller(MCU) Over Temperature Warning":'v',
+    "throttle error": 'f',
+    "Controller(MCU) Over Temperature Warning": 'v',
     "Controller Over Voltage Warning": 'g',
     "Controller Under Voltage Warning": 'h',
     "Overcurrent Fault": 'i',
@@ -136,6 +154,7 @@ ids = {
     "DchgOverTempWarn": 'u'
 }
 
+# Create scales for different parameters
 scales_info = [
     ("Throttle(boost)", 0, 100),
     ("SOC", 0, 100),
@@ -196,7 +215,6 @@ for i, mode in enumerate(modes_info):
     button.bind("<ButtonRelease-1>", lambda event, b=button, v=var, id=ids[mode]: release_button(b, v, id))
     mode_buttons[mode] = button
 
-
 # Additional button for Ignition & Brake, moved to column 4
 ign_Brake_frame = ttk.Frame(left_frame)
 ign_Brake_frame.grid(row=len(modes_info), column=4, padx=10, pady=10, sticky='ew')
@@ -214,8 +232,8 @@ reverse_Brake_button.pack(side=tk.LEFT, padx=10)
 # Radio buttons for different faults
 faults_info = [
     ("Motor Over Temperature Warning", "e"),
-    ("throttle error","f"),
-    ("Controller(MCU) Over Temperature Warning","v"),
+    ("throttle error", "f"),
+    ("Controller(MCU) Over Temperature Warning", "v"),
     ("Controller Over Voltage Warning", "g"),
     ("Controller Under Voltage Warning", "h"),
     ("Overcurrent Fault", "i"),
@@ -235,6 +253,7 @@ for i, (fault, fault_id) in enumerate(faults_info):
     ttk.Radiobutton(fault_frame, text="OFF", variable=fault_var, value="OFF", command=lambda id=fault_id: send_uart(id, 0)).pack(side=tk.LEFT, padx=10)
     ttk.Radiobutton(fault_frame, text="ON", variable=fault_var, value="ON", command=lambda id=fault_id: send_uart(id, 1)).pack(side=tk.LEFT, padx=10)
 
+# Radio buttons for different warnings
 warnings_info = [
     ("BattLowSocWarn", "m"),
     ("CellUnderVolWarn", "n"),
@@ -263,6 +282,14 @@ ign_Brake_button.bind("<ButtonRelease-1>", lambda event: release_both(mode_butto
 # Bind mouse press and release to both buttons
 reverse_Brake_button.bind("<ButtonPress-1>", lambda event: press_reverse_Brake(mode_buttons["Reverse"], mode_buttons["Brake"], mode_vars["Reverse"], mode_vars["Brake"], ids["Reverse"], ids["Brake"]))
 reverse_Brake_button.bind("<ButtonRelease-1>", lambda event: release_reverse_Brake(mode_buttons["Reverse"], mode_buttons["Brake"], mode_vars["Reverse"], mode_vars["Brake"], ids["Reverse"], ids["Brake"]))
+
+# Create a label for Motor status
+Motor_label = tk.Label(root, text="Motor: ", font=("Helvetica", 16))
+Motor_label.pack(pady=20)
+
+# Start reading the serial data after 100 ms
+if ser:
+    root.after(100, read_serial)
 
 # Start the event loop
 root.mainloop()

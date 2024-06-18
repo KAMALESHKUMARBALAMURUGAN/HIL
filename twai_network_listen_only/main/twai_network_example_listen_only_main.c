@@ -108,6 +108,7 @@ int adc_value = 0;
 int adc_value1 = 0;
 int adc_value2 = 0;
 int rpm_rx = 1234; // Example RPM value
+static int Motor_status;
  
  
 char motor_err[32];
@@ -289,7 +290,7 @@ void uart_send_task(void *arg) {
     char tx_buffer[128];
 
     while (1) {
-        snprintf(tx_buffer, sizeof(tx_buffer), "RPM:%d\n", rpm_rx);
+        snprintf(tx_buffer, sizeof(tx_buffer), "Motor_status:%d\n", Motor_status);
         uart_write_bytes(uart_num, tx_buffer, strlen(tx_buffer));
         vTaskDelay(pdMS_TO_TICKS(1000)); // Send every 1 second
     }
@@ -431,11 +432,13 @@ static void twai_receive_task(void *arg)
                   if(message.data[0] == 0x15)
                   {
                     printf("<--------------------------------------------------MOTOR ON------------------------------------------------------------------->\n");
+                    Motor_status = 1;
                   }
 
                   else if (message.data[0]== 0x14 || message.data[0]== 0x4 )
                   {
                     printf("<--------------------------------------------------MOTOR OFF------------------------------------------------------------------->\n");
+                    Motor_status = 0;
                   }
                  
 
