@@ -107,6 +107,7 @@ static uint8_t state = 0;
 int adc_value = 0;
 int adc_value1 = 0;
 int adc_value2 = 0;
+int rpm_rx = 1234; // Example RPM value
  
  
 char motor_err[32];
@@ -282,6 +283,18 @@ int V_motor_max = 150 ;
 int D_motor_max = 4095 ;
 
 
+
+void uart_send_task(void *arg) {
+    const uart_port_t uart_num = ECHO_UART_PORT_NUM;
+    char tx_buffer[128];
+
+    while (1) {
+        snprintf(tx_buffer, sizeof(tx_buffer), "RPM:%d\n", rpm_rx);
+        uart_write_bytes(uart_num, tx_buffer, strlen(tx_buffer));
+        vTaskDelay(pdMS_TO_TICKS(1000)); // Send every 1 second
+    }
+}
+
  
 static void twai_transmit_task(void *arg)
 {
@@ -331,10 +344,7 @@ static void twai_transmit_task(void *arg)
         ESP_LOGE(EXAMPLE_TAG, "Failed to queue message for transmission\n");
         }
         vTaskDelay(pdMS_TO_TICKS(100));
-    
-    
-    
-    
+
         twai_message_t transmit_message_SoC= {.identifier = ID_LX_BATTERY_SOC , .data_length_code = 8, .extd = 1, .data = {soc, 0x00, 0x00, 0x9A , 0xB0 , 0x63 , 0x1D , 0x01 }};
         if (twai_transmit(&transmit_message_SoC, 10000) == ESP_OK)
         {
@@ -379,7 +389,335 @@ static void twai_transmit_task(void *arg)
     }
     vTaskDelete(NULL);
 }
+
+
+static void twai_receive_task(void *arg)
+{
+  printf("Entered receive function------------------->\n");
+  ESP_LOGI(EXAMPLE_TAG, "receive fucntion");
  
+  // xSemaphoreTake(ctrl_task_receive, portMAX_DELAY); // Wait for completion
+
+  // xSemaphoreGive(ctrl_task_send);                   // Start control task
+ 
+  ESP_LOGI(EXAMPLE_TAG, "Receiving1");
+
+ 
+  // uint32_t MSG = 0;
+ 
+      while (1)
+        {
+             twai_message_t message;
+              // ESP_LOGI(EXAMPLE_TAG, "Before receive call");
+              if (twai_receive(&message, pdMS_TO_TICKS(250)) == ESP_OK)
+              {
+                  // ESP_LOGI(EXAMPLE_TAG, "After receive call with identifier: %lx", message.identifier);
+                  // ESP_LOGI(EXAMPLE_TAG, "Received message with identifier: %lx, data: %x %x %x %x %x %x %x %x",
+                  //         message.identifier,
+                  //         message.data[0], message.data[1], message.data[2], message.data[3],
+                  //         message.data[4], message.data[5], message.data[6], message.data[7]);
+
+                  // if (MSG == message.identifier)
+                  // {
+                  //     twai_clear_receive_queue();  // Commented out to prevent clearing the queue
+                  //     MSG = 0;
+                  // }
+              
+              
+                  // MSG = message.identifier;
+                  ESP_LOGI(EXAMPLE_TAG, "message id------> %lx",message.identifier);
+                  printf("mtr decode =  %x , %x , %x, %x , %x, %x, %x, %x  \n", message.data[0],message.data[1],message.data[2],message.data[3],message.data[4],message.data[5],message.data[6],message.data[7]);
+
+                  if(message.data[0] == 0x15)
+                  {
+                    printf("<--------------------------------------------------MOTOR ON------------------------------------------------------------------->\n");
+                  }
+
+                  else if (message.data[0]== 0x14 || message.data[0]== 0x4 )
+                  {
+                    printf("<--------------------------------------------------MOTOR OFF------------------------------------------------------------------->\n");
+                  }
+                 
+
+/////////////////////////////////////////////////////
+            //   if (message.identifier == ID_MOTOR_RPM)
+            //       { 
+            //         ESP_LOGI(EXAMPLE_TAG, "ID_MOTOR_RPM------------------------------------------------>");
+
+            //         if (!(message.rtr))
+
+            //             {
+                  
+            //               // mcu_data = message.data;
+                  
+            //               RPM = (message.data[1]) | (message.data[0] << 8);
+                  
+            //                   Motor_err = (message.data[7]) | (message.data[6]<<8) | (message.data[5]<<16)|(message.data[4]<<24) |(message.data[3]<<32)|(message.data[2]<<40) | (message.data[1]<<48)|(message.data[0]<<56);
+                  
+            //                   sprintf(motor_err, "%x,%x,%x,%x,%x,%x,%x,%x", message.data[0],message.data[1],message.data[2],message.data[3],message.data[4],message.data[5],message.data[6],message.data[7]);
+                  
+                  
+            //               union
+
+            //               {
+
+            //                 uint32_t b;
+
+            //                 int f;
+
+            //               } u; // crazy
+
+            //               u.b = RPM;
+                  
+            //               // M_RPM = u.f;
+                  
+            //               twai_message_t transmit_message = {.identifier = (0x14520902 ), .data_length_code = 8, .extd = 1, .data = {RPM, 0, 0, DC_VOLTAGE, DC_CURRENT}};
+
+            //               // twai_message_t transmit_message_SoC= {.identifier = ID_LX_BATTERY_SOC , .data_length_code = 8, .extd = 1, .data = {soc, 0x00, 0x00, 0x9A , 0xB0 , 0x63 , 0x1D , 0x01 }};
+
+
+            //             if (twai_transmit(&transmit_message, 1000) == ESP_OK)
+
+            //             {
+                  
+            //               //          ESP_LOGI(EXAMPLE_TAG, "Message queued for transmission\n");
+
+            //               //          vTaskDelay(pdMS_TO_TICKS(250));
+
+            //             }
+
+            //             else
+
+            //             {
+                  
+            //               ESP_LOGE(EXAMPLE_TAG, "Failed to queue message for transmission\n");
+
+            //             }
+                  
+            //             vTaskDelay(pdMS_TO_TICKS(50));
+            //             }
+
+            //         }
+        //   //////////////////////////
+        //       else if (message.identifier == ID_MOTOR_TEMP)
+
+        //           { 
+        //             ESP_LOGI(EXAMPLE_TAG, "ID_MOTOR_TEMP------------------------------------------------>");
+        //             if (!(message.rtr))
+
+        //             {
+
+        //               THROTTLE = (message.data[0]);
+              
+        //               CONT_TEMP = (message.data[1]);
+
+        //               MOT_TEMP = (message.data[2]);
+
+        //               union
+
+        //               {
+
+        //                 uint32_t b;
+
+        //                 int f;
+
+        //               } u; // crazy
+
+        //               u.b = THROTTLE;
+
+        //               M_THROTTLE = u.f;
+
+        //               u.b = CONT_TEMP;
+
+        //               M_CONT_TEMP = u.f - 40;
+
+        //               u.b = MOT_TEMP;
+
+        //               M_MOT_TEMP = u.f - 40;
+
+        //               //  printf("Temp =  %d \n", M_CONT_TEMP);
+
+        //             }
+
+        //           }
+          
+        //       else if (message.identifier == ID_MOTOR_CURR_VOLT)
+
+        //             {
+        //               ESP_LOGI(EXAMPLE_TAG, "ID_MOTOR_CURR_VOLT------------------------------------------------>");
+                
+        //               DC_CURRENT = (message.data[0]) | (message.data[1] << 8);
+
+        //               AC_CURRENT = (message.data[4]) | (message.data[5] << 8);
+                
+        //               AC_VOLTAGE = (message.data[3]);
+                
+        //               DC_VOLTAGE = (message.data[2]);
+                
+        //               union
+
+        //               {
+
+        //                 uint32_t b;
+
+        //                 int f;
+
+        //               } u; // crazy
+
+        //               u.b = DC_CURRENT;
+                
+        //               M_DC_CURRENT = u.f;
+                
+        //               u.b = AC_CURRENT;
+                
+        //               M_AC_CURRENT = u.f;
+                
+        //               u.b = AC_VOLTAGE;
+                
+        //               M_AC_VOLTAGE = u.f;
+                
+        //               u.b = DC_VOLTAGE;
+                
+        //               M_DC_VOLATGE = u.f;
+                
+        //             } /////        motor temp
+          
+          
+        //       else if (message.identifier == ID_LX_BATTERY_SOC)
+
+        //           {
+        //             ESP_LOGI(EXAMPLE_TAG, "ID_LX_BATTERY_SOC------------------------------------------------>");
+        //             if (!(message.rtr))
+
+        //             {
+
+        //               SOC3_hx = (message.data[1] << 8) | message.data[0];
+
+        //               SOH3_hx = message.data[5]  ;
+
+        //               union
+
+        //               {
+
+        //                 uint32_t b;
+
+        //                 int f;
+
+        //               } u; // crazy
+
+        //               u.b = SOC3_hx;
+
+        //               SOC_3 = u.f;
+
+        //               u.b = SOH3_hx;
+
+        //               SOH_3 = u.f;
+
+        //           //              printf("Battery 3 --> SOC[ %d ]   SOH[ %d ] \n", SOC_3,SOH_3);
+
+        //             }
+
+        //           }
+          
+        //       else if (message.identifier == ID_LX_BATTERY_VI)
+
+        //           {
+        //             ESP_LOGI(EXAMPLE_TAG, "ID_LX_BATTERY_VI------------------------------------------------>");
+
+        //             if (!(message.rtr))
+
+        //             {
+
+        //             current2_hx  =  (message.data[0] << 24) | (message.data[1] << 16) | (message.data[2] << 8) | message.data[3];
+
+        //               voltage2_hx =  (message.data[6] << 8) | (message.data[7] ) ;
+              
+                  
+
+        //             union
+
+        //               {
+
+        //                 uint32_t b;
+
+        //                 int f;
+
+        //               } u; // crazy
+
+        //               u.b = voltage2_hx;
+
+        //               Voltage_2 = u.f;
+
+        //               u.b = current2_hx;
+
+        //               Current_2 = u.f;
+
+        //           //      printf("Battery 2 --> Volatge[%d]   current[%f]   \n", ( Voltage_2),(Current_2*0.001));
+              
+        //             }
+
+        //           }
+          
+          
+        //       else if (message.identifier == ID_LX_BATTERY_PROT)
+
+        //           { ESP_LOGI(EXAMPLE_TAG, "ID_LX_BATTERY_PROT------------------------------------------------>");
+
+        //             if (!(message.rtr))
+
+        //             {
+              
+        //               // mcu_data = message.data;
+              
+              
+        //               //   BATT_ERR = (message.data[7]) | (message.data[6]<<8) | (message.data[5]<<16)|(message.data[4]<<24) |(message.data[3]<<32)|(message.data[2]<<40) | (message.data[1]<<48)|(message.data[0]<<56);
+              
+        //                   sprintf(batt_err, "%x,%x,%x,%x,%x,%x,%x,%x", message.data[0],message.data[1],message.data[2],message.data[3],message.data[4],message.data[5],message.data[6],message.data[7]);
+              
+        //             }
+
+        //           }
+              
+          
+        //       else if (message.identifier == ID_LX_BATTERY_T)
+
+        //           { 
+        //             ESP_LOGI(EXAMPLE_TAG, "ID_LX_BATTERY_T------------------------------------------------>");
+                    
+        //             if (!(message.rtr))
+
+        //             {
+              
+        //               // mcu_data = message.data;
+              
+              
+        //               //   BATT_ERR = (message.data[7]) | (message.data[6]<<8) | (message.data[5]<<16)|(message.data[4]<<24) |(message.data[3]<<32)|(message.data[2]<<40) | (message.data[1]<<48)|(message.data[0]<<56);
+              
+        //                   sprintf(batt_temp, "%x,%x,%x,%x,%x,%x,%x,%x", message.data[0],message.data[1],message.data[2],message.data[3],message.data[4],message.data[5],message.data[6],message.data[7]);
+
+        //                   printf("batt temp------------>%c",batt_temp[0]);
+        //                   printf("batt temp------------>%c",batt_temp[1]);
+        //                   printf("batt temp------------>%c",batt_temp[2]);
+        //                   printf("batt temp------------>%c",batt_temp[3]);
+        //             }
+
+        //           }
+              
+        //       else
+        //             {
+
+        //               //   ESP_LOGE(EXAMPLE_TAG, " ID not match - %lx ",message.identifier );
+
+        //               //   vTaskDelay(pdMS_TO_TICKS(250));
+
+        //             }
+            } 
+        }
+
+        /////////////////////
+  // xSemaphoreGive(done_sem);
+  vTaskDelete(NULL);
+}
 
 void configure_uart(void)
 {
@@ -394,6 +732,7 @@ void configure_uart(void)
     uart_param_config(ECHO_UART_PORT_NUM, &uart_config);
     uart_set_pin(ECHO_UART_PORT_NUM, ECHO_TEST_TXD, ECHO_TEST_RXD, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
     uart_driver_install(ECHO_UART_PORT_NUM, 256 * 2, 0, 0, NULL, 0);
+    xTaskCreate(uart_send_task, "uart_send_task", ECHO_TASK_STACK_SIZE, NULL, 10, NULL);
 }
  
  
@@ -525,6 +864,7 @@ void app_main(void) {
 
     xTaskCreate(switch_ip, "Swicth_Tsk", 4096, NULL, 8, NULL);
     xTaskCreate(twai_transmit_task, "Transmit_Tsk", 4096, NULL, 8, NULL);
+    xTaskCreate(twai_receive_task, "receive_task", 4096, NULL, 8, NULL);
 
     configure_uart();
 
