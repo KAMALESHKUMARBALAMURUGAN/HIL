@@ -359,6 +359,21 @@ static void twai_transmit_task(void *arg)
         }
         vTaskDelay(pdMS_TO_TICKS(100));
 
+///////////////////////////////////
+        twai_message_t transmit_message_SoC= {.identifier = ID_LX_BATTERY_VI , .data_length_code = 8, .extd = 1, .data = {0x00, 0x00, 0x00, 0x00 , 0x00 , 0x00 , 0x00 , 0x00 }};    //First 4 bytes for PackCurrent and last 4 bytes for PackVoltage
+        if (twai_transmit(&transmit_message_SoC, 10000) == ESP_OK)
+        {
+        ESP_LOGI(EXAMPLE_TAG, "Message queued for transmission\n");
+        vTaskDelay(pdMS_TO_TICKS(100));
+        }
+        else
+        {
+        
+        ESP_LOGE(EXAMPLE_TAG, "Failed to queue message for transmission\n");
+        }
+        vTaskDelay(pdMS_TO_TICKS(100));
+///////////////////////////////////
+
 
         twai_message_t transmit_message_rpm = {.identifier = (0x14520902), .data_length_code = 8, .extd = 1, .data = {rpm2_hex, rpm1_hex, 0x00, 0x00 , 0x00 , 0x00 , 0x00 , 0x00 }};
         if (twai_transmit(&transmit_message_rpm, 10000) == ESP_OK)

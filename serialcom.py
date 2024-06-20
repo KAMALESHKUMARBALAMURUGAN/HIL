@@ -21,10 +21,13 @@ def send_uart(id, value):
     print(cmd.encode())
 
 # Function to update the scale and entry from each other
-def update_scale_from_entry(entry, scale, id):
+def update_scale_from_entry(entry, scale, id, is_float=False):
     value = entry.get()
-    if value.isdigit():
-        value = int(value)
+    try:
+        if is_float:
+            value = float(value)
+        else:
+            value = int(value)
         min_val = scale.cget('from')  # Correct method to get the minimum value
         max_val = scale.cget('to')    # Correct method to get the maximum value
         if min_val <= value <= max_val:
@@ -35,11 +38,24 @@ def update_scale_from_entry(entry, scale, id):
         else:
             entry.delete(0, tk.END)
             entry.insert(0, str(scale.get()))
+    except ValueError:
+        entry.delete(0, tk.END)
+        entry.insert(0, str(scale.get()))
 
 # Function to update the entry from the scale
-def update_entry_from_scale(name, var, entry, id):
-    current_value = int(var.get())  # Cast float value to int
-    if current_value != int(entry.get()):  # Only send UART if value has changed
+def update_entry_from_scale(name, var, entry, id, is_float=False):
+    current_value = var.get()
+    if is_float:
+        current_value = float(current_value)
+    else:
+        current_value = int(current_value)
+    
+    if is_float:
+        entry_value = float(entry.get())
+    else:
+        entry_value = int(entry.get())
+
+    if current_value != entry_value:  # Only send UART if value has changed
         entry.delete(0, tk.END)
         entry.insert(0, str(current_value))
         var.set(current_value)  # Update the variable to hold an integer value
@@ -97,9 +113,16 @@ def read_serial():
                 Motor_label.config(text="Motor: ON")
             else:
                 Motor_label.config(text="Motor: OFF")
+
+        if line.startswith("Reverse_status:"):
+            Reverse_status = line.split(":")[1]
+            if Reverse_status == '1':
+                Reverse_label.config(text="DriveState: Forward Mode")
+            else:
+                Reverse_label.config(text="DriveState: Reverse Mode")
     except Exception as e:
         print(f"Error reading serial: {e}")
-    root.after(500, read_serial)  # Schedule the function to be called again after 100 ms
+    root.after(200, read_serial)  # Schedule the function to be called again after 100 ms
 
 # Find the ESP32 port and initialize the serial connection
 port = find_esp32_port()
@@ -151,7 +174,9 @@ ids = {
     "ChgUnderTempWarn": 'r',
     "ChgOverTempWarn": 's',
     "DchgUnderTempWarn": 't',
-    "DchgOverTempWarn": 'u'
+    "DchgOverTempWarn": 'u',
+    "Pack Voltage": 'w',
+    "Pack Current": 'x'
 }
 
 # Create scales for different parameters
@@ -162,7 +187,9 @@ scales_info = [
     ("Motor temp", 0, 250),
     ("Controller temp", 0, 200),
     ("PCB temp", 0, 200),
-    ("RPM(SPEED)", 0, 4500)
+    ("RPM(SPEED)", 0, 4500),
+    ("Pack Voltage", 0.0, 66.0),
+    ("Pack Current", -500.0, 500.0)
 ]
 
 scales = {}
@@ -176,31 +203,31 @@ for i, (name, min_val, max_val) in enumerate(scales_info):
     label = ttk.Label(control_frame, text=name, width=label_width, anchor='w')  # Uniform width based on longest label
     label.grid(row=0, column=0, sticky='w')  # Stick to the left (west)
     
-    scale_var = tk.IntVar()
-    scale = ttk.Scale(control_frame, from_=min_val, to=max_val, orient=tk.HORIZONTAL, variable=scale_var, length=scale_length)
-    scale.grid(row=0, column=1)
-    
-    entry = ttk.Entry(control_frame, width=4)  # Adjusted width to fit three digits
-    entry.insert(0, str(min_val))
-    entry.grid(row=0, column=2, padx=(5, 0))
-    entry.bind('<Return>', lambda event, entry=entry, scale=scale, id=ids[name]: update_scale_from_entry(entry, scale, id))
-    scale.config(command=lambda event, name=name, var=scale_var, entry=entry, id=ids[name]: update_entry_from_scale(name, var, entry, id))
-    
-    scales[name] = (scale, scale_var, entry)
+    if name in ["Pack Voltage", "Pack Current"]:
+        scale_var = tk.DoubleVar()
+        scale = ttk.Scale(control_frame, from_=min_val, to=max_val, orient=tk.HORIZONTAL, variable=scale_var, length=scale_length)
+        scale.grid(row=0, column=1)
+        
+        entry = ttk.Entry(control_frame, width=6)  # Adjusted width to fit decimal values
+        entry.insert(0, str(min_val))
+        entry.grid(row=0, column=2, padx=(5, 0))
+        entry.bind('<Return>', lambda event, entry=entry, scale=scale, id=ids[name], is_float=True: update_scale_from_entry(entry, scale, id, is_float))
+        scale_var.trace("w", lambda *args, name=name, var=scale_var, entry=entry, id=ids[name], is_float=True: update_entry_from_scale(name, var, entry, id, is_float))
+    else:
+        scale_var = tk.IntVar()
+        scale = ttk.Scale(control_frame, from_=min_val, to=max_val, orient=tk.HORIZONTAL, variable=scale_var, length=scale_length)
+        scale.grid(row=0, column=1)
+        
+        entry = ttk.Entry(control_frame, width=4)
+        entry.insert(0, str(min_val))
+        entry.grid(row=0, column=2, padx=(5, 0))
+        entry.bind('<Return>', lambda event, entry=entry, scale=scale, id=ids[name]: update_scale_from_entry(entry, scale, id))
+        scale_var.trace("w", lambda *args, name=name, var=scale_var, entry=entry, id=ids[name]: update_entry_from_scale(name, var, entry, id))
 
-# Grid configuration for left_frame to handle two columns
-left_frame.grid_columnconfigure(0, weight=0)
-left_frame.grid_columnconfigure(1, weight=0)  # Add this line to manage the second column for faults
+    scales[name] = (scale, entry)
 
-# Define push buttons for each mode
-modes_info = [
-    "Mode L",
-    "Mode R",
-    "Reverse",
-    "Ignition",
-    "Brake",
-]
-
+# Create buttons for different modes
+modes_info = ["Brake", "Reverse", "Mode R", "Mode L", "Ignition"]
 mode_buttons = {}
 mode_vars = {}
 for i, mode in enumerate(modes_info):
@@ -286,6 +313,10 @@ reverse_Brake_button.bind("<ButtonRelease-1>", lambda event: release_reverse_Bra
 # Create a label for Motor status
 Motor_label = tk.Label(root, text="Motor: ", font=("Helvetica", 16))
 Motor_label.pack(pady=20)
+
+# Create a label for Reverse status
+Reverse_label = tk.Label(root, text="DriveState: ", font=("Helvetica", 16))
+Reverse_label.pack(pady=40)
 
 # Start reading the serial data after 100 ms
 if ser:
