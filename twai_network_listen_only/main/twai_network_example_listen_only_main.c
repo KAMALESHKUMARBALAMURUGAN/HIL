@@ -54,8 +54,14 @@ static int received_value_rpm;
 static int MotorWarn;
 static int controllerWarn;
 static int BattWarn ;
+static int PackCurrent;
 static uint8_t rpm1_hex;
 static uint8_t rpm2_hex;
+static uint8_t packCurr1 ;
+static uint8_t packCurr2 ;
+static uint8_t packCurr3 ;
+static uint8_t packCurr4 ;
+
 
 static int thr_per;
 static int batt_tmp;
@@ -64,6 +70,7 @@ static int pcb;
 static float cnt_tmp;
 static int rpm;
 static int soc;
+
 
 
 /* --------------------- Definitions and static variables ------------------ */
@@ -227,6 +234,19 @@ rpm= received_value_rpm;
     rpm2_hex = rpm & 0xFF; // Least significant byte
 
 
+ // Convert to unsigned 32-bit for two's complement representation
+    uint32_t PackCurrent_twos_complement_value = (uint32_t)PackCurrent;
+
+    // Print the 8-digit hexadecimal representation
+    // printf("Hex signed 2's complement (8 digits): %08X\n", PackCurrent_twos_complement_value);
+
+       // Extract each byte and store them in variables
+     packCurr1 = (PackCurrent_twos_complement_value >> 24) & 0xFF;
+     packCurr2 = (PackCurrent_twos_complement_value >> 16) & 0xFF;
+     packCurr3 = (PackCurrent_twos_complement_value >> 8) & 0xFF;
+     packCurr4 = PackCurrent_twos_complement_value & 0xFF;
+
+
 
 struct ControlBits {
     unsigned int b0 : 1;                //single bit is allocated for each ('1' represents that bit)- this is to pack several boolean flags inside a single byte(for space efficiency)
@@ -360,8 +380,8 @@ static void twai_transmit_task(void *arg)
         vTaskDelay(pdMS_TO_TICKS(100));
 
 ///////////////////////////////////
-        twai_message_t transmit_message_SoC= {.identifier = ID_LX_BATTERY_VI , .data_length_code = 8, .extd = 1, .data = {0x00, 0x00, 0x00, 0x00 , 0x00 , 0x00 , 0x00 , 0x00 }};    //First 4 bytes for PackCurrent and last 4 bytes for PackVoltage
-        if (twai_transmit(&transmit_message_SoC, 10000) == ESP_OK)
+        twai_message_t transmit_message_PackCurrAndPackVol= {.identifier = ID_LX_BATTERY_VI , .data_length_code = 8, .extd = 1, .data = {packCurr1, packCurr2, packCurr3, packCurr4, 0x00 , 0x00 , 0x00 , 0x00 }};    //First 4 bytes for PackCurrent and last 4 bytes for PackVoltage
+        if (twai_transmit(&transmit_message_PackCurrAndPackVol, 10000) == ESP_OK)
         {
         ESP_LOGI(EXAMPLE_TAG, "Message queued for transmission\n");
         vTaskDelay(pdMS_TO_TICKS(100));
@@ -757,119 +777,145 @@ void configure_uart(void)
 void process_uart_data(uint8_t *data, int len) {
     int switch_number = data[0]; // No need to convert to integer
     int switch_state;
+    float pack_current;
+    int value;
 
-    if (len == 5) {
-        switch_state = (data[1] - '0') * 1000 + (data[2] - '0') * 100 + (data[3] - '0') * 10 + (data[4] - '0');
-    } else if (len == 4) {
-        switch_state = (data[1] - '0') * 100 + (data[2] - '0') * 10 + (data[3] - '0');
-    } else if (len == 3) {
-        switch_state = (data[1] - '0') * 10 + (data[2] - '0');
-    } else if (len == 2) {
-        switch_state = data[1] - '0'; // Convert ASCII to integer
+    if (switch_number == 'x') {
+        // Handle pack current separately
+        // Create a buffer to hold the float string
+        char buffer[16];
+        strncpy(buffer, (char*)data + 1, len - 1);
+        buffer[len - 1] = '\0';
+
+        // Convert string to float
+        pack_current = atof(buffer);
+
+        // Transform the float value
+        if (pack_current == (int)pack_current) {
+            value = (int)pack_current; // If no decimal part, keep as is
+        } else {
+            value = (int)(pack_current * 1000); // Convert float to int by scaling
+        }
+
+        // Assign to PackCurrent (which is of type float)
+        PackCurrent = value;
+
     } else {
-        // Invalid length, return or handle error
-        return;
-    }
+        // Existing logic for other switch numbers
+        if (len == 5) {
+            switch_state = (data[1] - '0') * 1000 + (data[2] - '0') * 100 + (data[3] - '0') * 10 + (data[4] - '0');
+        } else if (len == 4) {
+            switch_state = (data[1] - '0') * 100 + (data[2] - '0') * 10 + (data[3] - '0');
+        } else if (len == 3) {
+            switch_state = (data[1] - '0') * 10 + (data[2] - '0');
+        } else if (len == 2) {
+            switch_state = data[1] - '0'; // Convert ASCII to integer
+        } else {
+            // Invalid length, return or handle error
+            return;
+        }
 
-    switch (switch_number) {
-        case '1':
-            received_value_brake = switch_state;
-            break;
-        case '2':
-            received_value_reverse = switch_state;
-            break;
-        case '3':
-            received_value_modeR = switch_state;
-            break;
-        case '4':
-            received_value_modeL = switch_state;
-            break;
-        case '5':
-            received_value_sidestand = switch_state;
-            break;
-        case '6':
-            received_value_ignition = switch_state;
-            break;
-        case '7':
-            received_value_soc = switch_state;
-            break;
-        case '8':
-            received_value_throttle = switch_state;
-            break;
-        case '9':
-            received_value_batt_tmp = switch_state;
-            break;
-        case 'a':
-            received_value_motorTemp = switch_state;
-            break;
-        case 'b':
-            received_value_controllerTemp = switch_state;
-            break;
-        case 'c':
-            received_value_pcbTemp = switch_state;
-            break;
-        case 'd':
-            received_value_rpm = switch_state;
-            break;
-        case 'e':  // Motor Over Temperature warning
-            MotorWarn = switch_state == 1 ? 16 : 0;
-            break;
-        case 'f':  // Throttle error warning
-            MotorWarn = switch_state == 1 ? 32 : 0;
-            break;
-        case 'v':  // Controller Over Temperature Warning
-            MotorWarn = switch_state == 1 ? 8 : 0;
-            break;
-        case 'g':  // Controller Over Voltage warning
-            controllerWarn = switch_state == 1 ? 1 : 0;
-            break;
-        case 'h':  // Controller Under Voltage warning
-            controllerWarn = switch_state == 1 ? 2 : 0;
-            break;
-        case 'i':  // Overcurrent Fault
-            controllerWarn = switch_state == 1 ? 4 : 0;
-            break;
-        case 'j':  // Motor Hall Input Abnormal
-            MotorWarn = switch_state == 1 ? 1 : 0;
-            break;
-        case 'k':  // Motor Stalling
-            MotorWarn = switch_state == 1 ? 2 : 0;
-            break;
-        case 'l':  // Motor Phase Loss
-            MotorWarn = switch_state == 1 ? 4 : 0;
-            break;
-        case 'm':  // BattLowSocWarn
-            BattWarn = switch_state == 1 ? 2 : 0;
-            break;
-        case 'n':  // CellUnderVolWarn
-            BattWarn = switch_state == 1 ? 16 : 0;
-            break;
-        case 'o':  // CellOverVolWarn
-            BattWarn = switch_state == 1 ? 32 : 0;
-            break;
-        case 'p':  // PackUnderVolWarn
-            BattWarn = switch_state == 1 ? 4 : 0;
-            break;
-        case 'q':  // PackOverVolWarn
-            BattWarn = switch_state == 1 ? 8 : 0;
-            break;
-        case 'r':  // ChgUnderTempWarn
-            BattWarn = switch_state == 1 ? 16 : 0;
-            break;
-        case 's':  // ChgOverTempWarn
-            BattWarn = switch_state == 1 ? 32 : 0;
-            break;
-        case 't':  // DchgUnderTempWarn
-            BattWarn = switch_state == 1 ? 64 : 0;
-            break;
-        case 'u':  // DchgOverTempWarn
-            BattWarn = switch_state == 1 ? 128 : 0;
-            break;
-        default:
-            // Handle invalid switch number
-            break;
+        switch (switch_number) {
+            case '1':
+                received_value_brake = switch_state;
+                break;
+            case '2':
+                received_value_reverse = switch_state;
+                break;
+            case '3':
+                received_value_modeR = switch_state;
+                break;
+            case '4':
+                received_value_modeL = switch_state;
+                break;
+            case '5':
+                received_value_sidestand = switch_state;
+                break;
+            case '6':
+                received_value_ignition = switch_state;
+                break;
+            case '7':
+                received_value_soc = switch_state;
+                break;
+            case '8':
+                received_value_throttle = switch_state;
+                break;
+            case '9':
+                received_value_batt_tmp = switch_state;
+                break;
+            case 'a':
+                received_value_motorTemp = switch_state;
+                break;
+            case 'b':
+                received_value_controllerTemp = switch_state;
+                break;
+            case 'c':
+                received_value_pcbTemp = switch_state;
+                break;
+            case 'd':
+                received_value_rpm = switch_state;
+                break;
+            case 'e':  // Motor Over Temperature warning
+                MotorWarn = switch_state == 1 ? 16 : 0;
+                break;
+            case 'f':  // Throttle error warning
+                MotorWarn = switch_state == 1 ? 32 : 0;
+                break;
+            case 'v':  // Controller Over Temperature Warning
+                MotorWarn = switch_state == 1 ? 8 : 0;
+                break;
+            case 'g':  // Controller Over Voltage warning
+                controllerWarn = switch_state == 1 ? 1 : 0;
+                break;
+            case 'h':  // Controller Under Voltage warning
+                controllerWarn = switch_state == 1 ? 2 : 0;
+                break;
+            case 'i':  // Overcurrent Fault
+                controllerWarn = switch_state == 1 ? 4 : 0;
+                break;
+            case 'j':  // Motor Hall Input Abnormal
+                MotorWarn = switch_state == 1 ? 1 : 0;
+                break;
+            case 'k':  // Motor Stalling
+                MotorWarn = switch_state == 1 ? 2 : 0;
+                break;
+            case 'l':  // Motor Phase Loss
+                MotorWarn = switch_state == 1 ? 4 : 0;
+                break;
+            case 'm':  // BattLowSocWarn
+                BattWarn = switch_state == 1 ? 2 : 0;
+                break;
+            case 'n':  // CellUnderVolWarn
+                BattWarn = switch_state == 1 ? 16 : 0;
+                break;
+            case 'o':  // CellOverVolWarn
+                BattWarn = switch_state == 1 ? 32 : 0;
+                break;
+            case 'p':  // PackUnderVolWarn
+                BattWarn = switch_state == 1 ? 4 : 0;
+                break;
+            case 'q':  // PackOverVolWarn
+                BattWarn = switch_state == 1 ? 8 : 0;
+                break;
+            case 'r':  // ChgUnderTempWarn
+                BattWarn = switch_state == 1 ? 16 : 0;
+                break;
+            case 's':  // ChgOverTempWarn
+                BattWarn = switch_state == 1 ? 32 : 0;
+                break;
+            case 't':  // DchgUnderTempWarn
+                BattWarn = switch_state == 1 ? 64 : 0;
+                break;
+            case 'u':  // DchgOverTempWarn
+                BattWarn = switch_state == 1 ? 128 : 0;
+                break;
+            default:
+                // Handle invalid switch number
+                break;
+        }
     }
 }
+
 
 void app_main(void) {
     ESP_ERROR_CHECK(twai_driver_install(&g_config, &t_config, &f_config));
@@ -887,7 +933,7 @@ void app_main(void) {
     configure_uart();
 
     while (1) {
-        uint8_t data[5]; 
+        uint8_t data[10]; 
         int len = uart_read_bytes(ECHO_UART_PORT_NUM, data, sizeof(data), 20 / portTICK_PERIOD_MS);
 
         if (len > 0) {

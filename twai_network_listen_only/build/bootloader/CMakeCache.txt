@@ -230,13 +230,13 @@ CMAKE_TOOLCHAIN_FILE:FILEPATH=C:/Users/kamalesh.kb/esp/v5.2/esp-idf/tools/cmake/
 CMAKE_VERBOSE_MAKEFILE:BOOL=FALSE
 
 //No help, variable specified on the command line.
-EXTRA_COMPONENT_DIRS:UNINITIALIZED=C:/Users/kamalesh.kb/esp/v5.2/esp-idf/components/bootloader
+EXTRA_COMPONENT_DIRS:UNINITIALIZED=C:/Users/kamalesh.kb/ESP/v5.2/esp-idf/components/bootloader
 
 //Git command line client
 GIT_EXECUTABLE:FILEPATH=C:/Users/kamalesh.kb/.espressif/tools/idf-git/2.39.2/cmd/git.exe
 
 //No help, variable specified on the command line.
-IDF_PATH:UNINITIALIZED=C:/Users/kamalesh.kb/esp/v5.2/esp-idf
+IDF_PATH:UNINITIALIZED=C:/Users/kamalesh.kb/ESP/v5.2/esp-idf
 
 //IDF Build Target
 IDF_TARGET:STRING=esp32
@@ -266,7 +266,7 @@ bootloader_BINARY_DIR:STATIC=C:/Users/kamalesh.kb/HIL_AUTO/HIL/twai_network_list
 bootloader_IS_TOP_LEVEL:STATIC=ON
 
 //Value Computed by CMake
-bootloader_SOURCE_DIR:STATIC=C:/Users/kamalesh.kb/esp/v5.2/esp-idf/components/bootloader/subproject
+bootloader_SOURCE_DIR:STATIC=C:/Users/kamalesh.kb/ESP/v5.2/esp-idf/components/bootloader/subproject
 
 //Value Computed by CMake
 esp-idf_BINARY_DIR:STATIC=C:/Users/kamalesh.kb/HIL_AUTO/HIL/twai_network_listen_only/build/bootloader/esp-idf
@@ -275,7 +275,7 @@ esp-idf_BINARY_DIR:STATIC=C:/Users/kamalesh.kb/HIL_AUTO/HIL/twai_network_listen_
 esp-idf_IS_TOP_LEVEL:STATIC=OFF
 
 //Value Computed by CMake
-esp-idf_SOURCE_DIR:STATIC=C:/Users/kamalesh.kb/esp/v5.2/esp-idf
+esp-idf_SOURCE_DIR:STATIC=C:/Users/kamalesh.kb/ESP/v5.2/esp-idf
 
 
 ########################

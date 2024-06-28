@@ -329,7 +329,7 @@ Mbed TLS_BINARY_DIR:STATIC=C:/Users/kamalesh.kb/HIL_AUTO/HIL/twai_network_listen
 Mbed TLS_IS_TOP_LEVEL:STATIC=OFF
 
 //Value Computed by CMake
-Mbed TLS_SOURCE_DIR:STATIC=C:/Users/kamalesh.kb/esp/v5.2/esp-idf/components/mbedtls/mbedtls
+Mbed TLS_SOURCE_DIR:STATIC=C:/Users/kamalesh.kb/ESP/v5.2/esp-idf/components/mbedtls/mbedtls
 
 //No help, variable specified on the command line.
 PYTHON:UNINITIALIZED=C:\Users\kamalesh.kb\.espressif\python_env\idf5.2_py3.11_env\Scripts\python.exe
@@ -353,7 +353,7 @@ esp-idf_BINARY_DIR:STATIC=C:/Users/kamalesh.kb/HIL_AUTO/HIL/twai_network_listen_
 esp-idf_IS_TOP_LEVEL:STATIC=OFF
 
 //Value Computed by CMake
-esp-idf_SOURCE_DIR:STATIC=C:/Users/kamalesh.kb/esp/v5.2/esp-idf
+esp-idf_SOURCE_DIR:STATIC=C:/Users/kamalesh.kb/ESP/v5.2/esp-idf
 
 //Dependencies for the target
 everest_LIB_DEPENDS:STATIC=general;__idf_cxx;general;__idf_newlib;general;__idf_freertos;general;__idf_esp_hw_support;general;__idf_heap;general;__idf_log;general;__idf_soc;general;__idf_hal;general;__idf_esp_rom;general;__idf_esp_common;general;__idf_esp_system;general;__idf_xtensa;

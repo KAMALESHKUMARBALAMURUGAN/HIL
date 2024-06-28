@@ -1,4 +1,4 @@
-# Install script for directory: C:/Users/kamalesh.kb/esp/v5.2/esp-idf/components/esp_http_client
+# Install script for directory: C:/Users/kamalesh.kb/ESP/v5.2/esp-idf/components/esp_http_client
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)

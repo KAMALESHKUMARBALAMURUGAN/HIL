@@ -4,7 +4,7 @@
 cmake_minimum_required(VERSION 3.5)
 
 file(MAKE_DIRECTORY
-  "C:/Users/kamalesh.kb/esp/v5.2/esp-idf/components/bootloader/subproject"
+  "C:/Users/kamalesh.kb/ESP/v5.2/esp-idf/components/bootloader/subproject"
   "C:/Users/kamalesh.kb/HIL_AUTO/HIL/twai_network_listen_only/build/bootloader"
   "C:/Users/kamalesh.kb/HIL_AUTO/HIL/twai_network_listen_only/build/bootloader-prefix"
   "C:/Users/kamalesh.kb/HIL_AUTO/HIL/twai_network_listen_only/build/bootloader-prefix/tmp"
