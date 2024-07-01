@@ -446,11 +446,9 @@ static void twai_receive_task(void *arg)
       while (1)
         {
              twai_message_t message;
-             printf("before");
               // ESP_LOGI(EXAMPLE_TAG, "Before receive call");
               if (twai_receive(&message, pdMS_TO_TICKS(1000)) == ESP_OK)
               {
-                printf("KAMAL------------------------>");
                   // ESP_LOGI(EXAMPLE_TAG, "After receive call with identifier: %lx", message.identifier);
                   // ESP_LOGI(EXAMPLE_TAG, "Received message with identifier: %lx, data: %x %x %x %x %x %x %x %x",
                   //         message.identifier,
@@ -487,7 +485,7 @@ static void twai_receive_task(void *arg)
                     if (!(message.rtr))
 
                     {
-                      printf("Entered!");
+                      printf("Entered!\n");
                     //   current2_hx  =  (message.data[0] << 24) | (message.data[1] << 16) | (message.data[2] << 8) | message.data[3];
                     //   printf("current2_hx: %" PRIu32 "\n", current2_hx);
 
@@ -496,8 +494,15 @@ static void twai_receive_task(void *arg)
 
                         // Print the value
                         printf("current2_hx: %" PRId32 "\n", current2_hx);
-                      voltage2_hx =  (message.data[6] << 8) | (message.data[7] ) ;
-              
+                        voltage2_hx =  (message.data[6] << 8) | (message.data[7] ) ;
+
+                      //Convert to float with the decimal point after the second digit
+                        float value = (float)current2_hx / 1000.0;
+
+                        // Print the value
+                        printf("Original value: %" PRId32 "\n", current2_hx);
+                        printf("Value with decimal point: %.3f\n", value);
+                                
                 //     union
 
                 //       {
