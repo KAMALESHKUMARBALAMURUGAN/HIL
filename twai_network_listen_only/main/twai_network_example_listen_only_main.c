@@ -54,6 +54,7 @@ static int received_value_rpm;
 static int MotorWarn;
 static int controllerWarn;
 static int BattWarn ;
+static int BattLowWarn;
 static int PackCurrent;
 static uint8_t rpm1_hex;
 static uint8_t rpm2_hex;
@@ -380,7 +381,7 @@ static void twai_transmit_task(void *arg)
         vTaskDelay(pdMS_TO_TICKS(100));
 
 ///////////////////////////////////
-        twai_message_t transmit_message_PackCurrAndPackVol= {.identifier = ID_LX_BATTERY_VI , .data_length_code = 8, .extd = 1, .data = {packCurr1, packCurr2, packCurr3, packCurr4, 0x00 , 0x00 , 0x00 , 0x00 }};    //First 4 bytes for PackCurrent and last 4 bytes for PackVoltage
+        twai_message_t transmit_message_PackCurrAndPackVol= {.identifier = ID_LX_BATTERY_VI , .data_length_code = 8, .extd = 1, .data = {0xFF,0XFF,0X7B, 0X1E, 0x00 , 0x00 , 0x00 , 0x00 }};    //First 4 bytes for PackCurrent and last 4 bytes for PackVoltage
         if (twai_transmit(&transmit_message_PackCurrAndPackVol, 10000) == ESP_OK)
         {
         ESP_LOGI(EXAMPLE_TAG, "Message queued for transmission\n");
@@ -410,7 +411,7 @@ static void twai_transmit_task(void *arg)
 
 
         
-        twai_message_t transmit_message_warning = {.identifier = ID_Battery_ProtectionsAndWarnings , .data_length_code = 8, .extd = 1, .data = {0x00, 0x00, BattWarn , 0x00 , 0x00 , 0x00 , 0x00 , 0x00 }};
+        twai_message_t transmit_message_warning = {.identifier = ID_Battery_ProtectionsAndWarnings , .data_length_code = 8, .extd = 1, .data = {0x00, BattLowWarn, BattWarn , 0x00 , 0x00 , 0x00 , 0x00 , 0x00 }};
         if (twai_transmit(&transmit_message_warning, 10000) == ESP_OK)
         {
         ESP_LOGI(EXAMPLE_TAG, "Message queued for transmission\n");
@@ -883,13 +884,13 @@ void process_uart_data(uint8_t *data, int len) {
                 MotorWarn = switch_state == 1 ? 4 : 0;
                 break;
             case 'm':  // BattLowSocWarn
-                BattWarn = switch_state == 1 ? 2 : 0;
+                BattLowWarn = switch_state == 1 ? 2 : 0;
                 break;
             case 'n':  // CellUnderVolWarn
-                BattWarn = switch_state == 1 ? 16 : 0;
+                BattLowWarn = switch_state == 1 ? 16 : 0;
                 break;
             case 'o':  // CellOverVolWarn
-                BattWarn = switch_state == 1 ? 32 : 0;
+                BattLowWarn = switch_state == 1 ? 32 : 0;
                 break;
             case 'p':  // PackUnderVolWarn
                 BattWarn = switch_state == 1 ? 4 : 0;
@@ -909,6 +910,10 @@ void process_uart_data(uint8_t *data, int len) {
             case 'u':  // DchgOverTempWarn
                 BattWarn = switch_state == 1 ? 128 : 0;
                 break;
+            case 'y':  // TempSensorFault
+                BattWarn = switch_state == 1 ? 2 : 0;
+                break;
+
             default:
                 // Handle invalid switch number
                 break;

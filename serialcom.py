@@ -176,7 +176,8 @@ ids = {
     "DchgUnderTempWarn": 't',
     "DchgOverTempWarn": 'u',
     "Pack Voltage": 'w',
-    "Pack Current": 'x'
+    "Pack Current": 'x',
+    "TempSensorFault": 'y',
 }
 
 # Create scales for different parameters
@@ -290,7 +291,9 @@ warnings_info = [
     ("ChgUnderTempWarn", "r"),
     ("ChgOverTempWarn", "s"),
     ("DchgUnderTempWarn", "t"),
-    ("DchgOverTempWarn", "u")
+    ("DchgOverTempWarn", "u"),
+    ("TempSensorFault","y"),
+    
 ]
 warning_vars = {}
 for i, (warning, warning_id) in enumerate(warnings_info):
