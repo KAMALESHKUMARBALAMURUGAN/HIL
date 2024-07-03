@@ -8,9 +8,15 @@ from time import sleep
 def find_esp32_port():
     ports = serial.tools.list_ports.comports()
     for port in ports:
+        print(port)
         # Adjust the keyword to match the description of the ESP32 on your system
         if 'Silicon Labs CP210x USB to UART Bridge' in port.description:
             return port.device
+        if 'USB-Enhanced-SERIAL CH9102' in port.description:
+            return port.device
+        
+        
+        
     return None
 
 # Function to send UART commands

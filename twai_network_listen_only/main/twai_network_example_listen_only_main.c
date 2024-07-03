@@ -381,14 +381,14 @@ static void twai_transmit_task(void *arg)
         vTaskDelay(pdMS_TO_TICKS(100));
 
 ///////////////////////////////////
-        twai_message_t transmit_message_PackCurrAndPackVol= {.identifier = ID_LX_BATTERY_VI , .data_length_code = 8, .extd = 1, .data = {0xFF,0XFF,0X7B, 0X1E, 0x00 , 0x00 , 0x00 , 0x00 }};    //First 4 bytes for PackCurrent and last 4 bytes for PackVoltage
+        twai_message_t transmit_message_PackCurrAndPackVol= {.identifier = ID_LX_BATTERY_VI , .data_length_code = 8, .extd = 1, .data = {packCurr1,packCurr2,packCurr3, packCurr4, 0x00 , 0x00 , 0x00 , 0x00 }};    //First 4 bytes for PackCurrent and last 4 bytes for PackVoltage
         if (twai_transmit(&transmit_message_PackCurrAndPackVol, 10000) == ESP_OK)
         {
         ESP_LOGI(EXAMPLE_TAG, "Message queued for transmission\n");
         vTaskDelay(pdMS_TO_TICKS(100));
         }
         else
-        {
+        {       
         
         ESP_LOGE(EXAMPLE_TAG, "Failed to queue message for transmission\n");
         }
