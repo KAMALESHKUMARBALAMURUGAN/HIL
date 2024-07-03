@@ -1,7 +1,7 @@
 {
     "version":            "1.1",
     "project_name":       "i2c_oled",
-    "project_version":    "3dd3329-dirty",
+    "project_version":    "3c6d54d-dirty",
     "project_path":       "C:/Users/kamalesh.kb/HIL_PACKCURR/HIL/i2c_oled",
     "idf_path":           "C:/Users/kamalesh.kb/ESP/v5.2/esp-idf",
     "build_dir":          "C:/Users/kamalesh.kb/HIL_PACKCURR/HIL/i2c_oled/build",
