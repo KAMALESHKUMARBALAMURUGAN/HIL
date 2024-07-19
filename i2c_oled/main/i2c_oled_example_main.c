@@ -74,12 +74,18 @@ void example_lvgl_demo_ui(lv_disp_t *disp)
     lv_obj_t *scr = lv_disp_get_scr_act(disp);    // Get active screen
     lv_obj_t *label = lv_label_create(scr);       // Create a label
     lv_label_set_long_mode(label, LV_LABEL_LONG_SCROLL_CIRCULAR); // Set label scroll mode to circular
-    lv_label_set_text(label, "RPM:");     // Set label text
+    lv_label_set_text(label, "RPM");     // Set label text
     lv_obj_set_width(label, disp->driver->hor_res); // Set label width
     lv_obj_align(label, LV_ALIGN_TOP_MID, 0, 0); // Align label to top middle
 
     lv_obj_t *can_value_label = lv_label_create(scr); // Create a label for CAN value
-    lv_obj_align(can_value_label, LV_ALIGN_CENTER, 0, 0); // Center align CAN value label
+    lv_obj_align(can_value_label, LV_ALIGN_TOP_RIGHT, 0, 0); // Center align CAN value label
+
+
+    lv_obj_t *speed_label = lv_label_create(scr);
+    lv_label_set_text(speed_label, "Speed:"); // Initial text
+    lv_obj_align(speed_label, LV_ALIGN_BOTTOM_MID, 0, 0); // Position below the RPM label
+
 
     while (1) { // Infinite loop to read CAN messages
         twai_message_t message; // Define CAN message structure
@@ -152,6 +158,15 @@ void example_lvgl_demo_ui(lv_disp_t *disp)
                     lv_label_set_text(can_value_label, rpm_value_str);
 
                     // ESP_LOGI(EXAMPLE_TAG, "Received RPM: %u", rpm_dec);
+                    // Calculate speed
+                    float speed = rpm_dec * 0.0875;
+                    char speed_value_str[10];
+
+                    // Format the speed value as a string with 2 decimal places
+                    snprintf(speed_value_str, sizeof(speed_value_str), "%.2f", speed);
+
+                    // Update the LVGL label with the speed value
+                    lv_label_set_text(speed_label, speed_value_str);
 
                 }   
             }

@@ -1,7 +1,7 @@
 {
     "version":            "1.1",
     "project_name":       "i2c_oled",
-    "project_version":    "a923bb7",
+    "project_version":    "9e305d8-dirty",
     "project_path":       "C:/Users/kamalesh.kb/HIL_OLED_RECEIVE/HIL/i2c_oled",
     "idf_path":           "C:/Users/kamalesh.kb/ESP/v5.2/esp-idf",
     "build_dir":          "C:/Users/kamalesh.kb/HIL_OLED_RECEIVE/HIL/i2c_oled/build",
@@ -2175,18 +2175,6 @@
             "managed_priv_reqs": [],
             "include_dirs": [ "C:/Users/kamalesh.kb/HIL_OLED_RECEIVE/HIL/i2c_oled/managed_components/lvgl__lvgl", "C:/Users/kamalesh.kb/HIL_OLED_RECEIVE/HIL/i2c_oled/managed_components/lvgl__lvgl/src", "C:/Users/kamalesh.kb/HIL_OLED_RECEIVE/HIL/i2c_oled/managed_components/lvgl__lvgl/../", "C:/Users/kamalesh.kb/HIL_OLED_RECEIVE/HIL/i2c_oled/managed_components/lvgl__lvgl/examples", "C:/Users/kamalesh.kb/HIL_OLED_RECEIVE/HIL/i2c_oled/managed_components/lvgl__lvgl/demos" ]
         },
-        "espressif__esp_lcd_sh1107": {
-            "alias": "idf::espressif__esp_lcd_sh1107",
-            "target": "___idf_espressif__esp_lcd_sh1107",
-            "prefix": "idf",
-            "dir": "C:/Users/kamalesh.kb/HIL_OLED_RECEIVE/HIL/i2c_oled/managed_components/espressif__esp_lcd_sh1107",
-            "lib": "__idf_espressif__esp_lcd_sh1107",
-            "reqs": [ "esp_lcd" ],
-            "priv_reqs": [ "driver" ],
-            "managed_reqs": [],
-            "managed_priv_reqs": [],
-            "include_dirs": [ "include" ]
-        },
         "espressif__esp_lvgl_port": {
             "alias": "idf::espressif__esp_lvgl_port",
             "target": "___idf_espressif__esp_lvgl_port",
@@ -2196,6 +2184,18 @@
             "reqs": [ "esp_lcd", "lvgl__lvgl" ],
             "priv_reqs": [ "esp_timer" ],
             "managed_reqs": [ "lvgl__lvgl" ],
+            "managed_priv_reqs": [],
+            "include_dirs": [ "include" ]
+        },
+        "espressif__esp_lcd_sh1107": {
+            "alias": "idf::espressif__esp_lcd_sh1107",
+            "target": "___idf_espressif__esp_lcd_sh1107",
+            "prefix": "idf",
+            "dir": "C:/Users/kamalesh.kb/HIL_OLED_RECEIVE/HIL/i2c_oled/managed_components/espressif__esp_lcd_sh1107",
+            "lib": "__idf_espressif__esp_lcd_sh1107",
+            "reqs": [ "esp_lcd" ],
+            "priv_reqs": [ "driver" ],
+            "managed_reqs": [],
             "managed_priv_reqs": [],
             "include_dirs": [ "include" ]
         }
