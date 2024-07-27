@@ -42,6 +42,7 @@ def run_simulation():
     sleep(1)
     send_uart('1', f'{0}')
     sleep(1)
+    previous_SOC_8 = 100  # Initialize previous SOC_8 value
     for i in range(len(simulation_data) - 1):
         SOC_8 = simulation_data.at[i, 'SOC_8']
         motor_speed = simulation_data.at[i, 'MotorSpeed_340920578']
@@ -49,7 +50,12 @@ def run_simulation():
             soc_scale.set(float(SOC_8))
             motor_speed_scale.set(float(motor_speed))
             root.update()
-            # send_uart('7', f'{int(SOC_8)}')  # Send SOC_8 value over UART
+            print("Prev_SOC", previous_SOC_8)
+            print("SOC_8", SOC_8)
+            if SOC_8 != previous_SOC_8: # Check if SOC_8 has changed from the previous value
+                send_uart('7', f'{int(SOC_8)}')  # Send SOC_8 value as an integer over UART only if it changed
+                sleep(5)
+                previous_SOC_8 = SOC_8  # Update previous SOC_8 value
             send_uart('d', f'{motor_speed}')  # Send motor speed value over UART
             time_to_next = relative_times.iloc[i + 1] - relative_times.iloc[i]
             time.sleep(time_to_next)
