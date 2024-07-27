@@ -3,6 +3,7 @@ from tkinter import ttk
 import pandas as pd
 import time
 import serial
+from time import sleep
 
 # Setup serial connection
 ser = serial.Serial('COM3', 115200)  # Adjust COM port and baud rate as needed
@@ -31,7 +32,16 @@ def run_simulation():
     timestamps = simulation_data['timestamp']
     start_time = timestamps.min()
     relative_times = (timestamps - start_time) / 1000
-
+    send_uart('7', f'{100}') # Battery should not be empty initially
+    sleep(5)
+    send_uart('1', f'{1}')
+    sleep(1)
+    send_uart('6', f'{1}')
+    sleep(1)
+    send_uart('6', f'{0}')
+    sleep(1)
+    send_uart('1', f'{0}')
+    sleep(1)
     for i in range(len(simulation_data) - 1):
         SOC_8 = simulation_data.at[i, 'SOC_8']
         motor_speed = simulation_data.at[i, 'MotorSpeed_340920578']
@@ -39,8 +49,8 @@ def run_simulation():
             soc_scale.set(float(SOC_8))
             motor_speed_scale.set(float(motor_speed))
             root.update()
-            send_uart('7', f'{int(SOC_8)}')  # Send SOC_8 value over UART
-            # send_uart('d', f'{motor_speed}')  # Send motor speed value over UART
+            # send_uart('7', f'{int(SOC_8)}')  # Send SOC_8 value over UART
+            send_uart('d', f'{motor_speed}')  # Send motor speed value over UART
             time_to_next = relative_times.iloc[i + 1] - relative_times.iloc[i]
             time.sleep(time_to_next)
    
