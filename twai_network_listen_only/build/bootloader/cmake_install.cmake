@@ -1,4 +1,4 @@
-# Install script for directory: C:/Users/kamalesh.kb/ESP/v5.2/esp-idf/components/bootloader/subproject
+# Install script for directory: C:/Users/annmo/esp/v5.3/esp-idf/components/bootloader/subproject
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -34,12 +34,12 @@ endif()
 
 # Set default install directory permissions.
 if(NOT DEFINED CMAKE_OBJDUMP)
-  set(CMAKE_OBJDUMP "C:/Users/kamalesh.kb/.espressif/tools/xtensa-esp-elf/esp-13.2.0_20230928/xtensa-esp-elf/bin/xtensa-esp32-elf-objdump.exe")
+  set(CMAKE_OBJDUMP "C:/Users/annmo/.espressif/tools/xtensa-esp-elf/esp-13.2.0_20240530/xtensa-esp-elf/bin/xtensa-esp32-elf-objdump.exe")
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
-  include("C:/Users/kamalesh.kb/HIL_AUTO/HIL/twai_network_listen_only/build/bootloader/esp-idf/cmake_install.cmake")
+  include("C:/Lectrix_company/work/Git_projects/HIL/twai_network_listen_only/build/bootloader/esp-idf/cmake_install.cmake")
 endif()
 
 if(CMAKE_INSTALL_COMPONENT)
@@ -50,5 +50,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "C:/Users/kamalesh.kb/HIL_AUTO/HIL/twai_network_listen_only/build/bootloader/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "C:/Lectrix_company/work/Git_projects/HIL/twai_network_listen_only/build/bootloader/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

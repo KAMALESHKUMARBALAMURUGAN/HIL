@@ -155,13 +155,13 @@ ids = {
     "Mode R": 3,
     "Mode L": 4,
     "Ignition": 6,
-    "SOC": 7,
+    "SOC_8": 7,
     "Throttle(boost)": 8,
     "Battery temp": 9,
     "Motor temp": 'a',
     "Controller temp": 'b',
     "PCB temp": 'c',
-    "RPM(SPEED)": 'd',
+    "MotorSpeed_340920578": 'd',
     "Motor Over Temperature Warning": 'e',
     "throttle error": 'f',
     "Controller(MCU) Over Temperature Warning": 'v',
@@ -189,12 +189,12 @@ ids = {
 # Create scales for different parameters
 scales_info = [
     ("Throttle(boost)", 0, 100),
-    ("SOC", 0, 100),
+    ("SOC_8", 0, 100),
     ("Battery temp", 0, 150),
     ("Motor temp", 0, 250),
     ("Controller temp", 0, 200),
     ("PCB temp", 0, 200),
-    ("RPM(SPEED)", 0, 4500),
+    ("MotorSpeed_340920578", 0, 4500),
     ("Pack Voltage", 0.0, 66.0),
     ("Pack Current", -500.0, 500.0)
 ]
