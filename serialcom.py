@@ -120,12 +120,11 @@ def read_serial():
             else:
                 Motor_label.config(text="Motor: OFF")
 
-        if line.startswith("Reverse_status:"):
-            Reverse_status = line.split(":")[1]
-            if Reverse_status == '1':
-                Reverse_label.config(text="DriveState: Forward Mode")
-            else:
-                Reverse_label.config(text="DriveState: Reverse Mode")
+        if line.startswith("DC_current_limit:"):
+            DC_current_limit = line.split(":")[1]
+            DC_current_limit_label.config(text=f"DC_current_limit: {DC_current_limit}")
+            
+
     except Exception as e:
         print(f"Error reading serial: {e}")
     root.after(200, read_serial)  # Schedule the function to be called again after 100 ms
@@ -324,8 +323,8 @@ Motor_label = tk.Label(root, text="Motor: ", font=("Helvetica", 16))
 Motor_label.pack(pady=20)
 
 # Create a label for Reverse status
-Reverse_label = tk.Label(root, text="DriveState: ", font=("Helvetica", 16))
-Reverse_label.pack(pady=40)
+DC_current_limit_label = tk.Label(root, text="DC_Current_Limit: ", font=("Helvetica", 16))
+DC_current_limit_label.pack(pady=40)
 
 # Start reading the serial data after 100 ms
 if ser:

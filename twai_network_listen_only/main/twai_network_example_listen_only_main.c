@@ -109,6 +109,7 @@ static int soc;
  
  
 #define ID_MOTOR_RPM 0x230
+#define VCU_msg 0x18f20309
 #define ID_MOTOR_TEMP 0x233
 #define ID_MOTOR_CURR_VOLT 0x32
 static uint8_t state = 0;
@@ -117,6 +118,7 @@ int adc_value1 = 0;
 int adc_value2 = 0;
 int rpm_rx = 1234; // Example RPM value
 static int Motor_status;
+static int DC_current_limit;
  
  
 char motor_err[32];
@@ -308,11 +310,16 @@ int D_motor_max = 4095 ;
 
 void uart_send_task(void *arg) {
     const uart_port_t uart_num = ECHO_UART_PORT_NUM;
-    char tx_buffer[128];
+    char motor_buffer[32];
+    char DC_current_limit_buffer[32];
 
     while (1) {
-        snprintf(tx_buffer, sizeof(tx_buffer), "Motor_status:%d\n", Motor_status);
-        uart_write_bytes(uart_num, tx_buffer, strlen(tx_buffer));
+        snprintf(motor_buffer, sizeof(motor_buffer), "Motor_status:%d\n", Motor_status);
+        uart_write_bytes(uart_num, motor_buffer, strlen(motor_buffer));
+        vTaskDelay(pdMS_TO_TICKS(1000)); // Send every 1 second
+
+        snprintf(DC_current_limit_buffer, sizeof(DC_current_limit_buffer), "DC_current_limit:%d\n", DC_current_limit);
+        uart_write_bytes(uart_num, DC_current_limit_buffer, strlen(DC_current_limit_buffer));
         vTaskDelay(pdMS_TO_TICKS(1000)); // Send every 1 second
     }
 }
@@ -465,6 +472,8 @@ static void twai_receive_task(void *arg)
                   ESP_LOGI(EXAMPLE_TAG, "message id------> %lx",message.identifier);
                   printf("mtr decode =  %x , %x , %x, %x , %x, %x, %x, %x  \n", message.data[0],message.data[1],message.data[2],message.data[3],message.data[4],message.data[5],message.data[6],message.data[7]);
 
+                if (message.identifier == VCU_msg)
+                {
                   if(message.data[0] == 0x15)
                   {
                     printf("<--------------------------------------------------MOTOR ON------------------------------------------------------------------->\n");
@@ -476,6 +485,10 @@ static void twai_receive_task(void *arg)
                     printf("<--------------------------------------------------MOTOR OFF------------------------------------------------------------------->\n");
                     Motor_status = 0;
                   }
+
+                  DC_current_limit = message.data[3];
+                }
+
                  
 
 /////////////////////////////////////////////////////
