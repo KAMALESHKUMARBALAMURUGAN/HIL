@@ -183,6 +183,7 @@ ids = {
     "Pack Voltage": 'w',
     "Pack Current": 'x',
     "TempSensorFault": 'y',
+    "sidestand_pulse":'z',
 }
 
 # Create scales for different parameters
@@ -298,6 +299,7 @@ warnings_info = [
     ("DchgUnderTempWarn", "t"),
     ("DchgOverTempWarn", "u"),
     ("TempSensorFault","y"),
+    ("sidestand_pulse",'z'),
     
 ]
 warning_vars = {}
@@ -320,15 +322,15 @@ reverse_Brake_button.bind("<ButtonRelease-1>", lambda event: release_reverse_Bra
 
 # Create a label for Motor status
 Motor_label = tk.Label(root, text="Motor: ", font=("Helvetica", 16))
-Motor_label.pack(pady=20)
+Motor_label.pack(pady=0)
 
 # Create a label for Reverse status
 DC_current_limit_label = tk.Label(root, text="DC_Current_Limit: ", font=("Helvetica", 16))
-DC_current_limit_label.pack(pady=40)
+DC_current_limit_label.pack(pady=0)
 
 # Start reading the serial data after 100 ms
 if ser:
-    root.after(100, read_serial)
+    root.after(200, read_serial)
 
 # Start the event loop
 root.mainloop()

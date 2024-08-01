@@ -37,13 +37,13 @@ int modeR = 0;
  
 int brake = 0;
 int reve = 0;
-int sidestand = 0 ;
+// int sidestand = 0 ;
 static int received_value_ignition;
 static int received_value_brake;
 static int received_value_reverse;
 static int received_value_modeR;
 static int received_value_modeL;
-static int received_value_sidestand;
+// static int received_value_sidestand;
 static int received_value_soc;
 static int received_value_batt_tmp;
 static int received_value_throttle;
@@ -52,6 +52,7 @@ static int received_value_pcbTemp;
 static int received_value_controllerTemp;
 static int received_value_rpm;
 static int MotorWarn;
+static int sidestand_pulse;
 static int controllerWarn;
 static int BattWarn ;
 static int BattLowWarn;
@@ -223,7 +224,7 @@ brake=received_value_brake;
 modeL=received_value_modeL;
 modeR=received_value_modeR;
 reve=received_value_reverse;
-sidestand= received_value_sidestand;
+// sidestand= received_value_sidestand;
 soc= received_value_soc;
 batt_tmp= received_value_batt_tmp;
 thr_per= received_value_throttle;
@@ -258,7 +259,7 @@ struct ControlBits {
     unsigned int brake : 1;
     unsigned int ingi : 1;
     unsigned int reve : 1;
-    unsigned int sidestand : 1;
+    // unsigned int sidestand : 1;
     unsigned int b8 : 1;
 };
  
@@ -279,7 +280,7 @@ union ControlUnion control;
     control.bits.brake = brake;  // Replace with your actual brake value
     control.bits.ingi = ingi;   // Replace with your actual ingi value
     control.bits.reve = reve;   // Replace with your actual reve value
-    control.bits.sidestand = sidestand;
+    // control.bits.sidestand = sidestand;
     control.bits.b8 = 0;
 
 union
@@ -311,7 +312,7 @@ int D_motor_max = 4095 ;
 void uart_send_task(void *arg) {
     const uart_port_t uart_num = ECHO_UART_PORT_NUM;
     char motor_buffer[32];
-    char DC_current_limit_buffer[32];
+    char DC_current_limit_buffer[25];
 
     while (1) {
         snprintf(motor_buffer, sizeof(motor_buffer), "Motor_status:%d\n", Motor_status);
@@ -333,7 +334,7 @@ static void twai_transmit_task(void *arg)
     
     while (1)
     {
-        twai_message_t transmit_message_switch = {.identifier = (0x18530902), .data_length_code = 8, .extd = 1, .data = {thr_per, 0x03, MotorWarn, state, controllerWarn, 0x00, 0x00, 0x00}};
+        twai_message_t transmit_message_switch = {.identifier = (0x18530902), .data_length_code = 8, .extd = 1, .data = {thr_per, 0x00, MotorWarn, sidestand_pulse, controllerWarn, 0x00, 0x00, 0x00}};
         if (twai_transmit(&transmit_message_switch, 1000) == ESP_OK)
         {
         ESP_LOGI(EXAMPLE_TAG, "Message queued for transmission\n");
@@ -843,7 +844,7 @@ void process_uart_data(uint8_t *data, int len) {
                 received_value_modeL = switch_state;
                 break;
             case '5':
-                received_value_sidestand = switch_state;
+                // received_value_sidestand = switch_state;
                 break;
             case '6':
                 received_value_ignition = switch_state;
@@ -926,6 +927,9 @@ void process_uart_data(uint8_t *data, int len) {
             case 'y':  // TempSensorFault
                 BattWarn = switch_state == 1 ? 2 : 0;
                 break;
+            case 'z':
+                sidestand_pulse = switch_state = 1 ? 64 : 0;
+                
 
             default:
                 // Handle invalid switch number
