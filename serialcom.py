@@ -136,6 +136,10 @@ def read_serial():
             Pack_curr_Rx = line.split(":")[1]
             Pack_curr_Rx_label.config(text=f"Pack_curr_Rx  : {Pack_curr_Rx}")
 
+        if line.startswith("thr_per_Rx:"):
+            thr_per_Rx = line.split(":")[1]
+            thr_per_Rx_label.config(text=f"thr_per_Rx  : {thr_per_Rx}")
+
     except Exception as e:
         print(f"Error reading serial: {e}")
     root.after(200, read_serial)  # Schedule the function to be called again after 100 ms
@@ -347,6 +351,10 @@ SOC_label.pack(pady=0)
 
 Pack_curr_Rx_label = tk.Label(root, text="Pack_curr_Rx: ", font=("Helvetica", 16))
 Pack_curr_Rx_label.pack(pady=0)
+
+thr_per_Rx_label = tk.Label(root, text="thr_per_Rx: ", font=("Helvetica", 16))
+thr_per_Rx_label.pack(pady=0)
+
 
 # Start reading the serial data after 100 ms
 if ser:

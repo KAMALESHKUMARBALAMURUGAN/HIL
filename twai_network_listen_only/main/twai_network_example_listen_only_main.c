@@ -107,6 +107,7 @@ static int soc;
 #define ID_LX_BATTERY_T 0xa
 #define ID_LX_BATTERY_SOC 0x8
 #define ID_Battery_ProtectionsAndWarnings 0x9
+#define MotorId 0x18530902   //for throttle percentage
 #define MotorRpm 0x14520902  //For motor rpm
  
  
@@ -124,6 +125,7 @@ static int DC_current_limit;
 static int Motor_RPM;
 static int SOC_RX;
 static float Pack_curr_Rx;
+static int thr_per_Rx;
  
  
 char motor_err[32];
@@ -321,6 +323,7 @@ void uart_send_task(void *arg) {
     char Motor_RPM_buffer[25];
     char SOC_RX_buffer[25];
     char Pack_curr_Rx_buffer[25];
+    char thr_per_Rx_buffer[25];
 
     while (1) {
         snprintf(motor_buffer, sizeof(motor_buffer), "Motor_status:%d\n", Motor_status);
@@ -341,6 +344,10 @@ void uart_send_task(void *arg) {
 
         snprintf(Pack_curr_Rx_buffer, sizeof(Pack_curr_Rx_buffer), "Pack_curr_Rx:%f\n", Pack_curr_Rx);
         uart_write_bytes(uart_num, Pack_curr_Rx_buffer, strlen(Pack_curr_Rx_buffer));
+        vTaskDelay(pdMS_TO_TICKS(1000)); // Send every 1 second
+
+        snprintf(thr_per_Rx_buffer, sizeof(thr_per_Rx_buffer), "thr_per_Rx:%d\n", thr_per_Rx);
+        uart_write_bytes(uart_num, thr_per_Rx_buffer, strlen(thr_per_Rx_buffer));
         vTaskDelay(pdMS_TO_TICKS(1000)); // Send every 1 second
     }
 }
@@ -543,8 +550,8 @@ static void twai_receive_task(void *arg)
                             {
                                 uint8_t hex_value = message.data[0]; // Extract the value from message.data[0]
                                 int soc_value = (int)hex_value; // Convert hexadecimal to decimal
-                                printf("SOC Value (Hex): 0x%02X\n", hex_value); // Debug message for hex value
-                                printf("SOC Value (Decimal): %d\n", soc_value); // Print decimal value
+                                // printf("SOC Value (Hex): 0x%02X\n", hex_value); // Debug message for hex value
+                                // printf("SOC Value (Decimal): %d\n", soc_value); // Print decimal value
                                 SOC_RX = soc_value;
                             }
                         }
@@ -557,15 +564,24 @@ static void twai_receive_task(void *arg)
                                     if (!(message.rtr)) // Check if not a remote transmission request
                                     {
                                         int32_t current2_hx = (int32_t)((message.data[0] << 24) | (message.data[1] << 16) | (message.data[2] << 8) | message.data[3]); // Combine bytes into 32-bit integer
-                                        printf("current2_hx: %" PRId32 "\n", current2_hx); // Print integer value
+                                        // printf("current2_hx: %" PRId32 "\n", current2_hx); // Print integer value
 
                                         float value = (float)current2_hx / 1000.0; // Convert to float with 3 decimal places
-                                        printf("Original value: %" PRId32 "\n", current2_hx); // Debug message
-                                        printf("Value with decimal point: %.3f\n", value); // Print float value
+                                        // printf("Original value: %" PRId32 "\n", current2_hx); // Debug message
+                                        // printf("Value with decimal point: %.3f\n", value); // Print float value
                                         Pack_curr_Rx = value;
                                     }
                                 }
 //////////////////////////
+
+//////////////////////////Throttle percentage
+                            if (message.identifier == MotorId) // Check if message ID matches
+                                {
+                                    if (!(message.rtr)) // Check if not a remote transmission request
+                                    {
+                                        thr_per_Rx = message.data[0];
+                                    }
+                                }
 
 
                  
