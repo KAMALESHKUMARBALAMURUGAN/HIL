@@ -127,7 +127,14 @@ def read_serial():
         if line.startswith("Motor_RPM:"):
             Motor_RPM = line.split(":")[1]
             Motor_RPM_label.config(text=f"Motor_RPM: {Motor_RPM}")
-            
+
+        if line.startswith("SOC_RX:"):
+            SOC_RX = line.split(":")[1]
+            SOC_label.config(text=f"SOC  : {SOC_RX}")
+
+        if line.startswith("Pack_curr_Rx:"):
+            Pack_curr_Rx = line.split(":")[1]
+            Pack_curr_Rx_label.config(text=f"Pack_curr_Rx  : {Pack_curr_Rx}")
 
     except Exception as e:
         print(f"Error reading serial: {e}")
@@ -334,6 +341,12 @@ DC_current_limit_label.pack(pady=0)
 
 Motor_RPM_label = tk.Label(root, text="Motor_RPM: ", font=("Helvetica", 16))
 Motor_RPM_label.pack(pady=0)
+
+SOC_label = tk.Label(root, text="SOC: ", font=("Helvetica", 16))
+SOC_label.pack(pady=0)
+
+Pack_curr_Rx_label = tk.Label(root, text="Pack_curr_Rx: ", font=("Helvetica", 16))
+Pack_curr_Rx_label.pack(pady=0)
 
 # Start reading the serial data after 100 ms
 if ser:

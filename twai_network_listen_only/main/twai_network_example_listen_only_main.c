@@ -122,6 +122,8 @@ int rpm_rx = 1234; // Example RPM value
 static int Motor_status;
 static int DC_current_limit;
 static int Motor_RPM;
+static int SOC_RX;
+static float Pack_curr_Rx;
  
  
 char motor_err[32];
@@ -317,6 +319,8 @@ void uart_send_task(void *arg) {
     char motor_buffer[32];
     char DC_current_limit_buffer[25];
     char Motor_RPM_buffer[25];
+    char SOC_RX_buffer[25];
+    char Pack_curr_Rx_buffer[25];
 
     while (1) {
         snprintf(motor_buffer, sizeof(motor_buffer), "Motor_status:%d\n", Motor_status);
@@ -329,6 +333,14 @@ void uart_send_task(void *arg) {
 
         snprintf(Motor_RPM_buffer, sizeof(Motor_RPM_buffer), "Motor_RPM:%d\n", Motor_RPM);
         uart_write_bytes(uart_num, Motor_RPM_buffer, strlen(Motor_RPM_buffer));
+        vTaskDelay(pdMS_TO_TICKS(1000)); // Send every 1 second
+
+        snprintf(SOC_RX_buffer, sizeof(SOC_RX_buffer), "SOC_RX:%d\n", SOC_RX);
+        uart_write_bytes(uart_num, SOC_RX_buffer, strlen(SOC_RX_buffer));
+        vTaskDelay(pdMS_TO_TICKS(1000)); // Send every 1 second
+
+        snprintf(Pack_curr_Rx_buffer, sizeof(Pack_curr_Rx_buffer), "Pack_curr_Rx:%f\n", Pack_curr_Rx);
+        uart_write_bytes(uart_num, Pack_curr_Rx_buffer, strlen(Pack_curr_Rx_buffer));
         vTaskDelay(pdMS_TO_TICKS(1000)); // Send every 1 second
     }
 }
@@ -499,7 +511,7 @@ static void twai_receive_task(void *arg)
                   DC_current_limit = message.data[3];
                 }
 
-                ///////////////////Motor RPM
+///////////////////Motor RPM
                 if (message.identifier == MotorRpm) // Check if message ID matches
                     {
                     if (!(message.rtr)) // Check if not a remote transmission request
@@ -521,7 +533,40 @@ static void twai_receive_task(void *arg)
                             Motor_RPM = rpm_dec;
                         }
                     }
-                    //////////////////////
+//////////////////////
+
+
+////////////////////////SOC_STATUS
+                     if (message.identifier == ID_LX_BATTERY_SOC) // Check if message ID matches
+                        {
+                            if (!(message.rtr)) // Check if not a remote transmission request
+                            {
+                                uint8_t hex_value = message.data[0]; // Extract the value from message.data[0]
+                                int soc_value = (int)hex_value; // Convert hexadecimal to decimal
+                                printf("SOC Value (Hex): 0x%02X\n", hex_value); // Debug message for hex value
+                                printf("SOC Value (Decimal): %d\n", soc_value); // Print decimal value
+                                SOC_RX = soc_value;
+                            }
+                        }
+//////////////////////////
+
+
+/////////////////////////Pack_current
+                    if (message.identifier == ID_LX_BATTERY_VI) // Check if message ID matches
+                                {
+                                    if (!(message.rtr)) // Check if not a remote transmission request
+                                    {
+                                        int32_t current2_hx = (int32_t)((message.data[0] << 24) | (message.data[1] << 16) | (message.data[2] << 8) | message.data[3]); // Combine bytes into 32-bit integer
+                                        printf("current2_hx: %" PRId32 "\n", current2_hx); // Print integer value
+
+                                        float value = (float)current2_hx / 1000.0; // Convert to float with 3 decimal places
+                                        printf("Original value: %" PRId32 "\n", current2_hx); // Debug message
+                                        printf("Value with decimal point: %.3f\n", value); // Print float value
+                                        Pack_curr_Rx = value;
+                                    }
+                                }
+//////////////////////////
+
 
                  
 
