@@ -123,6 +123,10 @@ def read_serial():
         if line.startswith("DC_current_limit:"):
             DC_current_limit = line.split(":")[1]
             DC_current_limit_label.config(text=f"DC_current_limit: {DC_current_limit}")
+
+        if line.startswith("Motor_RPM:"):
+            Motor_RPM = line.split(":")[1]
+            Motor_RPM_label.config(text=f"Motor_RPM: {Motor_RPM}")
             
 
     except Exception as e:
@@ -324,9 +328,12 @@ reverse_Brake_button.bind("<ButtonRelease-1>", lambda event: release_reverse_Bra
 Motor_label = tk.Label(root, text="Motor: ", font=("Helvetica", 16))
 Motor_label.pack(pady=0)
 
-# Create a label for Reverse status
+# Create a label for DC CURRENT LIMIT
 DC_current_limit_label = tk.Label(root, text="DC_Current_Limit: ", font=("Helvetica", 16))
 DC_current_limit_label.pack(pady=0)
+
+Motor_RPM_label = tk.Label(root, text="Motor_RPM: ", font=("Helvetica", 16))
+Motor_RPM_label.pack(pady=0)
 
 # Start reading the serial data after 100 ms
 if ser:

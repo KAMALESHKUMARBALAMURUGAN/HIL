@@ -1,7 +1,7 @@
 {
     "version":            "1.1",
     "project_name":       "twai_network_listen_only",
-    "project_version":    "01777c7-dirty",
+    "project_version":    "d5432ee-dirty",
     "project_path":       "C:/Users/kamalesh.kb/HIL_AUTO/HIL/twai_network_listen_only",
     "idf_path":           "C:/Users/kamalesh.kb/ESP/v5.2/esp-idf",
     "build_dir":          "C:/Users/kamalesh.kb/HIL_AUTO/HIL/twai_network_listen_only/build",
