@@ -123,6 +123,7 @@ int rpm_rx = 1234; // Example RPM value
 static int Motor_status;
 static int DC_current_limit;
 static int Motor_RPM;
+static int mode_ack;
 static int SOC_RX;
 static float Pack_curr_Rx;
 static int thr_per_Rx;
@@ -324,6 +325,7 @@ void uart_send_task(void *arg) {
     char SOC_RX_buffer[25];
     char Pack_curr_Rx_buffer[25];
     char thr_per_Rx_buffer[25];
+    char mode_ack_buffer[25];
 
     while (1) {
         snprintf(motor_buffer, sizeof(motor_buffer), "Motor_status:%d\n", Motor_status);
@@ -348,6 +350,10 @@ void uart_send_task(void *arg) {
 
         snprintf(thr_per_Rx_buffer, sizeof(thr_per_Rx_buffer), "thr_per_Rx:%d\n", thr_per_Rx);
         uart_write_bytes(uart_num, thr_per_Rx_buffer, strlen(thr_per_Rx_buffer));
+        vTaskDelay(pdMS_TO_TICKS(1000)); // Send every 1 second
+
+        snprintf(mode_ack_buffer, sizeof(mode_ack_buffer), "mode_ack:%d\n", mode_ack);
+        uart_write_bytes(uart_num, mode_ack_buffer, strlen(mode_ack_buffer));
         vTaskDelay(pdMS_TO_TICKS(1000)); // Send every 1 second
     }
 }
@@ -582,6 +588,20 @@ static void twai_receive_task(void *arg)
                                         thr_per_Rx = message.data[0];
                                     }
                                 }
+
+///////////////////////////
+
+
+///////////////////////////Mode_ack
+                            if (message.identifier == MotorId) // Check if message ID matches
+                                {
+                                    if (!(message.rtr)) // Check if not a remote transmission request
+                                    {
+                                        mode_ack = message.data[2];
+                                    }
+                                }
+
+
 
 
                  
