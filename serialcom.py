@@ -140,6 +140,22 @@ def read_serial():
             thr_per_Rx = line.split(":")[1]
             thr_per_Rx_label.config(text=f"thr_per_Rx  : {thr_per_Rx}")
 
+        if line.startswith("mode_ack:"):
+            mode = line.split(":")[1]
+            if mode == 21:
+                mode_ack = 'ECO'
+            if mode == 22:
+                mode_ack = 'POWER'
+            if mode == 23:
+                mode_ack = 'CUSTOM'
+            else:
+                mode_ack = 'Motor OFF'
+            # if mode == 25:
+            #     mode_ack = 'LIMP MODE'
+   
+            mode_ack_label.config(text=f"mode_ack  : {mode_ack}")
+
+
     except Exception as e:
         print(f"Error reading serial: {e}")
     root.after(200, read_serial)  # Schedule the function to be called again after 100 ms
@@ -340,20 +356,23 @@ Motor_label = tk.Label(root, text="Motor: ", font=("Helvetica", 16))
 Motor_label.pack(pady=0)
 
 # Create a label for DC CURRENT LIMIT
-DC_current_limit_label = tk.Label(root, text="DC_Current_Limit: ", font=("Helvetica", 16))
+DC_current_limit_label = tk.Label(root, text="DC Current Limit: ", font=("Helvetica", 16))
 DC_current_limit_label.pack(pady=0)
 
-Motor_RPM_label = tk.Label(root, text="Motor_RPM: ", font=("Helvetica", 16))
+Motor_RPM_label = tk.Label(root, text="Motor RPM: ", font=("Helvetica", 16))
 Motor_RPM_label.pack(pady=0)
 
 SOC_label = tk.Label(root, text="SOC: ", font=("Helvetica", 16))
 SOC_label.pack(pady=0)
 
-Pack_curr_Rx_label = tk.Label(root, text="Pack_curr_Rx: ", font=("Helvetica", 16))
+Pack_curr_Rx_label = tk.Label(root, text="Pack Current: ", font=("Helvetica", 16))
 Pack_curr_Rx_label.pack(pady=0)
 
-thr_per_Rx_label = tk.Label(root, text="thr_per_Rx: ", font=("Helvetica", 16))
+thr_per_Rx_label = tk.Label(root, text="Throttle(%): ", font=("Helvetica", 16))
 thr_per_Rx_label.pack(pady=0)
+
+mode_ack_label = tk.Label(root, text="Mode: ", font=("Helvetica", 16))
+mode_ack_label.pack(pady=0)
 
 
 # Start reading the serial data after 100 ms
