@@ -113,6 +113,8 @@ def release_reverse_Brake(reverse_button, Brake_button, reverse_var, Brake_var, 
 def read_serial():
     try:
         line = ser.readline().decode('utf-8').strip()
+        print("line---------->",line)
+
         if line.startswith("Motor_status:"):
             Motor_status = line.split(":")[1]
             if Motor_status == '1':
@@ -123,6 +125,15 @@ def read_serial():
         if line.startswith("DC_current_limit:"):
             DC_current_limit = line.split(":")[1]
             DC_current_limit_label.config(text=f"DC_current_limit: {DC_current_limit}")
+
+            if DC_current_limit == 0:               
+                CAN_Status = 'NOT OK'               #I got to this conclusion because whatever the case(Either Motor ON or Motor OFF , i will get some DC Current limit(no place i will get 0))
+                status_label.config(text=f"CAN Status  : {CAN_Status}")
+
+            else:
+                CAN_Status = 'OK'
+                status_label.config(text=f"CAN Status  : {CAN_Status}")
+                
 
         if line.startswith("Motor_RPM:"):
             Motor_RPM = line.split(":")[1]
@@ -350,6 +361,11 @@ ign_Brake_button.bind("<ButtonRelease-1>", lambda event: release_both(mode_butto
 # Bind mouse press and release to both buttons
 reverse_Brake_button.bind("<ButtonPress-1>", lambda event: press_reverse_Brake(mode_buttons["Reverse"], mode_buttons["Brake"], mode_vars["Reverse"], mode_vars["Brake"], ids["Reverse"], ids["Brake"]))
 reverse_Brake_button.bind("<ButtonRelease-1>", lambda event: release_reverse_Brake(mode_buttons["Reverse"], mode_buttons["Brake"], mode_vars["Reverse"], mode_vars["Brake"], ids["Reverse"], ids["Brake"]))
+
+
+status_label = tk.Label(root, text="Status: ", font=("Helvetica", 32, "bold"))
+status_label.pack(pady=20)
+
 
 # Create a label for Motor status
 Motor_label = tk.Label(root, text="Motor: ", font=("Helvetica", 16))
