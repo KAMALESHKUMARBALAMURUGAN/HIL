@@ -151,6 +151,10 @@ def read_serial():
             thr_per_Rx = line.split(":")[1]
             thr_per_Rx_label.config(text=f"thr_per_Rx  : {thr_per_Rx}")
 
+        if line.startswith("Ride_ack_Rx:"):
+            Ride_ack_Rx = line.split(":")[1]
+            Ride_ack_Rx_label.config(text=f"Ride_ack_Rx  : {Ride_ack_Rx}")
+
         if line.startswith("mode_ack:"):
             mode = line.split(":")[1]
             if mode == 21:
@@ -389,6 +393,10 @@ thr_per_Rx_label.pack(pady=0)
 
 mode_ack_label = tk.Label(root, text="Mode: ", font=("Helvetica", 16))
 mode_ack_label.pack(pady=0)
+
+Ride_ack_Rx_label = tk.Label(root, text="Ride_ack: ", font=("Helvetica", 16))
+Ride_ack_Rx_label.pack(pady=0)
+
 
 
 # Start reading the serial data after 100 ms

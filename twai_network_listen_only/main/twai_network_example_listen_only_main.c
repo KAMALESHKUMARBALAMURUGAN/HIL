@@ -127,6 +127,7 @@ static int mode_ack;
 static int SOC_RX;
 static float Pack_curr_Rx;
 static int thr_per_Rx;
+static int Ride_ack_Rx;
  
  
 char motor_err[32];
@@ -326,6 +327,8 @@ void uart_send_task(void *arg) {
     char Pack_curr_Rx_buffer[25];
     char thr_per_Rx_buffer[25];
     char mode_ack_buffer[25];
+    char Ride_ack_buffer[25];
+
 
     while (1) {
         snprintf(motor_buffer, sizeof(motor_buffer), "Motor_status:%d\n", Motor_status);
@@ -354,6 +357,10 @@ void uart_send_task(void *arg) {
 
         snprintf(mode_ack_buffer, sizeof(mode_ack_buffer), "mode_ack:%d\n", mode_ack);
         uart_write_bytes(uart_num, mode_ack_buffer, strlen(mode_ack_buffer));
+        vTaskDelay(pdMS_TO_TICKS(1000)); // Send every 1 second
+
+        snprintf(Ride_ack_buffer, sizeof(Ride_ack_buffer), "Ride_ack_Rx:%d\n", Ride_ack_Rx);
+        uart_write_bytes(uart_num, Ride_ack_buffer, strlen(Ride_ack_buffer));
         vTaskDelay(pdMS_TO_TICKS(1000)); // Send every 1 second
     }
 }
@@ -586,6 +593,7 @@ static void twai_receive_task(void *arg)
                                     if (!(message.rtr)) // Check if not a remote transmission request
                                     {
                                         thr_per_Rx = message.data[0];
+                                        Ride_ack_Rx = message. data[1];
                                     }
                                 }
 
