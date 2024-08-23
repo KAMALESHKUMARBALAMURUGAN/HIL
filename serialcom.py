@@ -115,6 +115,20 @@ def read_serial():
         line = ser.readline().decode('utf-8').strip()
         print("line---------->",line)
 
+        if line == "Entered receive function------------------->":
+            print("enter")
+            Status_flag = 1
+       
+
+            if Status_flag ==1:
+                CAN_Status = 'OK'               #I got to this conclusion because whatever the case(Either Motor ON or Motor OFF , i will get some DC Current limit(no place i will get 0))
+                status_label.config(text=f"CAN Status  : {CAN_Status}")
+
+            else:
+                CAN_Status = 'NOT OK'
+                status_label.config(text=f"CAN Status  : {CAN_Status}")
+
+
         if line.startswith("Motor_status:"):
             Motor_status = line.split(":")[1]
             if Motor_status == '1':
@@ -122,17 +136,18 @@ def read_serial():
             else:
                 Motor_label.config(text="Motor: OFF")
 
-        if line.startswith("DC_current_limit:"):
-            DC_current_limit = line.split(":")[1]
-            DC_current_limit_label.config(text=f"DC_current_limit: {DC_current_limit}")
+        # if line.startswith("DC_current_limit:"):
+        #     DC_current_limit = line.split(":")[1]
+        #     DC_current_limit_label.config(text=f"DC_current_limit: {DC_current_limit}")
 
-            if DC_current_limit == 0:               
-                CAN_Status = 'NOT OK'               #I got to this conclusion because whatever the case(Either Motor ON or Motor OFF , i will get some DC Current limit(no place i will get 0))
-                status_label.config(text=f"CAN Status  : {CAN_Status}")
 
-            else:
-                CAN_Status = 'OK'
-                status_label.config(text=f"CAN Status  : {CAN_Status}")
+        #     if DC_current_limit == "20" or "35" or "105":               
+        #         CAN_Status = 'OK'               #I got to this conclusion because whatever the case(Either Motor ON or Motor OFF , i will get some DC Current limit(no place i will get 0))
+        #         status_label.config(text=f"CAN Status  : {CAN_Status}")
+
+        #     else:
+        #         CAN_Status = 'NOT OK'
+        #         status_label.config(text=f"CAN Status  : {CAN_Status}")
                 
 
         if line.startswith("Motor_RPM:"):
