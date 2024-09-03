@@ -401,7 +401,7 @@ static void twai_transmit_task(void *arg)
         //for remote_cutoff
         if (Remote_Cutoff_Flag ==1)
             {
-                twai_message_t transmit_message_switch = {.identifier = (0x18530902), .data_length_code = 8, .extd = 1, .data = {thr_per, 0x00, MotorWarn, state, controllerWarn, 0x00, 0x00, 0x00}};
+                twai_message_t transmit_message_switch = {.identifier = (0x18530902), .data_length_code = 8, .extd = 1, .data = {thr_per, 0x01, MotorWarn, state, controllerWarn, 0x00, 0x00, 0x00}};
                 if (twai_transmit(&transmit_message_switch, 1000) == ESP_OK)
                 {
                 printf("state--------------->%u",state);
@@ -612,7 +612,7 @@ static void twai_receive_task(void *arg)
                                     Speed_lock_Flag =0;
                                    }
 
-                                    if (message.data[0]== 0x16)
+                                    if (message.data[0]== 0x10)
                                    {
                                     Remote_Cutoff_Flag =1;
                                    }
