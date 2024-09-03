@@ -136,9 +136,9 @@ def read_serial():
             else:
                 Motor_label.config(text="Motor: OFF")
 
-        # if line.startswith("DC_current_limit:"):
-        #     DC_current_limit = line.split(":")[1]
-        #     DC_current_limit_label.config(text=f"DC_current_limit: {DC_current_limit}")
+        if line.startswith("DC_current_limit:"):
+            DC_current_limit = line.split(":")[1]
+            DC_current_limit_label.config(text=f"DC_current_limit: {DC_current_limit}")
 
 
         #     if DC_current_limit == "20" or "35" or "105":               
