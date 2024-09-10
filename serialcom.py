@@ -81,33 +81,33 @@ def release_button(button, var, id):
     button.config(text="Off")
     send_uart(id, 0)  # Send update through UART
 
-# Function to press both Ignition and Brake buttons
-def press_both(ignition_button, Brake_button, ignition_var, Brake_var, ignition_id, Brake_id):
-    press_button(Brake_button, Brake_var, Brake_id)
-    sleep(0.1)
-    press_button(ignition_button, ignition_var, ignition_id)
-    sleep(0.2)
+# # Function to press both Ignition and Brake buttons
+# def press_both(ignition_button, Brake_button, ignition_var, Brake_var, ignition_id, Brake_id):
+#     press_button(Brake_button, Brake_var, Brake_id)
+#     sleep(0.1)
+#     press_button(ignition_button, ignition_var, ignition_id)
+#     sleep(0.2)
 
-# Function to release both Ignition and Brake buttons
-def release_both(ignition_button, Brake_button, ignition_var, Brake_var, ignition_id, Brake_id):
-    sleep(0.2)
-    release_button(ignition_button, ignition_var, ignition_id)
-    sleep(0.1)
-    release_button(Brake_button, Brake_var, Brake_id)
+# # Function to release both Ignition and Brake buttons
+# def release_both(ignition_button, Brake_button, ignition_var, Brake_var, ignition_id, Brake_id):
+#     sleep(0.2)
+#     release_button(ignition_button, ignition_var, ignition_id)
+#     sleep(0.1)
+#     release_button(Brake_button, Brake_var, Brake_id)
 
-# Function to press both Reverse and Brake buttons
-def press_reverse_Brake(reverse_button, Brake_button, reverse_var, Brake_var, reverse_id, Brake_id):
-    press_button(Brake_button, Brake_var, Brake_id)
-    sleep(0.1)
-    press_button(reverse_button, reverse_var, reverse_id)
-    sleep(0.2)
+# # Function to press both Reverse and Brake buttons
+# def press_reverse_Brake(reverse_button, Brake_button, reverse_var, Brake_var, reverse_id, Brake_id):
+#     press_button(Brake_button, Brake_var, Brake_id)
+#     sleep(0.1)
+#     press_button(reverse_button, reverse_var, reverse_id)
+#     sleep(0.2)
 
-# Function to release both Reverse and Brake buttons
-def release_reverse_Brake(reverse_button, Brake_button, reverse_var, Brake_var, reverse_id, Brake_id):
-    sleep(0.2)
-    release_button(reverse_button, reverse_var, reverse_id)
-    sleep(0.1)
-    release_button(Brake_button, Brake_var, Brake_id)
+# # Function to release both Reverse and Brake buttons
+# def release_reverse_Brake(reverse_button, Brake_button, reverse_var, Brake_var, reverse_id, Brake_id):
+#     sleep(0.2)
+#     release_button(reverse_button, reverse_var, reverse_id)
+#     sleep(0.1)
+#     release_button(Brake_button, Brake_var, Brake_id)
 
 # Function to read data from the serial port
 def read_serial():
@@ -210,11 +210,12 @@ left_frame.pack(side=tk.LEFT, padx=20, pady=20, fill=tk.BOTH, expand=True)
 
 # Define ids for each mode and sensor
 ids = {
-    "Brake": 1,
-    "Reverse": 2,
-    "Mode R": 3,
-    "Mode L": 4,
-    "Ignition": 6,
+    "Forward Parking": 1,
+    "Reverse Parking": 2,
+    "ECO Mode (or) Motor ON": 3,
+    "Normal Mode": 4,
+    "Fast Mode": 5,
+    "Motor OFF": 6,
     "SOC": 7,
     "Throttle(boost)": 8,
     "Battery temp": 9,
@@ -294,35 +295,35 @@ for i, (name, min_val, max_val) in enumerate(scales_info):
 
     scales[name] = (scale, entry)
 
-# Create buttons for different modes
-modes_info = ["Brake", "Reverse", "Mode R", "Mode L", "Ignition"]
-mode_buttons = {}
-mode_vars = {}
-for i, mode in enumerate(modes_info):
-    frame = ttk.LabelFrame(left_frame, text=mode)
-    frame.grid(row=i, column=1, padx=10, pady=10, sticky='ew')  # Position mode controls in the first column
+# # Create buttons for different modes
+# modes_info = ["Brake", "Reverse", "Mode R", "Mode L", "Ignition"]
+# mode_buttons = {}
+# mode_vars = {}
+# for i, mode in enumerate(modes_info):
+#     frame = ttk.LabelFrame(left_frame, text=mode)
+#     frame.grid(row=i, column=1, padx=10, pady=10, sticky='ew')  # Position mode controls in the first column
 
-    var = tk.IntVar(value=0)  # Default to 0 (Off)
-    mode_vars[mode] = var  # Add this line to store the variable in mode_vars
-    button = tk.Button(frame, text="Off")
-    button.pack(side=tk.LEFT, padx=10)
-    button.bind("<ButtonPress-1>", lambda event, b=button, v=var, id=ids[mode]: press_button(b, v, id))
-    button.bind("<ButtonRelease-1>", lambda event, b=button, v=var, id=ids[mode]: release_button(b, v, id))
-    mode_buttons[mode] = button
+#     var = tk.IntVar(value=0)  # Default to 0 (Off)
+#     mode_vars[mode] = var  # Add this line to store the variable in mode_vars
+#     button = tk.Button(frame, text="Off")
+#     button.pack(side=tk.LEFT, padx=10)
+#     button.bind("<ButtonPress-1>", lambda event, b=button, v=var, id=ids[mode]: press_button(b, v, id))
+#     button.bind("<ButtonRelease-1>", lambda event, b=button, v=var, id=ids[mode]: release_button(b, v, id))
+#     mode_buttons[mode] = button
 
-# Additional button for Ignition & Brake, moved to column 4
-ign_Brake_frame = ttk.Frame(left_frame)
-ign_Brake_frame.grid(row=len(modes_info), column=4, padx=10, pady=10, sticky='ew')
+# # Additional button for Ignition & Brake, moved to column 4
+# ign_Brake_frame = ttk.Frame(left_frame)
+# ign_Brake_frame.grid(row=len(modes_info), column=4, padx=10, pady=10, sticky='ew')
 
-ign_Brake_button = tk.Button(ign_Brake_frame, text="Ignition & Brake")
-ign_Brake_button.pack(side=tk.LEFT, padx=10)
+# ign_Brake_button = tk.Button(ign_Brake_frame, text="Ignition & Brake")
+# ign_Brake_button.pack(side=tk.LEFT, padx=10)
 
-# Additional button for Reverse & Brake, moved to column 4
-reverse_Brake_frame = ttk.Frame(left_frame)
-reverse_Brake_frame.grid(row=len(modes_info) + 1, column=4, padx=10, pady=10, sticky='ew')
+# # Additional button for Reverse & Brake, moved to column 4
+# reverse_Brake_frame = ttk.Frame(left_frame)
+# reverse_Brake_frame.grid(row=len(modes_info) + 1, column=4, padx=10, pady=10, sticky='ew')
 
-reverse_Brake_button = tk.Button(reverse_Brake_frame, text="Reverse & Brake")
-reverse_Brake_button.pack(side=tk.LEFT, padx=10)
+# reverse_Brake_button = tk.Button(reverse_Brake_frame, text="Reverse & Brake")
+# reverse_Brake_button.pack(side=tk.LEFT, padx=10)
 
 # Radio buttons for different faults
 faults_info = [
@@ -350,6 +351,11 @@ for i, (fault, fault_id) in enumerate(faults_info):
 
 # Radio buttons for different warnings
 warnings_info = [
+    ("Forward Parking", "1"),
+    ("Reverse Parking", "2"),
+    ("ECO Mode (or) Motor ON", "3"),
+    ("Normal Mode", "4"),
+    ("Fast Mode",  "5"),
     ("BattLowSocWarn", "m"),
     ("CellUnderVolWarn", "n"),
     ("CellOverVolWarn", "o"),
@@ -373,13 +379,13 @@ for i, (warning, warning_id) in enumerate(warnings_info):
     ttk.Radiobutton(warning_frame, text="OFF", variable=warning_var, value="OFF", command=lambda id=warning_id: send_uart(id, 0)).pack(side=tk.LEFT, padx=10)
     ttk.Radiobutton(warning_frame, text="ON", variable=warning_var, value="ON", command=lambda id=warning_id: send_uart(id, 1)).pack(side=tk.LEFT, padx=10)
 
-# Bind mouse press and release to both buttons
-ign_Brake_button.bind("<ButtonPress-1>", lambda event: press_both(mode_buttons["Ignition"], mode_buttons["Brake"], mode_vars["Ignition"], mode_vars["Brake"], ids["Ignition"], ids["Brake"]))
-ign_Brake_button.bind("<ButtonRelease-1>", lambda event: release_both(mode_buttons["Ignition"], mode_buttons["Brake"], mode_vars["Ignition"], mode_vars["Brake"], ids["Ignition"], ids["Brake"]))
+# # Bind mouse press and release to both buttons
+# ign_Brake_button.bind("<ButtonPress-1>", lambda event: press_both(mode_buttons["Ignition"], mode_buttons["Brake"], mode_vars["Ignition"], mode_vars["Brake"], ids["Ignition"], ids["Brake"]))
+# ign_Brake_button.bind("<ButtonRelease-1>", lambda event: release_both(mode_buttons["Ignition"], mode_buttons["Brake"], mode_vars["Ignition"], mode_vars["Brake"], ids["Ignition"], ids["Brake"]))
 
-# Bind mouse press and release to both buttons
-reverse_Brake_button.bind("<ButtonPress-1>", lambda event: press_reverse_Brake(mode_buttons["Reverse"], mode_buttons["Brake"], mode_vars["Reverse"], mode_vars["Brake"], ids["Reverse"], ids["Brake"]))
-reverse_Brake_button.bind("<ButtonRelease-1>", lambda event: release_reverse_Brake(mode_buttons["Reverse"], mode_buttons["Brake"], mode_vars["Reverse"], mode_vars["Brake"], ids["Reverse"], ids["Brake"]))
+# # Bind mouse press and release to both buttons
+# reverse_Brake_button.bind("<ButtonPress-1>", lambda event: press_reverse_Brake(mode_buttons["Reverse"], mode_buttons["Brake"], mode_vars["Reverse"], mode_vars["Brake"], ids["Reverse"], ids["Brake"]))
+# reverse_Brake_button.bind("<ButtonRelease-1>", lambda event: release_reverse_Brake(mode_buttons["Reverse"], mode_buttons["Brake"], mode_vars["Reverse"], mode_vars["Brake"], ids["Reverse"], ids["Brake"]))
 
 
 status_label = tk.Label(root, text="Status: ", font=("Helvetica", 32, "bold"))

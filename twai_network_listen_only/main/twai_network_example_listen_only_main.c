@@ -115,7 +115,7 @@ static int soc;
 #define VCU_msg 0x18f20309
 #define ID_MOTOR_TEMP 0x233
 #define ID_MOTOR_CURR_VOLT 0x32
-static uint8_t state = 0;
+static int state;
 int adc_value = 0;
 int adc_value1 = 0;
 int adc_value2 = 0;
@@ -298,8 +298,7 @@ uint32_t f;
 } u; 
 u.b = control.combinedValue;
  
-state = u.f;  
-printf("state--------------->%u",state);
+// state = u.f;  
     printf("\n");
 }
 vTaskDelete(NULL);
@@ -377,7 +376,6 @@ static void twai_transmit_task(void *arg)
         twai_message_t transmit_message_switch = {.identifier = (0x18530902), .data_length_code = 8, .extd = 1, .data = {thr_per, 0x00, MotorWarn, state, controllerWarn, 0x00, 0x00, 0x00}};
         if (twai_transmit(&transmit_message_switch, 1000) == ESP_OK)
         {
-        printf("state--------------->%u",state);
         ESP_LOGI(EXAMPLE_TAG, "Message queued for transmission\n");
         vTaskDelay(pdMS_TO_TICKS(100));
         }
@@ -959,14 +957,14 @@ void process_uart_data(uint8_t *data, int len) {
             case '2':
                 received_value_reverse = switch_state;
                 break;
-            case '3':
-                received_value_modeR = switch_state;
+            case '3': //for ECO mode (Motor ON)
+                state = switch_state == 1 ? 36 : 0;
                 break;
-            case '4':
-                received_value_modeL = switch_state;
+            case '4': //for Normal mode
+                state = switch_state == 1 ? 34 : 0;
                 break;
-            case '5':
-                // received_value_sidestand = switch_state;
+            case '5': //for Fast mode
+                state = switch_state == 1 ? 38 : 0 ;
                 break;
             case '6':
                 received_value_ignition = switch_state;
