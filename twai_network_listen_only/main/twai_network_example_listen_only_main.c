@@ -116,6 +116,7 @@ static int soc;
 #define ID_MOTOR_TEMP 0x233
 #define ID_MOTOR_CURR_VOLT 0x32
 static int state;
+static int Veh_status;
 int adc_value = 0;
 int adc_value1 = 0;
 int adc_value2 = 0;
@@ -220,11 +221,11 @@ int new_val ;
 
 static void switch_ip(void *arg)
 {
-vTaskDelay(pdMS_TO_TICKS(50));
+vTaskDelay(pdMS_TO_TICKS(10));
 while(1)
 {
  
-vTaskDelay(pdMS_TO_TICKS(50));
+vTaskDelay(pdMS_TO_TICKS(10));
  
  
 ingi = received_value_ignition;
@@ -368,78 +369,78 @@ void uart_send_task(void *arg) {
 static void twai_transmit_task(void *arg)
 {
     ESP_LOGI(EXAMPLE_TAG, "Transmitting to battery");
-    vTaskDelay(pdMS_TO_TICKS(100));
+    vTaskDelay(pdMS_TO_TICKS(10));
 
     
     while (1)
     {
-        twai_message_t transmit_message_switch = {.identifier = (0x18530902), .data_length_code = 8, .extd = 1, .data = {thr_per, 0x00, MotorWarn, state, controllerWarn, 0x00, 0x00, 0x00}};
+        twai_message_t transmit_message_switch = {.identifier = (0x18530902), .data_length_code = 8, .extd = 1, .data = {thr_per, Veh_status , MotorWarn, state, controllerWarn, 0x00, 0x00, 0x00}};
         if (twai_transmit(&transmit_message_switch, 1000) == ESP_OK)
         {
         ESP_LOGI(EXAMPLE_TAG, "Message queued for transmission\n");
-        vTaskDelay(pdMS_TO_TICKS(100));
+        vTaskDelay(pdMS_TO_TICKS(10));
         }
         else
         {
         
         ESP_LOGE(EXAMPLE_TAG, "Failed to queue message for transmission\n");
         }
-        vTaskDelay(pdMS_TO_TICKS(100));
+        vTaskDelay(pdMS_TO_TICKS(10));
 
     
         twai_message_t transmit_message_batteryTemp = {.identifier = (0x000000A), .data_length_code = 8, .extd = 1, .data = {batt_tmp, batt_tmp, batt_tmp, batt_tmp, batt_tmp, batt_tmp, batt_tmp, batt_tmp}};
         if (twai_transmit(&transmit_message_batteryTemp, 10000) == ESP_OK)
         {
         ESP_LOGI(EXAMPLE_TAG, "Message queued for transmission\n");
-        vTaskDelay(pdMS_TO_TICKS(100));
+        vTaskDelay(pdMS_TO_TICKS(10));
         }
         else
         {
         
         ESP_LOGE(EXAMPLE_TAG, "Failed to queue message for transmission\n");
         }
-        vTaskDelay(pdMS_TO_TICKS(100));
+        vTaskDelay(pdMS_TO_TICKS(10));
     
     
         twai_message_t transmit_message_otherTemp = {.identifier = (0x18530903), .data_length_code = 8, .extd = 1, .data = {cnt_tmp, V_motor_out, V_motor_out, 0x00 , 0x00 , 0x00 , 0x00 , 0x00 }};
         if (twai_transmit(&transmit_message_otherTemp, 10000) == ESP_OK)
         {
             ESP_LOGI(EXAMPLE_TAG, "Message queued for transmission\n");
-        vTaskDelay(pdMS_TO_TICKS(100));
+        vTaskDelay(pdMS_TO_TICKS(10));
         }
         else
         {
         
         ESP_LOGE(EXAMPLE_TAG, "Failed to queue message for transmission\n");
         }
-        vTaskDelay(pdMS_TO_TICKS(100));
+        vTaskDelay(pdMS_TO_TICKS(10));
 
         twai_message_t transmit_message_SoC= {.identifier = ID_LX_BATTERY_SOC , .data_length_code = 8, .extd = 1, .data = {soc, 0x00, 0x00, 0x9A , 0xB0 , 0x63 , 0x1D , 0x01 }};
         if (twai_transmit(&transmit_message_SoC, 10000) == ESP_OK)
         {
         ESP_LOGI(EXAMPLE_TAG, "Message queued for transmission\n");
-        vTaskDelay(pdMS_TO_TICKS(100));
+        vTaskDelay(pdMS_TO_TICKS(10));
         }
         else
         {
         
         ESP_LOGE(EXAMPLE_TAG, "Failed to queue message for transmission\n");
         }
-        vTaskDelay(pdMS_TO_TICKS(100));
+        vTaskDelay(pdMS_TO_TICKS(10));
 
 ///////////////////////////////////
         twai_message_t transmit_message_PackCurrAndPackVol= {.identifier = ID_LX_BATTERY_VI , .data_length_code = 8, .extd = 1, .data = {packCurr1,packCurr2,packCurr3, packCurr4, 0x00 , 0x00 , 0x00 , 0x00 }};    //First 4 bytes for PackCurrent and last 4 bytes for PackVoltage
         if (twai_transmit(&transmit_message_PackCurrAndPackVol, 10000) == ESP_OK)
         {
         ESP_LOGI(EXAMPLE_TAG, "Message queued for transmission\n");
-        vTaskDelay(pdMS_TO_TICKS(100));
-        }
+        vTaskDelay(pdMS_TO_TICKS(10));
+        }O
         else
         {       
         
         ESP_LOGE(EXAMPLE_TAG, "Failed to queue message for transmission\n");
         }
-        vTaskDelay(pdMS_TO_TICKS(100));
+        vTaskDelay(pdMS_TO_TICKS(10));
 ///////////////////////////////////
 
 
@@ -447,14 +448,14 @@ static void twai_transmit_task(void *arg)
         if (twai_transmit(&transmit_message_rpm, 10000) == ESP_OK)
         {
             ESP_LOGI(EXAMPLE_TAG, "Message queued for transmission\n");
-        vTaskDelay(pdMS_TO_TICKS(100));
+        vTaskDelay(pdMS_TO_TICKS(10));
         }
         else
         {
         
         ESP_LOGE(EXAMPLE_TAG, "Failed to queue message for transmission\n");
         }
-        vTaskDelay(pdMS_TO_TICKS(100));
+        vTaskDelay(pdMS_TO_TICKS(10));
 
 
         
@@ -462,14 +463,14 @@ static void twai_transmit_task(void *arg)
         if (twai_transmit(&transmit_message_warning, 10000) == ESP_OK)
         {
         ESP_LOGI(EXAMPLE_TAG, "Message queued for transmission\n");
-        vTaskDelay(pdMS_TO_TICKS(100));
+        vTaskDelay(pdMS_TO_TICKS(10));
         }
         else
         {
         
         ESP_LOGE(EXAMPLE_TAG, "Failed to queue message for transmission\n");
         }
-        vTaskDelay(pdMS_TO_TICKS(100));
+        vTaskDelay(pdMS_TO_TICKS(10));
     }
     vTaskDelete(NULL);
 }
@@ -958,13 +959,13 @@ void process_uart_data(uint8_t *data, int len) {
                 received_value_reverse = switch_state;
                 break;
             case '3': //for ECO mode (Motor ON)
-                state = switch_state == 1 ? 36 : 0;
+                Veh_status = switch_state == 1 ? 36 : 0;
                 break;
             case '4': //for Normal mode
-                state = switch_state == 1 ? 34 : 0;
+                Veh_status = switch_state == 1 ? 34 : 0;
                 break;
             case '5': //for Fast mode
-                state = switch_state == 1 ? 38 : 0 ;
+                Veh_status = switch_state == 1 ? 38 : 0 ;
                 break;
             case '6':
                 received_value_ignition = switch_state;
