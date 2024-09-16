@@ -116,7 +116,7 @@ static int soc;
 #define ID_MOTOR_TEMP 0x233
 #define ID_MOTOR_CURR_VOLT 0x32
 static int state;
-static int Veh_status;
+static uint8_t Veh_status;
 int adc_value = 0;
 int adc_value1 = 0;
 int adc_value2 = 0;
@@ -434,7 +434,7 @@ static void twai_transmit_task(void *arg)
         {
         ESP_LOGI(EXAMPLE_TAG, "Message queued for transmission\n");
         vTaskDelay(pdMS_TO_TICKS(10));
-        }O
+        }
         else
         {       
         
@@ -953,22 +953,22 @@ void process_uart_data(uint8_t *data, int len) {
 
         switch (switch_number) {
             case '1':
-                received_value_brake = switch_state;
+                Veh_status = switch_state ==1 ? 160 : 0;
                 break;
             case '2':
-                received_value_reverse = switch_state;
+                Veh_status = switch_state==1 ? 176 : 0;
                 break;
             case '3': //for ECO mode (Motor ON)
-                Veh_status = switch_state == 1 ? 36 : 0;
+                Veh_status = switch_state == 1 ? 164 : 0;
                 break;
             case '4': //for Normal mode
-                Veh_status = switch_state == 1 ? 34 : 0;
+                Veh_status = switch_state == 1 ? 162 : 0;
                 break;
             case '5': //for Fast mode
-                Veh_status = switch_state == 1 ? 38 : 0 ;
+                Veh_status = switch_state == 1 ? 166 : 0 ;
                 break;
             case '6':
-                received_value_ignition = switch_state;
+                Veh_status = switch_state == 1 ? 128 : 0;
                 break;
             case '7':
                 received_value_soc = switch_state;

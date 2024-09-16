@@ -356,6 +356,7 @@ warnings_info = [
     ("ECO Mode (or) Motor ON", "3"),
     ("Normal Mode", "4"),
     ("Fast Mode",  "5"),
+    ("Motor OFF", "6"),
     ("BattLowSocWarn", "m"),
     ("CellUnderVolWarn", "n"),
     ("CellOverVolWarn", "o"),
