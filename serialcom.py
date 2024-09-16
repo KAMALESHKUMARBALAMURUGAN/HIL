@@ -202,7 +202,7 @@ else:
 # Create the main window
 root = tk.Tk()
 root.title("HIL- Hardware In Loop")
-root.geometry("900x700")
+root.geometry("1200x1200")
 
 # Create frames
 left_frame = ttk.Frame(root)
@@ -246,6 +246,9 @@ ids = {
     "Pack Current": 'x',
     "TempSensorFault": 'y',
     "sidestand_pulse":'z',
+    "speed lock":'!',
+    "remote cutoff":'@',
+    "Hill Hold":'#',
 }
 
 # Create scales for different parameters
@@ -336,13 +339,16 @@ faults_info = [
     ("Motor Hall Input Abnormal", "j"),
     ("Motor Stalling", "k"),
     ("Motor Phase Loss", "l"),
-    ("Brake forever", "1") 
+    ("Brake forever", "1"),
+    ("speed lock", '!'),
+    ("remote cutoff", '@'),
+    ("Hill Hold", '#')
 ]
 
 fault_vars = {}
 for i, (fault, fault_id) in enumerate(faults_info):
     fault_frame = ttk.LabelFrame(left_frame, text=fault)
-    fault_frame.grid(row=i, column=2, padx=10, pady=10, sticky='ew')  # Position fault controls in the second column
+    fault_frame.grid(row=i, column=2, padx=1, pady=1, sticky='ew')  # Position fault controls in the second column
 
     fault_var = tk.StringVar(value="OFF")
     fault_vars[fault] = fault_var
@@ -373,7 +379,7 @@ warnings_info = [
 warning_vars = {}
 for i, (warning, warning_id) in enumerate(warnings_info):
     warning_frame = ttk.LabelFrame(left_frame, text=warning)
-    warning_frame.grid(row=i, column=3, padx=10, pady=10, sticky='ew')  # Position warnings in the third column
+    warning_frame.grid(row=i, column=3, padx=1, pady=1, sticky='ew')  # Position warnings in the third column
 
     warning_var = tk.StringVar(value="OFF")
     warning_vars[warning] = warning_var

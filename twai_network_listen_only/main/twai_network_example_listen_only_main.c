@@ -116,7 +116,8 @@ static int soc;
 #define ID_MOTOR_TEMP 0x233
 #define ID_MOTOR_CURR_VOLT 0x32
 static int state;
-static uint8_t Veh_status;
+static int Veh_status;
+static int BMS_PARA;
 int adc_value = 0;
 int adc_value1 = 0;
 int adc_value2 = 0;
@@ -374,6 +375,21 @@ static void twai_transmit_task(void *arg)
     
     while (1)
     {
+        //for remote cutoff and speed lock
+        twai_message_t transmit_message_BMS_para = {.identifier = (0x18F60101), .data_length_code = 8, .extd = 1, .data = {BMS_PARA, 0x00 , 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}};
+        if (twai_transmit(&transmit_message_BMS_para, 1000) == ESP_OK)
+        {
+        ESP_LOGI(EXAMPLE_TAG, "Message queued for transmission\n");
+        vTaskDelay(pdMS_TO_TICKS(10));
+        }
+        else
+        {
+        
+        ESP_LOGE(EXAMPLE_TAG, "Failed to queue message for transmission\n");
+        }
+        vTaskDelay(pdMS_TO_TICKS(10));
+
+
         twai_message_t transmit_message_switch = {.identifier = (0x18530902), .data_length_code = 8, .extd = 1, .data = {thr_per, Veh_status , MotorWarn, state, controllerWarn, 0x00, 0x00, 0x00}};
         if (twai_transmit(&transmit_message_switch, 1000) == ESP_OK)
         {
@@ -952,6 +968,15 @@ void process_uart_data(uint8_t *data, int len) {
         }
 
         switch (switch_number) {
+            case '!': //for speed lock
+                BMS_PARA = switch_state == 1 ? 01 : 0;
+                break;
+            case '@':
+                BMS_PARA = switch_state == 1 ? 16 : 0;
+                break;
+            case '#':
+                Veh_status = switch_state == 1 ? 64 : 0;
+                break;
             case '1':
                 Veh_status = switch_state ==1 ? 160 : 0;
                 break;
