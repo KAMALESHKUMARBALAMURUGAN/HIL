@@ -18,11 +18,13 @@
 #include "cJSON.h"
 #include "driver/twai.h"
 #include "esp_timer.h"
+#include "driver/dac.h"
  
-#define BLINK_GPIO 5
+#define led_gpio 5
 #define ECHO_TEST_TXD  1
 #define ECHO_TEST_RXD  3
 #define ECHO_UART_PORT_NUM      UART_NUM_1
+// #define throttle_pin 5
 #define ECHO_UART_BAUD_RATE     115200
 #define ECHO_TASK_STACK_SIZE    2048
   
@@ -120,6 +122,7 @@ int adc_value = 0;
 int adc_value1 = 0;
 int adc_value2 = 0;
 int rpm_rx = 1234; // Example RPM value
+
 static int Motor_status;
 static int DC_current_limit;
 static int Motor_RPM;
@@ -919,7 +922,7 @@ void process_uart_data(uint8_t *data, int len) {
 
     if (switch_number == 'x') {
         // Handle pack current separately
-        // Create a buffer to hold the float string
+        // Create a buffer to hold  the float string
         char buffer[16];
         strncpy(buffer, (char*)data + 1, len - 1);
         buffer[len - 1] = '\0';
@@ -1061,7 +1064,50 @@ void process_uart_data(uint8_t *data, int len) {
 }
 
 
+static void glow_led(int s_led_state)
+{
+    /* Set the GPIO level according to the state (LOW or HIGH)*/
+    printf("led state-------->%d\n",s_led_state);
+    gpio_set_level(led_gpio, s_led_state);
+}
+
+
+
+
+void throttle_percentage() 
+{
+    // DAC Output pin configuration
+    // DAC1 corresponds to GPIO25, DAC2 corresponds to GPIO26
+    dac_output_enable(DAC_CHANNEL_1);  // Enable DAC on GPIO25
+
+    float throttle_percentage; // Throttle percentage input (0-100)
+    
+    // Example: Simulate user input for throttle percentage
+    throttle_percentage = 100; // User inputs a throttle percentage (0-100)
+
+    printf("\nThrottle_percentage: %f",throttle_percentage);
+
+    // Convert throttle percentage to DAC value (0-255)
+    int dac_input_value = (int)((throttle_percentage / 100.0) * 255.0);
+
+    // int dac_input_value = 200; // Example digital input (0-255)
+
+    // Convert the digital value to voltage (0-3.3V)
+    float max_voltage = 4.5;
+    float max_dac_value = 255.0;
+    float output_voltage = (float)dac_input_value / max_dac_value * max_voltage;
+
+    printf("\nOutput voltage: %.2f V\n", output_voltage);
+
+    // Output the DAC input value directly to GPIO25
+    dac_output_voltage(DAC_CHANNEL_1, dac_input_value);
+}
+ 
+
 void app_main(void) {
+    // init_gpio();
+    printf("Kamal");
+
     ESP_ERROR_CHECK(twai_driver_install(&g_config, &t_config, &f_config));
     ESP_LOGI(EXAMPLE_TAG, "Driver installed");
 
@@ -1070,16 +1116,30 @@ void app_main(void) {
 
     vTaskDelay(pdMS_TO_TICKS(500));
 
+    
+    static int s_led_state = 0;  
+    gpio_set_direction(led_gpio, GPIO_MODE_OUTPUT);           //SETTING THE GPIO PIN FOR LED AS OUTPUT.
+
+    glow_led(s_led_state);
+    throttle_percentage();
+
     xTaskCreate(switch_ip, "Swicth_Tsk", 4096, NULL, 8, NULL);
     xTaskCreate(twai_transmit_task, "Transmit_Tsk", 4096, NULL, 8, NULL);
     xTaskCreate(twai_receive_task, "receive_task", 4096, NULL, 8, NULL);
+    // xTaskCreate(glow_led,"Glowing_LED",4095,s_led_state,8,NULL);
+    // xTaskCreate(throttle_percentage,"output_for_throttle",4095,NULL,8,NULL);
+
+    
 
     configure_uart();
 
     while (1) {
         uint8_t data[10]; 
+        
         int len = uart_read_bytes(ECHO_UART_PORT_NUM, data, sizeof(data), 20 / portTICK_PERIOD_MS);
 
+        // ESP_LOGI(TAG, "Turning the LED %s!", s_led_state == true ? "ON" : "OFF");
+       
         if (len > 0) {
             process_uart_data(data, len);
         } else {
