@@ -984,13 +984,13 @@ void process_uart_data(uint8_t *data, int len) {
                 Veh_status = switch_state==1 ? 176 : 0;
                 break;
             case '3': //for ECO mode (Motor ON)
-                Veh_status = switch_state == 1 ? 164 : 0;
+                Veh_status = switch_state == 1 ? 36 : 0;
                 break;
             case '4': //for Normal mode
-                Veh_status = switch_state == 1 ? 162 : 0;
+                Veh_status = switch_state == 1 ? 34 : 0;
                 break;
             case '5': //for Fast mode
-                Veh_status = switch_state == 1 ? 166 : 0 ;
+                Veh_status = switch_state == 1 ? 38 : 0 ;
                 break;
             case '6':
                 Veh_status = switch_state == 1 ? 128 : 0;
